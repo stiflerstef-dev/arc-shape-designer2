@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design System — Premium Artisan Furniture Configurator
+   Warm off-white canvas, deep anthracite ink, copper accents.
+   Inspired by Bulthaup, String, Pastoe.
+*/
+
+@layer base {
+  :root {
+    /* Warm off-white #F5F2EE */
+    --background: 33 22% 95%;
+    /* Deep anthracite #1C1C1A */
+    --foreground: 60 6% 11%;
+
+    /* Card surface — pure white for contrast */
+    --card: 0 0% 100%;
+    --card-foreground: 60 6% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 60 6% 11%;
+
+    /* Primary = anthracite */
+    --primary: 60 6% 11%;
+    --primary-foreground: 33 22% 95%;
+
+    /* Secondary = soft warm beige */
+    --secondary: 33 18% 91%;
+    --secondary-foreground: 60 6% 18%;
+
+    /* Muted = slightly darker warm grey */
+    --muted: 33 16% 90%;
+    --muted-foreground: 30 8% 42%;
+
+    /* Accent = copper #B08D5B */
+    --accent: 33 32% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Subtle beige border #D4C9B8 */
+    --border: 36 24% 78%;
+    --input: 36 24% 78%;
+    --ring: 33 32% 53%;
+
+    --radius: 0.25rem;
+
+    /* Copper token */
+    --copper: 33 32% 53%;
+    --copper-dark: 33 35% 42%;
+
+    /* Preview canvas background #EDEAE5 */
+    --canvas: 36 14% 91%;
+    --canvas-floor: 33 12% 80%;
+
+    /* Wood Colors */
+    --wood: 30 45% 55%;
+    --wood-dark: 30 35% 35%;
+    --wood-light: 35 40% 75%;
+    --wood-grain: 30 30% 40%;
+
+    /* Dimension Lines */
+    --dimension: 60 6% 18%;
+
+    --sidebar-background: 35 20% 96%;
+    --sidebar-foreground: 30 10% 25%;
+    --sidebar-primary: 30 45% 35%;
+    --sidebar-primary-foreground: 40 20% 98%;
+    --sidebar-accent: 35 25% 90%;
+    --sidebar-accent-foreground: 30 10% 25%;
+    --sidebar-border: 35 20% 88%;
+    --sidebar-ring: 25 85% 45%;
+  }
+
+  .dark {
+    --background: 30 15% 8%;
+    --foreground: 35 20% 95%;
+
+    --card: 30 15% 12%;
+    --card-foreground: 35 20% 95%;
+
+    --popover: 30 15% 12%;
+    --popover-foreground: 35 20% 95%;
+
+    --primary: 35 50% 60%;
+    --primary-foreground: 30 15% 8%;
+
+    --secondary: 30 15% 18%;
+    --secondary-foreground: 35 20% 95%;
+
+    --muted: 30 15% 18%;
+    --muted-foreground: 35 15% 60%;
+
+    --accent: 25 85% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 15% 22%;
+    --input: 30 15% 22%;
+    --ring: 25 85% 55%;
+
+    /* Wood Colors Dark */
+    --wood: 30 40% 40%;
+    --wood-dark: 30 30% 25%;
+    --wood-light: 35 35% 55%;
+    --wood-grain: 30 25% 30%;
+
+    /* Dimension Lines */
+    --dimension: 220 60% 55%;
+
+    --sidebar-background: 30 15% 10%;
+    --sidebar-foreground: 35 20% 90%;
+    --sidebar-primary: 35 50% 60%;
+    --sidebar-primary-foreground: 30 15% 8%;
+    --sidebar-accent: 30 15% 16%;
+    --sidebar-accent-foreground: 35 20% 90%;
+    --sidebar-border: 30 15% 22%;
+    --sidebar-ring: 25 85% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 300;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .font-serif-display {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  /* Grid background for technical drawings */
+  .bg-grid {
+    background-image: 
+      linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Premium preview canvas (no floor line — clean) */
+  .bg-canvas {
+    background:
+      linear-gradient(to bottom, hsl(var(--canvas)) 0%, hsl(var(--canvas)) 78%, hsl(var(--canvas-floor)) 100%);
+  }
+
+  /* Copper hover utilities */
+  .text-copper { color: hsl(var(--copper)); }
+  .border-copper { border-color: hsl(var(--copper)); }
+  .ring-copper { --tw-ring-color: hsl(var(--copper)); }
+
+  /* Minimalist input style */
+  .input-artisan {
+    background: transparent;
+    border: 1px solid hsl(var(--border));
+    border-radius: 2px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .input-artisan:focus,
+  .input-artisan:focus-visible {
+    border-color: hsl(var(--copper));
+    outline: none;
+    box-shadow: 0 0 0 1px hsl(var(--copper) / 0.25);
+  }
+
+  /* SVG styling utilities */
+  .fill-wood {
+    fill: hsl(var(--wood));
+  }
+
+  .stroke-wood-dark {
+    stroke: hsl(var(--wood-dark));
+  }
+
+  .stroke-dimension {
+    stroke: hsl(var(--dimension));
+  }
+
+  .fill-dimension {
+    fill: hsl(var(--dimension));
+  }
+
+  .stroke-accent {
+    stroke: hsl(var(--accent));
+  }
+
+  .fill-accent {
+    fill: hsl(var(--accent));
+  }
+
+  /* Premium slider styling */
+  .premium-slider [data-orientation="horizontal"] {
+    height: 3px;
+  }
+
+  .premium-slider [role="slider"] {
+    width: 14px;
+    height: 14px;
+    border-width: 1.5px;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+  }
+
+  .premium-slider [role="slider"]:hover {
+    box-shadow: 0 0 12px 3px rgba(255, 255, 255, 0.15);
+    transform: scale(1.15);
+  }
+
+  .premium-slider [role="slider"]:active {
+    transform: scale(1.05);
+  }
+}
