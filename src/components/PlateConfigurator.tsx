@@ -614,6 +614,29 @@ const PlateConfigurator = () => {
                     <stop offset="0%" stopColor="#000" stopOpacity="0.18" />
                     <stop offset="100%" stopColor="#000" stopOpacity="0" />
                   </linearGradient>
+                  {/* === Realistic paint texture === */}
+                  {/* Fine orange-peel / roller stipple — typical of matte painted MDF */}
+                  <filter id="paintStippleNoise" x="0%" y="0%" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="2" seed="11" stitchTiles="stitch" />
+                    <feColorMatrix values="0 0 0 0 1
+                                            0 0 0 0 1
+                                            0 0 0 0 1
+                                            0 0 0 0.10 0" />
+                  </filter>
+                  <pattern id="paintStipple" width="260" height="260" patternUnits="userSpaceOnUse">
+                    <rect width="260" height="260" fill="transparent" filter="url(#paintStippleNoise)" />
+                  </pattern>
+                  {/* Soft horizontal brush/roller streaks for painted look */}
+                  <filter id="brushStreakNoise" x="0%" y="0%" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.012 1.6" numOctaves="2" seed="5" stitchTiles="stitch" />
+                    <feColorMatrix values="0 0 0 0 1
+                                            0 0 0 0 1
+                                            0 0 0 0 1
+                                            0 0 0 0.05 0" />
+                  </filter>
+                  <pattern id="brushStreak" width="600" height="300" patternUnits="userSpaceOnUse">
+                    <rect width="600" height="300" fill="transparent" filter="url(#brushStreakNoise)" />
+                  </pattern>
                 </defs>
 
                 <g transform={`translate(${padding}, ${padding + dyS})`}>
@@ -732,6 +755,9 @@ const PlateConfigurator = () => {
 
                     {/* === LAYER 4: Front panel === */}
                     <path d={frontFramePath} fill={cabFrontCol} fillOpacity={1} fillRule="evenodd" clipRule="evenodd" />
+                    {/* Realistic painted MDF texture — subtle stipple + brush streaks */}
+                    <path d={frontFramePath} fill="url(#paintStipple)" fillRule="evenodd" clipRule="evenodd" opacity={0.55} />
+                    <path d={frontFramePath} fill="url(#brushStreak)" fillRule="evenodd" clipRule="evenodd" opacity={0.45} />
                     {/* Painted sheen — directional light from upper-left */}
                     <path d={frontFramePath} fill="url(#frontSheen)" fillRule="evenodd" clipRule="evenodd" />
                     <rect x={0} y={0} width={cabinet.width} height={cabinet.height} fill="none" stroke={COL.frontStroke} strokeWidth={1.5 / scale} />
@@ -750,6 +776,11 @@ const PlateConfigurator = () => {
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
                   fill="url(#mdfEdge)" stroke={COL.frontStroke} strokeWidth={1.5}
                 />
+                {/* Painted texture on side panel */}
+                <polygon
+                  points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
+                  fill="url(#paintStipple)" opacity={0.4} stroke="none"
+                />
                 {/* Right side darker (away from light source) */}
                 <polygon
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
@@ -760,6 +791,11 @@ const PlateConfigurator = () => {
                 <polygon
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
                   fill="url(#mdfEdgeTop)" stroke={COL.frontStroke} strokeWidth={1.5}
+                />
+                {/* Painted texture on top panel */}
+                <polygon
+                  points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
+                  fill="url(#paintStipple)" opacity={0.4} stroke="none"
                 />
                 {/* Top face highlight (light from above) */}
                 <polygon
