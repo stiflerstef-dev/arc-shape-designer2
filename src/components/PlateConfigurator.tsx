@@ -242,9 +242,16 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
           id={id}
           type="text"
           inputMode="numeric"
+          pattern="[0-9]*"
           value={local}
           onChange={(e) => setLocal(e.target.value)}
           onBlur={commit}
+          onFocus={(e) => {
+            const el = e.currentTarget;
+            window.setTimeout(() => {
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 300);
+          }}
           disabled={disabled}
           onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
           className="input-artisan h-10 pr-10 text-sm font-light text-foreground tabular-nums"
