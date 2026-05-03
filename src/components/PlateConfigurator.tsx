@@ -710,16 +710,25 @@ const PlateConfigurator = () => {
                             {/* Top surface (depth face going back) */}
                             <polygon
                               points={`${sx},${sy} ${sx + dx},${sy + dy} ${sx + sw + dx},${sy + dy} ${sx + sw},${sy}`}
-                              fill="url(#shelfTop)" stroke={COL.shelfFrontStroke} strokeWidth={0.5 / scale} strokeOpacity={0.4}
+                              fill={cabFrontCol} stroke={COL.shelfFrontStroke} strokeWidth={0.5 / scale} strokeOpacity={0.4}
+                            />
+                            {/* subtle highlight on top face */}
+                            <polygon
+                              points={`${sx},${sy} ${sx + dx},${sy + dy} ${sx + sw + dx},${sy + dy} ${sx + sw},${sy}`}
+                              fill="#FFFFFF" opacity={0.10} stroke="none"
                             />
                             {/* Right side face (3D depth) */}
                             <polygon
                               points={`${sx + sw},${sy} ${sx + sw + dx},${sy + dy} ${sx + sw + dx},${sy + th + dy} ${sx + sw},${sy + th}`}
-                              fill="url(#shelfSide)" stroke={COL.shelfFrontStroke} strokeWidth={0.5 / scale} strokeOpacity={0.5}
+                              fill={cabFrontCol} stroke={COL.shelfFrontStroke} strokeWidth={0.5 / scale} strokeOpacity={0.5}
+                            />
+                            <polygon
+                              points={`${sx + sw},${sy} ${sx + sw + dx},${sy + dy} ${sx + sw + dx},${sy + th + dy} ${sx + sw},${sy + th}`}
+                              fill="#000000" opacity={0.12} stroke="none"
                             />
                             {/* Front face — solid panel with vertical light gradient */}
                             <rect x={sx} y={sy} width={sw} height={th}
-                              fill="url(#shelfFront)" stroke={COL.shelfFrontStroke} strokeWidth={1.2 / scale}
+                              fill={cabFrontCol} stroke={COL.shelfFrontStroke} strokeWidth={1.2 / scale}
                             />
                             {/* Bottom edge highlight line for crisp 3D edge */}
                             <line x1={sx} y1={sy + th} x2={sx + sw} y2={sy + th}
@@ -774,7 +783,7 @@ const PlateConfigurator = () => {
                 {/* === Pseudo-3D: Side panel === */}
                 <polygon
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill="url(#mdfEdge)" stroke={COL.frontStroke} strokeWidth={1.5}
+                  fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5}
                 />
                 {/* Painted texture on side panel */}
                 <polygon
@@ -790,7 +799,7 @@ const PlateConfigurator = () => {
                 {/* === Pseudo-3D: Top panel === */}
                 <polygon
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
-                  fill="url(#mdfEdgeTop)" stroke={COL.frontStroke} strokeWidth={1.5}
+                  fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5}
                 />
                 {/* Painted texture on top panel */}
                 <polygon
