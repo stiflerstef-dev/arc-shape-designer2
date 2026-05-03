@@ -356,7 +356,11 @@ const PlateConfigurator = () => {
   const [resName, setResName] = useState("");
   const [resEmail, setResEmail] = useState("");
   const [resPhone, setResPhone] = useState("");
-  const [resErrors, setResErrors] = useState<{ name?: string; email?: string }>({});
+  const [resStreet, setResStreet] = useState("");
+  const [resPostcode, setResPostcode] = useState("");
+  const [resCity, setResCity] = useState("");
+  const [resTerms, setResTerms] = useState(false);
+  const [resErrors, setResErrors] = useState<{ name?: string; email?: string; street?: string; postcode?: string; city?: string; terms?: string }>({});
 
   const handleReserveOpen = () => {
     setReserveSubmitted(false);
@@ -366,14 +370,24 @@ const PlateConfigurator = () => {
 
   const handleReserveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errors: { name?: string; email?: string } = {};
+    const errors: { name?: string; email?: string; street?: string; postcode?: string; city?: string; terms?: string } = {};
     const name = resName.trim();
     const email = resEmail.trim();
+    const street = resStreet.trim();
+    const postcode = resPostcode.trim();
+    const city = resCity.trim();
     if (!name) errors.name = "Vul je naam in";
     else if (name.length > 100) errors.name = "Naam mag max. 100 tekens zijn";
     if (!email) errors.email = "Vul je e-mailadres in";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Ongeldig e-mailadres";
     else if (email.length > 255) errors.email = "E-mailadres te lang";
+    if (!street) errors.street = "Vul je straat en huisnummer in";
+    else if (street.length > 150) errors.street = "Te lang";
+    if (!postcode) errors.postcode = "Vul je postcode in";
+    else if (postcode.length > 20) errors.postcode = "Te lang";
+    if (!city) errors.city = "Vul je plaats in";
+    else if (city.length > 100) errors.city = "Te lang";
+    if (!resTerms) errors.terms = "Accepteer de algemene voorwaarden";
     if (resPhone.trim().length > 30) {
       // optional, just length check
     }
