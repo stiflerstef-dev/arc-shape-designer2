@@ -539,11 +539,28 @@ const PlateConfigurator = () => {
                   <marker id="arrowUpFixed" markerWidth="8" markerHeight="8" refX="4" refY="0" orient="0"><path d="M0 8 L4 0 L8 8 Z" fill={COL.dim} /></marker>
                   <marker id="arrowDownFixed" markerWidth="8" markerHeight="8" refX="4" refY="8" orient="180"><path d="M0 8 L4 0 L8 8 Z" fill={COL.dim} /></marker>
                   <clipPath id="archClip"><path d={archPathClosed} /></clipPath>
-                  {/* Subtle MDF grain texture — fine horizontal fibre */}
-                  <pattern id="mdfGrain" width="120" height="3" patternUnits="userSpaceOnUse">
-                    <rect width="120" height="3" fill="transparent" />
-                    <line x1="0" y1="1" x2="120" y2="1" stroke="#1C1C1A" strokeOpacity="0.025" strokeWidth="0.4" />
-                    <line x1="0" y1="2.5" x2="120" y2="2.5" stroke="#1C1C1A" strokeOpacity="0.015" strokeWidth="0.3" />
+                  {/* MDF fibre texture — fine, irregular grain like real medium-density fibreboard */}
+                  <filter id="mdfFibreNoise" x="0%" y="0%" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="2.4 0.9" numOctaves="2" seed="7" stitchTiles="stitch" />
+                    <feColorMatrix values="0 0 0 0 0.42
+                                            0 0 0 0 0.36
+                                            0 0 0 0 0.28
+                                            0 0 0 0.55 0" />
+                  </filter>
+                  <pattern id="mdfFibre" width="220" height="220" patternUnits="userSpaceOnUse">
+                    <rect width="220" height="220" fill="#C9BEAE" />
+                    <rect width="220" height="220" filter="url(#mdfFibreNoise)" opacity="0.9" />
+                  </pattern>
+                  {/* Tiny speckle for surface micro-grain */}
+                  <filter id="mdfSpeckle" x="0%" y="0%" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="3.2" numOctaves="1" seed="3" stitchTiles="stitch" />
+                    <feColorMatrix values="0 0 0 0 0.1
+                                            0 0 0 0 0.09
+                                            0 0 0 0 0.08
+                                            0 0 0 0.18 0" />
+                  </filter>
+                  <pattern id="mdfSpecklePat" width="160" height="160" patternUnits="userSpaceOnUse">
+                    <rect width="160" height="160" fill="transparent" filter="url(#mdfSpeckle)" />
                   </pattern>
                   {/* Soft front gradient for matte sheen */}
                   <linearGradient id="frontSheen" x1="0" y1="0" x2="0" y2="1">
@@ -556,6 +573,21 @@ const PlateConfigurator = () => {
                     <stop offset="0%" stopColor="#000" stopOpacity="0.12" />
                     <stop offset="40%" stopColor="#000" stopOpacity="0.03" />
                     <stop offset="100%" stopColor="#000" stopOpacity="0" />
+                  </linearGradient>
+                  {/* Ambient occlusion vignette inside niche — darkens corners/edges */}
+                  <radialGradient id="nicheAO" cx="50%" cy="50%" r="65%">
+                    <stop offset="55%" stopColor="#000" stopOpacity="0" />
+                    <stop offset="100%" stopColor="#000" stopOpacity="0.28" />
+                  </radialGradient>
+                  {/* Raw MDF edge — warm grey-beige cross-section */}
+                  <linearGradient id="mdfEdge" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#A89B86" />
+                    <stop offset="50%" stopColor="#B5A993" />
+                    <stop offset="100%" stopColor="#8E8270" />
+                  </linearGradient>
+                  <linearGradient id="mdfEdgeTop" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#BCAF99" />
+                    <stop offset="100%" stopColor="#8F8370" />
                   </linearGradient>
                   {/* Shelf 3D gradients */}
                   <linearGradient id="shelfFront" x1="0" y1="0" x2="0" y2="1">
