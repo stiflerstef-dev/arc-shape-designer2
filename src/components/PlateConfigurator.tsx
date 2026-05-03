@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 
 import { RotateCcw, Plus, Minus, Check } from "lucide-react";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
+import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
+import roedeWitThumb from "@/assets/roede-wit-thumb.webp";
 
 type ArchType = "classic" | "gothic" | "shoulder";
 
