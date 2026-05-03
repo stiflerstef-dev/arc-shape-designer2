@@ -33,10 +33,9 @@ const LIGHT_DIAMETER = 3.7;
 /* ─── Niche wall colors (vtwonen earthy tones) ─── */
 const NICHE_COLORS = [
   { name: "Zandbeige", hex: "#D2B48C" },
-  { name: "Terracotta Silt", hex: "#B38B71" },
-  { name: "Saliegroen", hex: "#8A9A5B" },
-  { name: "Warm Taupe", hex: "#8B8589" },
-  { name: "Haver", hex: "#EAE0C8" },
+  { name: "Mellow Flow", hex: "#C9B89A" },
+  { name: "True Joy", hex: "#E4A87B" },
+  { name: "Pure Espresso", hex: "#4A352A" },
 ];
 
 /* ─── Colors: matte white MDF on warm canvas ─── */
