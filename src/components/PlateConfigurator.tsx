@@ -774,7 +774,7 @@ const PlateConfigurator = () => {
                 {/* === Pseudo-3D: Side panel === */}
                 <polygon
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill="url(#mdfEdge)" stroke={COL.frontStroke} strokeWidth={1.5}
+                  fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5}
                 />
                 {/* Painted texture on side panel */}
                 <polygon
@@ -790,7 +790,7 @@ const PlateConfigurator = () => {
                 {/* === Pseudo-3D: Top panel === */}
                 <polygon
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
-                  fill="url(#mdfEdgeTop)" stroke={COL.frontStroke} strokeWidth={1.5}
+                  fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5}
                 />
                 {/* Painted texture on top panel */}
                 <polygon
