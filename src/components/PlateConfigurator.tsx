@@ -539,11 +539,28 @@ const PlateConfigurator = () => {
                   <marker id="arrowUpFixed" markerWidth="8" markerHeight="8" refX="4" refY="0" orient="0"><path d="M0 8 L4 0 L8 8 Z" fill={COL.dim} /></marker>
                   <marker id="arrowDownFixed" markerWidth="8" markerHeight="8" refX="4" refY="8" orient="180"><path d="M0 8 L4 0 L8 8 Z" fill={COL.dim} /></marker>
                   <clipPath id="archClip"><path d={archPathClosed} /></clipPath>
-                  {/* Subtle MDF grain texture — fine horizontal fibre */}
-                  <pattern id="mdfGrain" width="120" height="3" patternUnits="userSpaceOnUse">
-                    <rect width="120" height="3" fill="transparent" />
-                    <line x1="0" y1="1" x2="120" y2="1" stroke="#1C1C1A" strokeOpacity="0.025" strokeWidth="0.4" />
-                    <line x1="0" y1="2.5" x2="120" y2="2.5" stroke="#1C1C1A" strokeOpacity="0.015" strokeWidth="0.3" />
+                  {/* MDF fibre texture — fine, irregular grain like real medium-density fibreboard */}
+                  <filter id="mdfFibreNoise" x="0%" y="0%" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="2.4 0.9" numOctaves="2" seed="7" stitchTiles="stitch" />
+                    <feColorMatrix values="0 0 0 0 0.42
+                                            0 0 0 0 0.36
+                                            0 0 0 0 0.28
+                                            0 0 0 0.55 0" />
+                  </filter>
+                  <pattern id="mdfFibre" width="220" height="220" patternUnits="userSpaceOnUse">
+                    <rect width="220" height="220" fill="#C9BEAE" />
+                    <rect width="220" height="220" filter="url(#mdfFibreNoise)" opacity="0.9" />
+                  </pattern>
+                  {/* Tiny speckle for surface micro-grain */}
+                  <filter id="mdfSpeckle" x="0%" y="0%" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="3.2" numOctaves="1" seed="3" stitchTiles="stitch" />
+                    <feColorMatrix values="0 0 0 0 0.1
+                                            0 0 0 0 0.09
+                                            0 0 0 0 0.08
+                                            0 0 0 0.18 0" />
+                  </filter>
+                  <pattern id="mdfSpecklePat" width="160" height="160" patternUnits="userSpaceOnUse">
+                    <rect width="160" height="160" fill="transparent" filter="url(#mdfSpeckle)" />
                   </pattern>
                   {/* Soft front gradient for matte sheen */}
                   <linearGradient id="frontSheen" x1="0" y1="0" x2="0" y2="1">
@@ -556,6 +573,21 @@ const PlateConfigurator = () => {
                     <stop offset="0%" stopColor="#000" stopOpacity="0.12" />
                     <stop offset="40%" stopColor="#000" stopOpacity="0.03" />
                     <stop offset="100%" stopColor="#000" stopOpacity="0" />
+                  </linearGradient>
+                  {/* Ambient occlusion vignette inside niche — darkens corners/edges */}
+                  <radialGradient id="nicheAO" cx="50%" cy="50%" r="65%">
+                    <stop offset="55%" stopColor="#000" stopOpacity="0" />
+                    <stop offset="100%" stopColor="#000" stopOpacity="0.28" />
+                  </radialGradient>
+                  {/* Raw MDF edge — warm grey-beige cross-section */}
+                  <linearGradient id="mdfEdge" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#A89B86" />
+                    <stop offset="50%" stopColor="#B5A993" />
+                    <stop offset="100%" stopColor="#8E8270" />
+                  </linearGradient>
+                  <linearGradient id="mdfEdgeTop" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#BCAF99" />
+                    <stop offset="100%" stopColor="#8F8370" />
                   </linearGradient>
                   {/* Shelf 3D gradients */}
                   <linearGradient id="shelfFront" x1="0" y1="0" x2="0" y2="1">
@@ -582,6 +614,11 @@ const PlateConfigurator = () => {
 
                     {/* === LAYER 1: Back wall of niche === */}
                     <path d={backArchPathClosed} fill={nicheBackColor} fillOpacity={1} />
+                    {/* Painted MDF feel on back wall: subtle fibre + speckle showing through paint */}
+                    <g clipPath="url(#archClip)">
+                      <path d={backArchPathClosed} fill="url(#mdfFibre)" fillOpacity={0.08} />
+                      <path d={backArchPathClosed} fill="url(#mdfSpecklePat)" fillOpacity={0.5} />
+                    </g>
                     <path d={backArchPathOpen} fill="none" stroke={COL.frontStroke} strokeWidth={0.5 / scale} strokeLinejoin="miter" strokeMiterlimit={10} />
 
                     {/* === LAYER 2: Left inner wall === */}
@@ -623,6 +660,8 @@ const PlateConfigurator = () => {
                     {/* === LAYER 2d: Matte shadow overlay inside niche for depth === */}
                     <g clipPath="url(#archClip)">
                       <path d={archPathClosed} fill="url(#nicheShadow)" />
+                      {/* Ambient occlusion — darker corners deep inside niche */}
+                      <path d={archPathClosed} fill="url(#nicheAO)" />
                     </g>
 
                     {/* === LAYER 3: Shelves (3D solid) === */}
@@ -637,6 +676,8 @@ const PlateConfigurator = () => {
                           <g key={i}>
                             {/* Cast shadow under shelf onto back wall */}
                             <rect x={sx} y={sy + th} width={sw} height={sh} fill="url(#shelfUnderShadow)" />
+                            {/* Extra soft ambient shadow further down the wall */}
+                            <rect x={sx} y={sy + th} width={sw} height={sh * 2.4} fill="url(#shelfUnderShadow)" opacity={0.45} />
                             {/* Top surface (depth face going back) */}
                             <polygon
                               points={`${sx},${sy} ${sx + dx},${sy + dy} ${sx + sw + dx},${sy + dy} ${sx + sw},${sy}`}
@@ -685,10 +726,16 @@ const PlateConfigurator = () => {
 
                     {/* === LAYER 4: Front panel === */}
                     <path d={frontFramePath} fill={cabFrontCol} fillOpacity={1} fillRule="evenodd" clipRule="evenodd" />
-                    <path d={frontFramePath} fill="url(#mdfGrain)" fillRule="evenodd" clipRule="evenodd" />
+                    {/* MDF fibre showing through painted layer */}
+                    <path d={frontFramePath} fill="url(#mdfFibre)" fillOpacity={0.10} fillRule="evenodd" clipRule="evenodd" />
+                    <path d={frontFramePath} fill="url(#mdfSpecklePat)" fillOpacity={0.55} fillRule="evenodd" clipRule="evenodd" />
+                    {/* Semi-transparent paint layer in cabinet color over the fibre */}
+                    <path d={frontFramePath} fill={cabFrontCol} fillOpacity={0.55} fillRule="evenodd" clipRule="evenodd" />
                     <path d={frontFramePath} fill="url(#frontSheen)" fillRule="evenodd" clipRule="evenodd" />
                     <rect x={0} y={0} width={cabinet.width} height={cabinet.height} fill="none" stroke={COL.frontStroke} strokeWidth={1.5 / scale} />
                     <path d={archPathOpen} fill="none" stroke={COL.frontStroke} strokeWidth={1.5 / scale} strokeLinejoin="miter" strokeMiterlimit={10} />
+                    {/* Raw MDF edge on the inner arch cut — visible cross-section */}
+                    <path d={archPathOpen} fill="none" stroke="#A89B86" strokeWidth={2.2 / scale} strokeOpacity={0.55} strokeLinejoin="miter" strokeMiterlimit={10} />
 
                     {/* Arch drag handle */}
                     <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab" }} onMouseDown={handleMouseDown} />
@@ -699,21 +746,21 @@ const PlateConfigurator = () => {
                 {/* === Pseudo-3D: Side panel === */}
                 <polygon
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill={cabSideCol} stroke={COL.frontStroke} strokeWidth={1.5}
+                  fill="url(#mdfEdge)" stroke={COL.frontStroke} strokeWidth={1.5}
                 />
                 <polygon
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill="url(#mdfGrain)" stroke="none"
+                  fill="url(#mdfSpecklePat)" opacity={0.7} stroke="none"
                 />
 
                 {/* === Pseudo-3D: Top panel === */}
                 <polygon
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
-                  fill={cabTopCol} stroke={COL.frontStroke} strokeWidth={1.5}
+                  fill="url(#mdfEdgeTop)" stroke={COL.frontStroke} strokeWidth={1.5}
                 />
                 <polygon
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
-                  fill="url(#mdfGrain)" stroke="none"
+                  fill="url(#mdfSpecklePat)" opacity={0.7} stroke="none"
                 />
 
                 {/* === Dimension lines === */}
