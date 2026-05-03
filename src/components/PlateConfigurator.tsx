@@ -733,16 +733,12 @@ const PlateConfigurator = () => {
 
                     {/* === LAYER 4: Front panel === */}
                     <path d={frontFramePath} fill={cabFrontCol} fillOpacity={1} fillRule="evenodd" clipRule="evenodd" />
-                    {/* MDF fibre showing through painted layer */}
-                    <path d={frontFramePath} fill="url(#mdfFibre)" fillOpacity={0.10} fillRule="evenodd" clipRule="evenodd" />
-                    <path d={frontFramePath} fill="url(#mdfSpecklePat)" fillOpacity={0.55} fillRule="evenodd" clipRule="evenodd" />
-                    {/* Semi-transparent paint layer in cabinet color over the fibre */}
-                    <path d={frontFramePath} fill={cabFrontCol} fillOpacity={0.55} fillRule="evenodd" clipRule="evenodd" />
+                    {/* Painted sheen — directional light from upper-left */}
                     <path d={frontFramePath} fill="url(#frontSheen)" fillRule="evenodd" clipRule="evenodd" />
                     <rect x={0} y={0} width={cabinet.width} height={cabinet.height} fill="none" stroke={COL.frontStroke} strokeWidth={1.5 / scale} />
                     <path d={archPathOpen} fill="none" stroke={COL.frontStroke} strokeWidth={1.5 / scale} strokeLinejoin="miter" strokeMiterlimit={10} />
                     {/* Raw MDF edge on the inner arch cut — visible cross-section */}
-                    <path d={archPathOpen} fill="none" stroke="#A89B86" strokeWidth={2.2 / scale} strokeOpacity={0.55} strokeLinejoin="miter" strokeMiterlimit={10} />
+                    <path d={archPathOpen} fill="none" stroke="#D8D3C7" strokeWidth={2.2 / scale} strokeOpacity={0.5} strokeLinejoin="miter" strokeMiterlimit={10} />
 
                     {/* Arch drag handle */}
                     <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab" }} onMouseDown={handleMouseDown} />
@@ -755,9 +751,10 @@ const PlateConfigurator = () => {
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
                   fill="url(#mdfEdge)" stroke={COL.frontStroke} strokeWidth={1.5}
                 />
+                {/* Right side darker (away from light source) */}
                 <polygon
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill="url(#mdfSpecklePat)" opacity={0.7} stroke="none"
+                  fill="#000000" opacity={0.12} stroke="none"
                 />
 
                 {/* === Pseudo-3D: Top panel === */}
@@ -765,9 +762,10 @@ const PlateConfigurator = () => {
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
                   fill="url(#mdfEdgeTop)" stroke={COL.frontStroke} strokeWidth={1.5}
                 />
+                {/* Top face highlight (light from above) */}
                 <polygon
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
-                  fill="url(#mdfSpecklePat)" opacity={0.7} stroke="none"
+                  fill="#FFFFFF" opacity={0.18} stroke="none"
                 />
 
                 {/* === Dimension lines === */}
