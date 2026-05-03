@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 import { RotateCcw, Plus, Minus, Check } from "lucide-react";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
@@ -890,11 +890,32 @@ const PlateConfigurator = () => {
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       {hasLight && archType !== "gothic" && (
-                        <img
-                          src={verlichtingThumb}
-                          alt="Voorbeeld verlichting in nis"
-                          className="w-10 h-10 rounded-sm object-cover border border-border shrink-0"
-                        />
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
+                              type="button"
+                              className="shrink-0 rounded-sm overflow-hidden border border-border hover:border-copper transition-colors focus:outline-none focus:ring-2 focus:ring-copper/50"
+                              aria-label="Vergroot voorbeeld verlichting"
+                            >
+                              <img
+                                src={verlichtingThumb}
+                                alt="Voorbeeld verlichting in nis"
+                                className="w-10 h-10 object-cover block"
+                              />
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl p-0 overflow-hidden bg-card">
+                            <DialogHeader className="sr-only">
+                              <DialogTitle>Voorbeeld verlichting in nis</DialogTitle>
+                              <DialogDescription>Vergrote weergave van het verlichtingsvoorbeeld</DialogDescription>
+                            </DialogHeader>
+                            <img
+                              src={verlichtingThumb}
+                              alt="Voorbeeld verlichting in nis"
+                              className="w-full h-auto block"
+                            />
+                          </DialogContent>
+                        </Dialog>
                       )}
                       <Label htmlFor="light" className={`text-xs font-light tracking-wide ${archType === "gothic" ? "text-muted-foreground/60" : "text-foreground"}`}>
                         Verlichting <span className="text-muted-foreground">(Ø37mm · €{LIGHT_PRICE})</span>
