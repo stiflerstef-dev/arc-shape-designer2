@@ -1194,7 +1194,7 @@ const PlateConfigurator = () => {
                 <DialogDescription className="text-[11px] text-muted-foreground tracking-wide leading-relaxed">
                   {isPriceOnRequest
                     ? "We nemen contact op voor een offerte op maat."
-                    : `Indicatieve prijs: €${displayPrice.toLocaleString("nl-NL")} excl. BTW`}
+                    : `Jouw prijs: €${displayPrice.toLocaleString("nl-NL")} incl. BTW`}
                 </DialogDescription>
               </DialogHeader>
 
@@ -1248,10 +1248,84 @@ const PlateConfigurator = () => {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="resStreet" className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                    Straat en huisnummer
+                  </Label>
+                  <Input
+                    id="resStreet"
+                    type="text"
+                    autoComplete="street-address"
+                    value={resStreet}
+                    onChange={(e) => setResStreet(e.target.value)}
+                    maxLength={150}
+                    className="input-artisan h-10 text-sm font-light text-foreground"
+                    aria-invalid={!!resErrors.street}
+                  />
+                  {resErrors.street && <p className="text-[10px] text-destructive">{resErrors.street}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resPostcode" className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                    Postcode
+                  </Label>
+                  <Input
+                    id="resPostcode"
+                    type="text"
+                    autoComplete="postal-code"
+                    value={resPostcode}
+                    onChange={(e) => setResPostcode(e.target.value)}
+                    maxLength={20}
+                    className="input-artisan h-10 text-sm font-light text-foreground"
+                    aria-invalid={!!resErrors.postcode}
+                  />
+                  {resErrors.postcode && <p className="text-[10px] text-destructive">{resErrors.postcode}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resCity" className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                    Plaats
+                  </Label>
+                  <Input
+                    id="resCity"
+                    type="text"
+                    autoComplete="address-level2"
+                    value={resCity}
+                    onChange={(e) => setResCity(e.target.value)}
+                    maxLength={100}
+                    className="input-artisan h-10 text-sm font-light text-foreground"
+                    aria-invalid={!!resErrors.city}
+                  />
+                  {resErrors.city && <p className="text-[10px] text-destructive">{resErrors.city}</p>}
+                </div>
+
                 <div className="pt-2 space-y-3">
+                  <div className="space-y-1.5">
+                    <label className="flex items-start gap-2.5 cursor-pointer">
+                      <Checkbox
+                        id="resTerms"
+                        checked={resTerms}
+                        onCheckedChange={(c) => setResTerms(c === true)}
+                        aria-invalid={!!resErrors.terms}
+                        className="mt-0.5"
+                      />
+                      <span className="text-[11px] text-muted-foreground leading-relaxed">
+                        Ik ga akkoord met de{" "}
+                        <a
+                          href="/algemene-voorwaarden"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline text-foreground hover:text-copper transition-colors"
+                        >
+                          algemene voorwaarden
+                        </a>
+                      </span>
+                    </label>
+                    {resErrors.terms && <p className="text-[10px] text-destructive">{resErrors.terms}</p>}
+                  </div>
                   <Button
                     type="submit"
-                    disabled={reserveSubmitting}
+                    disabled={reserveSubmitting || !resTerms}
                     className="w-full bg-foreground text-background hover:bg-foreground/90 text-[11px] py-5 tracking-[0.25em] uppercase font-medium rounded-sm transition-all duration-200 hover:shadow-md"
                   >
                     {reserveSubmitting ? "Versturen…" : "Verstuur reservering"}
