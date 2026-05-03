@@ -41,18 +41,18 @@ const NICHE_COLORS = [
 
 /* ─── Colors: matte white MDF on warm canvas ─── */
 const COL = {
-  front: "#FAF8F4",
-  frontStroke: "#9A9489",
-  side: "#EDE8DF",
-  top: "#F5F1EA",
-  nicheBack: "#C9C2B5",
-  nicheWall: "#B8B1A3",
-  nicheCeiling: "#ADA697",
-  nicheFloor: "#C9C2B5",
-  shelf: "#FFFFFF",
-  shelfSide: "#F0EBE2",
-  shelfTop: "#FFFFFF",
-  shelfFrontStroke: "#7A7368",
+  front: "#F0EDE6",
+  frontStroke: "#C9C3B6",
+  side: "#E8E4DC",
+  top: "#EDEAE3",
+  nicheBack: "#E8E4DC",
+  nicheWall: "#E2DED5",
+  nicheCeiling: "#DED9D0",
+  nicheFloor: "#E4E0D7",
+  shelf: "#ECEAE3",
+  shelfSide: "#DED9D0",
+  shelfTop: "#ECEAE3",
+  shelfFrontStroke: "#B8B2A4",
   shelfStroke: "#D4C9B8",
   rod: "#B08D5B",
   dim: "#1C1C1A",
@@ -542,69 +542,69 @@ const PlateConfigurator = () => {
                   {/* MDF fibre texture — fine, irregular grain like real medium-density fibreboard */}
                   <filter id="mdfFibreNoise" x="0%" y="0%" width="100%" height="100%">
                     <feTurbulence type="fractalNoise" baseFrequency="2.4 0.9" numOctaves="2" seed="7" stitchTiles="stitch" />
-                    <feColorMatrix values="0 0 0 0 0.42
-                                            0 0 0 0 0.36
-                                            0 0 0 0 0.28
-                                            0 0 0 0.55 0" />
+                    <feColorMatrix values="0 0 0 0 0.78
+                                            0 0 0 0 0.74
+                                            0 0 0 0 0.66
+                                            0 0 0 0.18 0" />
                   </filter>
                   <pattern id="mdfFibre" width="220" height="220" patternUnits="userSpaceOnUse">
-                    <rect width="220" height="220" fill="#C9BEAE" />
-                    <rect width="220" height="220" filter="url(#mdfFibreNoise)" opacity="0.9" />
+                    <rect width="220" height="220" fill="#F0EDE6" />
+                    <rect width="220" height="220" filter="url(#mdfFibreNoise)" opacity="0.6" />
                   </pattern>
                   {/* Tiny speckle for surface micro-grain */}
                   <filter id="mdfSpeckle" x="0%" y="0%" width="100%" height="100%">
                     <feTurbulence type="fractalNoise" baseFrequency="3.2" numOctaves="1" seed="3" stitchTiles="stitch" />
-                    <feColorMatrix values="0 0 0 0 0.1
-                                            0 0 0 0 0.09
-                                            0 0 0 0 0.08
-                                            0 0 0 0.18 0" />
+                    <feColorMatrix values="0 0 0 0 0.55
+                                            0 0 0 0 0.52
+                                            0 0 0 0 0.46
+                                            0 0 0 0.06 0" />
                   </filter>
                   <pattern id="mdfSpecklePat" width="160" height="160" patternUnits="userSpaceOnUse">
                     <rect width="160" height="160" fill="transparent" filter="url(#mdfSpeckle)" />
                   </pattern>
                   {/* Soft front gradient for matte sheen */}
                   <linearGradient id="frontSheen" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.6" />
+                    <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.45" />
                     <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0" />
-                    <stop offset="100%" stopColor="#1C1C1A" stopOpacity="0.06" />
+                    <stop offset="100%" stopColor="#1C1C1A" stopOpacity="0.04" />
                   </linearGradient>
                   {/* Subtle shadow gradient inside niche */}
                   <linearGradient id="nicheShadow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#000" stopOpacity="0.12" />
-                    <stop offset="40%" stopColor="#000" stopOpacity="0.03" />
+                    <stop offset="0%" stopColor="#000" stopOpacity="0.08" />
+                    <stop offset="40%" stopColor="#000" stopOpacity="0.02" />
                     <stop offset="100%" stopColor="#000" stopOpacity="0" />
                   </linearGradient>
                   {/* Ambient occlusion vignette inside niche — darkens corners/edges */}
                   <radialGradient id="nicheAO" cx="50%" cy="50%" r="65%">
                     <stop offset="55%" stopColor="#000" stopOpacity="0" />
-                    <stop offset="100%" stopColor="#000" stopOpacity="0.28" />
+                    <stop offset="100%" stopColor="#000" stopOpacity="0.16" />
                   </radialGradient>
-                  {/* Raw MDF edge — warm grey-beige cross-section */}
+                  {/* Raw MDF edge — soft warm cream cross-section */}
                   <linearGradient id="mdfEdge" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#A89B86" />
-                    <stop offset="50%" stopColor="#B5A993" />
-                    <stop offset="100%" stopColor="#8E8270" />
+                    <stop offset="0%" stopColor="#E2DDD2" />
+                    <stop offset="50%" stopColor="#E8E4DC" />
+                    <stop offset="100%" stopColor="#D6D1C5" />
                   </linearGradient>
                   <linearGradient id="mdfEdgeTop" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#BCAF99" />
-                    <stop offset="100%" stopColor="#8F8370" />
+                    <stop offset="0%" stopColor="#EDEAE3" />
+                    <stop offset="100%" stopColor="#D8D3C7" />
                   </linearGradient>
                   {/* Shelf 3D gradients */}
                   <linearGradient id="shelfFront" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FFFFFF" />
-                    <stop offset="55%" stopColor="#F4F4F2" />
-                    <stop offset="100%" stopColor="#D8D6D2" />
+                    <stop offset="0%" stopColor="#F0EEE8" />
+                    <stop offset="55%" stopColor="#ECEAE3" />
+                    <stop offset="100%" stopColor="#DED9D0" />
                   </linearGradient>
                   <linearGradient id="shelfTop" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#FFFFFF" />
-                    <stop offset="100%" stopColor="#E8E6E2" />
+                    <stop offset="0%" stopColor="#F0EEE8" />
+                    <stop offset="100%" stopColor="#E2DED5" />
                   </linearGradient>
                   <linearGradient id="shelfSide" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#E8E6E2" />
-                    <stop offset="100%" stopColor="#BDBAB4" />
+                    <stop offset="0%" stopColor="#E2DED5" />
+                    <stop offset="100%" stopColor="#CFC9BD" />
                   </linearGradient>
                   <linearGradient id="shelfUnderShadow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#000" stopOpacity="0.35" />
+                    <stop offset="0%" stopColor="#000" stopOpacity="0.18" />
                     <stop offset="100%" stopColor="#000" stopOpacity="0" />
                   </linearGradient>
                 </defs>
@@ -616,8 +616,8 @@ const PlateConfigurator = () => {
                     <path d={backArchPathClosed} fill={nicheBackColor} fillOpacity={1} />
                     {/* Painted MDF feel on back wall: subtle fibre + speckle showing through paint */}
                     <g clipPath="url(#archClip)">
-                      <path d={backArchPathClosed} fill="url(#mdfFibre)" fillOpacity={0.08} />
-                      <path d={backArchPathClosed} fill="url(#mdfSpecklePat)" fillOpacity={0.5} />
+                      <path d={backArchPathClosed} fill="url(#mdfFibre)" fillOpacity={0.04} />
+                      <path d={backArchPathClosed} fill="url(#mdfSpecklePat)" fillOpacity={0.25} />
                     </g>
                     <path d={backArchPathOpen} fill="none" stroke={COL.frontStroke} strokeWidth={0.5 / scale} strokeLinejoin="miter" strokeMiterlimit={10} />
 
@@ -694,7 +694,7 @@ const PlateConfigurator = () => {
                             />
                             {/* Bottom edge highlight line for crisp 3D edge */}
                             <line x1={sx} y1={sy + th} x2={sx + sw} y2={sy + th}
-                              stroke="#5a5a5a" strokeWidth={1.2 / scale} strokeOpacity={0.85} />
+                              stroke="#B8B2A4" strokeWidth={1.2 / scale} strokeOpacity={0.7} />
                             {/* Top edge subtle highlight */}
                             <line x1={sx} y1={sy + 0.4 / scale} x2={sx + sw} y2={sy + 0.4 / scale}
                               stroke="#FFFFFF" strokeWidth={0.6 / scale} strokeOpacity={0.9} />
