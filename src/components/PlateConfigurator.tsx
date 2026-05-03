@@ -614,6 +614,29 @@ const PlateConfigurator = () => {
                     <stop offset="0%" stopColor="#000" stopOpacity="0.18" />
                     <stop offset="100%" stopColor="#000" stopOpacity="0" />
                   </linearGradient>
+                  {/* === Realistic paint texture === */}
+                  {/* Fine orange-peel / roller stipple — typical of matte painted MDF */}
+                  <filter id="paintStippleNoise" x="0%" y="0%" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="2" seed="11" stitchTiles="stitch" />
+                    <feColorMatrix values="0 0 0 0 1
+                                            0 0 0 0 1
+                                            0 0 0 0 1
+                                            0 0 0 0.10 0" />
+                  </filter>
+                  <pattern id="paintStipple" width="260" height="260" patternUnits="userSpaceOnUse">
+                    <rect width="260" height="260" fill="transparent" filter="url(#paintStippleNoise)" />
+                  </pattern>
+                  {/* Soft horizontal brush/roller streaks for painted look */}
+                  <filter id="brushStreakNoise" x="0%" y="0%" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.012 1.6" numOctaves="2" seed="5" stitchTiles="stitch" />
+                    <feColorMatrix values="0 0 0 0 1
+                                            0 0 0 0 1
+                                            0 0 0 0 1
+                                            0 0 0 0.05 0" />
+                  </filter>
+                  <pattern id="brushStreak" width="600" height="300" patternUnits="userSpaceOnUse">
+                    <rect width="600" height="300" fill="transparent" filter="url(#brushStreakNoise)" />
+                  </pattern>
                 </defs>
 
                 <g transform={`translate(${padding}, ${padding + dyS})`}>
