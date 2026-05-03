@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 import { RotateCcw, Plus, Minus, Check } from "lucide-react";
+import { Delete } from "lucide-react";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
 import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
 import roedeWitThumb from "@/assets/roede-wit-thumb.webp";
@@ -223,17 +224,32 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
   const valueMm = value * 10;
   const minMm = min * 10;
   const maxMm = max * 10;
-  const [local, setLocal] = useState(String(valueMm));
-  useEffect(() => { setLocal(String(valueMm)); }, [valueMm]);
-  const commit = () => {
-    const n = parseFloat(local);
-    if (isNaN(n) || local.trim() === "") { setLocal(String(valueMm)); return; }
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(String(valueMm));
+
+  const openPad = () => {
+    if (disabled) return;
+    setDraft(String(valueMm));
+    setOpen(true);
+  };
+
+  const commit = (raw: string) => {
+    const n = parseFloat(raw);
+    if (isNaN(n) || raw.trim() === "") { setOpen(false); return; }
     const clampedMm = Math.max(minMm, Math.min(maxMm, Math.round(n)));
-    // Convert mm back to cm (round to nearest cm to keep underlying logic intact)
     const cm = Math.round(clampedMm / 10);
     onChange(Math.max(min, Math.min(max, cm)));
-    setLocal(String(cm * 10));
+    setOpen(false);
   };
+
+  const pressDigit = (d: string) => {
+    setDraft((prev) => {
+      const next = (prev === "0" ? "" : prev) + d;
+      return next.slice(0, 5);
+    });
+  };
+  const pressBackspace = () => setDraft((prev) => prev.slice(0, -1));
+
   return (
     <div className={`space-y-2 ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
       <Label htmlFor={id} className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">{label}</Label>
@@ -241,23 +257,76 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
         <Input
           id={id}
           type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={local}
-          onChange={(e) => setLocal(e.target.value)}
-          onBlur={commit}
-          onFocus={(e) => {
-            const el = e.currentTarget;
-            window.setTimeout(() => {
-              el.scrollIntoView({ behavior: "smooth", block: "center" });
-            }, 300);
-          }}
+          readOnly
+          inputMode="none"
+          value={valueMm}
+          onFocus={(e) => e.currentTarget.blur()}
+          onMouseDown={(e) => { e.preventDefault(); openPad(); }}
+          onClick={openPad}
           disabled={disabled}
-          onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
-          className="input-artisan h-10 pr-10 text-sm font-light text-foreground tabular-nums"
+          className="input-artisan h-10 pr-10 text-sm font-light text-foreground tabular-nums cursor-pointer caret-transparent"
         />
         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] tracking-wider text-muted-foreground/70 uppercase">{unit}</span>
       </div>
+      {open && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 animate-in fade-in-0"
+          onClick={() => commit(draft)}
+        >
+          <div
+            className="w-full sm:max-w-sm bg-background border border-border rounded-t-lg sm:rounded-lg shadow-lg p-5 animate-in slide-in-from-bottom-4 sm:zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4">
+              <div className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">{label}</div>
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className="font-serif-display text-3xl text-foreground tabular-nums">
+                  {draft === "" ? "0" : draft}
+                </span>
+                <span className="text-[10px] tracking-wider uppercase text-muted-foreground/70">{unit}</span>
+              </div>
+              <div className="mt-1 text-[10px] text-muted-foreground/70 tracking-wider uppercase">
+                {minMm} – {maxMm} {unit}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {["1","2","3","4","5","6","7","8","9"].map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => pressDigit(d)}
+                  className="h-14 rounded-md border border-border bg-card text-foreground font-serif-display text-2xl active:bg-secondary hover:border-copper transition-colors tabular-nums"
+                >
+                  {d}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={pressBackspace}
+                className="h-14 rounded-md border border-border bg-secondary text-foreground flex items-center justify-center active:bg-muted hover:border-copper transition-colors"
+                aria-label="Backspace"
+              >
+                <Delete className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => pressDigit("0")}
+                className="h-14 rounded-md border border-border bg-card text-foreground font-serif-display text-2xl active:bg-secondary hover:border-copper transition-colors tabular-nums"
+              >
+                0
+              </button>
+              <button
+                type="button"
+                onClick={() => commit(draft)}
+                className="h-14 rounded-md bg-primary text-primary-foreground flex items-center justify-center active:opacity-90 hover:bg-primary/90 transition-colors"
+                aria-label="OK"
+              >
+                <Check className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
