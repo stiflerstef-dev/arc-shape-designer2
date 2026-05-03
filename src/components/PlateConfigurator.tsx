@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 import { RotateCcw, Plus, Minus, Check } from "lucide-react";
+import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
 
 type ArchType = "classic" | "gothic" | "shoulder";
 
