@@ -694,7 +694,7 @@ const PlateConfigurator = () => {
                             />
                             {/* Bottom edge highlight line for crisp 3D edge */}
                             <line x1={sx} y1={sy + th} x2={sx + sw} y2={sy + th}
-                              stroke="#5a5a5a" strokeWidth={1.2 / scale} strokeOpacity={0.85} />
+                              stroke="#B8B2A4" strokeWidth={1.2 / scale} strokeOpacity={0.7} />
                             {/* Top edge subtle highlight */}
                             <line x1={sx} y1={sy + 0.4 / scale} x2={sx + sw} y2={sy + 0.4 / scale}
                               stroke="#FFFFFF" strokeWidth={0.6 / scale} strokeOpacity={0.9} />
