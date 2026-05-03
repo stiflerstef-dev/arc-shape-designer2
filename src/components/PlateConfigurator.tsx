@@ -621,10 +621,9 @@ const PlateConfigurator = () => {
 
                     {/* === LAYER 1: Back wall of niche === */}
                     <path d={backArchPathClosed} fill={nicheBackColor} fillOpacity={1} />
-                    {/* Painted MDF feel on back wall: subtle fibre + speckle showing through paint */}
+                    {/* Painted sheen on back wall — light from upper-left */}
                     <g clipPath="url(#archClip)">
-                      <path d={backArchPathClosed} fill="url(#mdfFibre)" fillOpacity={0.04} />
-                      <path d={backArchPathClosed} fill="url(#mdfSpecklePat)" fillOpacity={0.25} />
+                      <path d={backArchPathClosed} fill="url(#nicheSideLight)" />
                     </g>
                     <path d={backArchPathOpen} fill="none" stroke={COL.frontStroke} strokeWidth={0.5 / scale} strokeLinejoin="miter" strokeMiterlimit={10} />
 
