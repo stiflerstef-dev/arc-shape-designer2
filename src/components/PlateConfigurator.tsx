@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 
 import { RotateCcw, Plus, Minus, Check } from "lucide-react";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
+import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
+import roedeWitThumb from "@/assets/roede-wit-thumb.webp";
 
 type ArchType = "classic" | "gothic" | "shoulder";
 
@@ -862,7 +864,37 @@ const PlateConfigurator = () => {
                 </div>
                 <div className="py-1 space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="rod" className="text-xs font-light text-foreground tracking-wide">Roede <span className="text-muted-foreground">(Ø32mm)</span></Label>
+                    <div className="flex items-center gap-3 min-w-0">
+                      {hasRod && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
+                              type="button"
+                              className="shrink-0 rounded-sm overflow-hidden border border-border hover:border-copper transition-colors focus:outline-none focus:ring-2 focus:ring-copper/50"
+                              aria-label="Vergroot voorbeeld roede"
+                            >
+                              <img
+                                src={rodFinish === "wit" ? roedeWitThumb : roedeZwartThumb}
+                                alt={`Voorbeeld roede ${rodFinish}`}
+                                className="w-10 h-10 object-cover block"
+                              />
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl p-0 overflow-hidden bg-card">
+                            <DialogHeader className="sr-only">
+                              <DialogTitle>Voorbeeld roede {rodFinish}</DialogTitle>
+                              <DialogDescription>Vergrote weergave van de roede</DialogDescription>
+                            </DialogHeader>
+                            <img
+                              src={rodFinish === "wit" ? roedeWitThumb : roedeZwartThumb}
+                              alt={`Voorbeeld roede ${rodFinish}`}
+                              className="w-full h-auto block"
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      <Label htmlFor="rod" className="text-xs font-light text-foreground tracking-wide">Roede <span className="text-muted-foreground">(Ø32mm)</span></Label>
+                    </div>
                     <Switch id="rod" checked={hasRod} onCheckedChange={setHasRod} />
                   </div>
                   {hasRod && (
