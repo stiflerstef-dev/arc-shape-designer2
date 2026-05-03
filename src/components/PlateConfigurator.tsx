@@ -532,7 +532,7 @@ const PlateConfigurator = () => {
           <div className="sticky top-0 z-30 -mx-6 md:-mx-12 lg:mx-0 lg:order-2 lg:sticky lg:top-4 lg:self-start bg-background lg:bg-transparent pt-2 pb-3 lg:p-0 border-b border-border lg:border-b-0">
             <div className="relative bg-canvas overflow-hidden border-y border-border lg:border lg:rounded-sm">
               <div className="px-1 py-1 lg:p-8 flex items-center justify-center lg:min-h-[600px] lg:max-h-[calc(100vh-2rem)] relative">
-              <svg ref={svgRef} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="w-full h-auto max-h-[55vh] lg:max-h-none" style={{ filter: "drop-shadow(0 20px 30px rgba(28,28,26,0.12)) drop-shadow(0 6px 10px rgba(28,28,26,0.08))", cursor: isDragging ? "grabbing" : "default" }}>
+              <svg ref={svgRef} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="w-full h-auto max-h-[55vh] lg:max-h-none" style={{ filter: "drop-shadow(0 28px 22px rgba(28,28,26,0.22)) drop-shadow(0 10px 14px rgba(28,28,26,0.14)) drop-shadow(0 2px 3px rgba(28,28,26,0.08))", cursor: isDragging ? "grabbing" : "default" }}>
                 <defs>
                   <marker id="arrowL" markerWidth="8" markerHeight="8" refX="0" refY="4" orient="auto"><path d="M8 0 L0 4 L8 8 Z" fill={COL.dim} /></marker>
                   <marker id="arrowR" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill={COL.dim} /></marker>
