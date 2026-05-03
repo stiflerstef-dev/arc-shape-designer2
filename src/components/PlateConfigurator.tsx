@@ -776,6 +776,11 @@ const PlateConfigurator = () => {
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
                   fill="url(#mdfEdge)" stroke={COL.frontStroke} strokeWidth={1.5}
                 />
+                {/* Painted texture on side panel */}
+                <polygon
+                  points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
+                  fill="url(#paintStipple)" opacity={0.4} stroke="none"
+                />
                 {/* Right side darker (away from light source) */}
                 <polygon
                   points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
@@ -786,6 +791,11 @@ const PlateConfigurator = () => {
                 <polygon
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
                   fill="url(#mdfEdgeTop)" stroke={COL.frontStroke} strokeWidth={1.5}
+                />
+                {/* Painted texture on top panel */}
+                <polygon
+                  points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
+                  fill="url(#paintStipple)" opacity={0.4} stroke="none"
                 />
                 {/* Top face highlight (light from above) */}
                 <polygon
