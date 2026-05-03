@@ -755,6 +755,9 @@ const PlateConfigurator = () => {
 
                     {/* === LAYER 4: Front panel === */}
                     <path d={frontFramePath} fill={cabFrontCol} fillOpacity={1} fillRule="evenodd" clipRule="evenodd" />
+                    {/* Realistic painted MDF texture — subtle stipple + brush streaks */}
+                    <path d={frontFramePath} fill="url(#paintStipple)" fillRule="evenodd" clipRule="evenodd" opacity={0.55} />
+                    <path d={frontFramePath} fill="url(#brushStreak)" fillRule="evenodd" clipRule="evenodd" opacity={0.45} />
                     {/* Painted sheen — directional light from upper-left */}
                     <path d={frontFramePath} fill="url(#frontSheen)" fillRule="evenodd" clipRule="evenodd" />
                     <rect x={0} y={0} width={cabinet.width} height={cabinet.height} fill="none" stroke={COL.frontStroke} strokeWidth={1.5 / scale} />
