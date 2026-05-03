@@ -974,11 +974,13 @@ const PlateConfigurator = () => {
                 <div className="space-y-1.5 py-1">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <img
-                        src={verlichtingThumb}
-                        alt="Voorbeeld verlichting in nis"
-                        className="w-10 h-10 rounded-sm object-cover border border-border shrink-0"
-                      />
+                      {hasLight && archType !== "gothic" && (
+                        <img
+                          src={verlichtingThumb}
+                          alt="Voorbeeld verlichting in nis"
+                          className="w-10 h-10 rounded-sm object-cover border border-border shrink-0"
+                        />
+                      )}
                       <Label htmlFor="light" className={`text-xs font-light tracking-wide ${archType === "gothic" ? "text-muted-foreground/60" : "text-foreground"}`}>
                         Verlichting <span className="text-muted-foreground">(Ø37mm · €{LIGHT_PRICE})</span>
                       </Label>
