@@ -513,10 +513,10 @@ const PlateConfigurator = () => {
   const wallCol = nicheColorIdx !== null ? shade(NICHE_COLORS[nicheColorIdx].hex, -30) : COL.nicheWall;
   const ceilCol = nicheColorIdx !== null ? shade(NICHE_COLORS[nicheColorIdx].hex, -40) : COL.nicheCeiling;
 
-  // Cabinet exterior is ALWAYS matwit MDF — interior color only colors niche walls
-  const cabFrontCol = COL.front;
-  const cabSideCol  = COL.side;
-  const cabTopCol   = COL.top;
+  // Cabinet (front + 3D side/top) color follows interior selection — full meubel kleur
+  const cabFrontCol = nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].hex : COL.front;
+  const cabSideCol  = nicheColorIdx !== null ? shade(NICHE_COLORS[nicheColorIdx].hex, -25) : COL.side;
+  const cabTopCol   = nicheColorIdx !== null ? shade(NICHE_COLORS[nicheColorIdx].hex,  10) : COL.top;
 
   return (
     <div className="min-h-screen bg-background">
