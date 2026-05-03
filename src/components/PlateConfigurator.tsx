@@ -268,7 +268,8 @@ const PlateConfigurator = () => {
   const [arch, setArch] = useState<ArchShape>({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
   const [archType, setArchType] = useState<ArchType>("classic");
   const [shoulderRadiusValue, setShoulderRadiusValue] = useState(25);
-  const [centerArch, setCenterArch] = useState(false);
+  // Boog wordt altijd horizontaal gecentreerd in de kast
+  const centerArch = true;
   const [shelfCount, setShelfCount] = useState(0);
   const [hasRod, setHasRod] = useState(false);
   const [rodFinish, setRodFinish] = useState<"zwart" | "wit">("zwart");
@@ -355,7 +356,7 @@ const PlateConfigurator = () => {
       if (next.width !== prev.width || next.height !== prev.height || next.position.x !== prev.position.x || next.position.y !== prev.position.y) return next;
       return prev;
     });
-  }, [clampArch, centerArch, cabinet.width]);
+  }, [clampArch, centerArch, cabinet.width, arch.width]);
 
   /* ─── Drag ─── */
   const handleMouseDown = (e: React.MouseEvent<SVGPathElement>) => {
@@ -393,7 +394,7 @@ const PlateConfigurator = () => {
     setCabinet({ ...DEFAULT_CABINET });
     setArch({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
     setArchType("classic"); setShelfCount(0); setHasRod(false); setRodFinish("zwart"); setHasLight(false);
-    setShoulderRadiusValue(25); setNicheColorIdx(null); setCenterArch(false);
+    setShoulderRadiusValue(25); setNicheColorIdx(null);
   };
 
   const updateCabinet = (key: keyof Dims, v: number) => setCabinet((prev) => ({ ...prev, [key]: v }));
@@ -782,16 +783,6 @@ const PlateConfigurator = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={cabinet.width} />
                   <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={cabinet.height} />
-                </div>
-                <div className="flex items-center gap-2 pt-1">
-                  <Checkbox
-                    id="centerArch"
-                    checked={centerArch}
-                    onCheckedChange={(v) => setCenterArch(!!v)}
-                  />
-                  <Label htmlFor="centerArch" className="text-[11px] font-light tracking-wide text-foreground cursor-pointer">
-                    Centreer boog horizontaal
-                  </Label>
                 </div>
                 <div className="grid grid-cols-2 gap-4 py-2">
                   <NumberInput id="archX" label="A" value={arch.position.x} onChange={(v) => updateArchPos("x", v)} min={0} max={cabinet.width - arch.width} disabled={centerArch} />
