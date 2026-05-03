@@ -563,31 +563,38 @@ const PlateConfigurator = () => {
                     <rect width="160" height="160" fill="transparent" filter="url(#mdfSpeckle)" />
                   </pattern>
                   {/* Soft front gradient for matte sheen */}
-                  <linearGradient id="frontSheen" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.45" />
-                    <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0" />
-                    <stop offset="100%" stopColor="#1C1C1A" stopOpacity="0.04" />
+                  {/* Soft directional sheen — light comes from upper-left */}
+                  <linearGradient id="frontSheen" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
+                    <stop offset="45%" stopColor="#FFFFFF" stopOpacity="0.05" />
+                    <stop offset="100%" stopColor="#1C1C1A" stopOpacity="0.10" />
                   </linearGradient>
-                  {/* Subtle shadow gradient inside niche */}
+                  {/* Subtle shadow gradient inside niche — stronger near top/back */}
                   <linearGradient id="nicheShadow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#000" stopOpacity="0.08" />
-                    <stop offset="40%" stopColor="#000" stopOpacity="0.02" />
-                    <stop offset="100%" stopColor="#000" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#000" stopOpacity="0.18" />
+                    <stop offset="45%" stopColor="#000" stopOpacity="0.05" />
+                    <stop offset="100%" stopColor="#000" stopOpacity="0.02" />
                   </linearGradient>
                   {/* Ambient occlusion vignette inside niche — darkens corners/edges */}
-                  <radialGradient id="nicheAO" cx="50%" cy="50%" r="65%">
-                    <stop offset="55%" stopColor="#000" stopOpacity="0" />
-                    <stop offset="100%" stopColor="#000" stopOpacity="0.16" />
+                  <radialGradient id="nicheAO" cx="50%" cy="55%" r="70%">
+                    <stop offset="50%" stopColor="#000" stopOpacity="0" />
+                    <stop offset="100%" stopColor="#000" stopOpacity="0.30" />
                   </radialGradient>
-                  {/* Raw MDF edge — soft warm cream cross-section */}
+                  {/* Side-light gradient on the niche back — brighter at upper-left, darker bottom-right */}
+                  <linearGradient id="nicheSideLight" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.18" />
+                    <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0" />
+                    <stop offset="100%" stopColor="#000000" stopOpacity="0.10" />
+                  </linearGradient>
+                  {/* Top face — bright (light from above) */}
                   <linearGradient id="mdfEdge" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#E2DDD2" />
-                    <stop offset="50%" stopColor="#E8E4DC" />
-                    <stop offset="100%" stopColor="#D6D1C5" />
+                    <stop offset="0%" stopColor="#D8D2C5" />
+                    <stop offset="50%" stopColor="#CFC9BB" />
+                    <stop offset="100%" stopColor="#B8B1A1" />
                   </linearGradient>
                   <linearGradient id="mdfEdgeTop" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#EDEAE3" />
-                    <stop offset="100%" stopColor="#D8D3C7" />
+                    <stop offset="0%" stopColor="#FAF8F2" />
+                    <stop offset="100%" stopColor="#E8E4DA" />
                   </linearGradient>
                   {/* Shelf 3D gradients */}
                   <linearGradient id="shelfFront" x1="0" y1="0" x2="0" y2="1">
