@@ -32,10 +32,11 @@ const LIGHT_DIAMETER = 3.7;
 
 /* ─── Niche wall colors (vtwonen earthy tones) ─── */
 const NICHE_COLORS = [
-  { name: "Zandbeige", hex: "#D2B48C" },
-  { name: "Mellow Flow", hex: "#C9B89A" },
-  { name: "True Joy", hex: "#E4A87B" },
-  { name: "Pure Espresso", hex: "#4A352A" },
+  { name: "Zandduinen", hex: "#D4C5A9" },
+  { name: "Ochtendmist", hex: "#C8CFC4" },
+  { name: "Leisteen", hex: "#7A8A8C" },
+  { name: "Terra", hex: "#C17A5A" },
+  { name: "Grafiet", hex: "#3D3D3D" },
 ];
 
 /* ─── Colors: matte white MDF on warm canvas ─── */
@@ -512,10 +513,10 @@ const PlateConfigurator = () => {
   const wallCol = nicheColorIdx !== null ? shade(NICHE_COLORS[nicheColorIdx].hex, -30) : COL.nicheWall;
   const ceilCol = nicheColorIdx !== null ? shade(NICHE_COLORS[nicheColorIdx].hex, -40) : COL.nicheCeiling;
 
-  // Cabinet (front + 3D side/top) color follows interior selection — full meubel kleur
-  const cabFrontCol = nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].hex : COL.front;
-  const cabSideCol  = nicheColorIdx !== null ? shade(NICHE_COLORS[nicheColorIdx].hex, -25) : COL.side;
-  const cabTopCol   = nicheColorIdx !== null ? shade(NICHE_COLORS[nicheColorIdx].hex,  10) : COL.top;
+  // Cabinet exterior is ALWAYS matwit MDF — interior color only colors niche walls
+  const cabFrontCol = COL.front;
+  const cabSideCol  = COL.side;
+  const cabTopCol   = COL.top;
 
   return (
     <div className="min-h-screen bg-background">
@@ -1001,7 +1002,7 @@ const PlateConfigurator = () => {
                 })}
               </div>
               <p className="text-[10px] text-muted-foreground/80 leading-relaxed italic mt-4">
-                Materialen ter inspiratie voor jouw interieur. Het meubel wordt geleverd in matwit MDF.
+                Het meubel wordt altijd geleverd in matwit MDF. De interieurkleur is ter inspiratie — u schildert de binnenzijde zelf in de gewenste kleur.
               </p>
             </section>
 
