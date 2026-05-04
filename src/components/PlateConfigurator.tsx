@@ -226,10 +226,12 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
   const maxMm = max * 10;
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(String(valueMm));
+  const [freshEntry, setFreshEntry] = useState(true);
 
   const openPad = () => {
     if (disabled) return;
     setDraft(String(valueMm));
+    setFreshEntry(true);
     setOpen(true);
   };
 
@@ -244,11 +246,18 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
 
   const pressDigit = (d: string) => {
     setDraft((prev) => {
+      if (freshEntry) {
+        setFreshEntry(false);
+        return d;
+      }
       const next = (prev === "0" ? "" : prev) + d;
       return next.slice(0, 5);
     });
   };
-  const pressBackspace = () => setDraft((prev) => prev.slice(0, -1));
+  const pressBackspace = () => {
+    setFreshEntry(false);
+    setDraft((prev) => prev.slice(0, -1));
+  };
 
   return (
     <div className={`space-y-2 ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
@@ -280,7 +289,7 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
             <div className="mb-4">
               <div className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">{label}</div>
               <div className="mt-1 flex items-baseline gap-2">
-                <span className="font-serif-display text-3xl text-foreground tabular-nums">
+                <span className={`font-serif-display text-3xl tabular-nums transition-colors ${freshEntry ? "text-muted-foreground/40" : "text-foreground"}`}>
                   {draft === "" ? "0" : draft}
                 </span>
                 <span className="text-[10px] tracking-wider uppercase text-muted-foreground/70">{unit}</span>
