@@ -226,10 +226,12 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
   const maxMm = max * 10;
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(String(valueMm));
+  const [freshEntry, setFreshEntry] = useState(true);
 
   const openPad = () => {
     if (disabled) return;
     setDraft(String(valueMm));
+    setFreshEntry(true);
     setOpen(true);
   };
 
@@ -244,11 +246,18 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
 
   const pressDigit = (d: string) => {
     setDraft((prev) => {
+      if (freshEntry) {
+        setFreshEntry(false);
+        return d;
+      }
       const next = (prev === "0" ? "" : prev) + d;
       return next.slice(0, 5);
     });
   };
-  const pressBackspace = () => setDraft((prev) => prev.slice(0, -1));
+  const pressBackspace = () => {
+    setFreshEntry(false);
+    setDraft((prev) => prev.slice(0, -1));
+  };
 
   return (
     <div className={`space-y-2 ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
