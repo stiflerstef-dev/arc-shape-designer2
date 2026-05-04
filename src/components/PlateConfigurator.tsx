@@ -289,7 +289,7 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
             <div className="mb-4">
               <div className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">{label}</div>
               <div className="mt-1 flex items-baseline gap-2">
-                <span className="font-serif-display text-3xl text-foreground tabular-nums">
+                <span className={`font-serif-display text-3xl tabular-nums transition-colors ${freshEntry ? "text-muted-foreground/40" : "text-foreground"}`}>
                   {draft === "" ? "0" : draft}
                 </span>
                 <span className="text-[10px] tracking-wider uppercase text-muted-foreground/70">{unit}</span>
