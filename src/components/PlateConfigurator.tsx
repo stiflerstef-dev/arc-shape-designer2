@@ -346,8 +346,8 @@ const PlateConfigurator = () => {
   const [arch, setArch] = useState<ArchShape>({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
   const [archType, setArchType] = useState<ArchType>("classic");
   const [shoulderRadiusValue, setShoulderRadiusValue] = useState(25);
-  // Boog wordt altijd horizontaal gecentreerd in de kast
-  const centerArch = true;
+  // Boog wordt standaard horizontaal gecentreerd in de kast
+  const [centerArch, setCenterArch] = useState(true);
   const [shelfCount, setShelfCount] = useState(0);
   const [hasRod, setHasRod] = useState(false);
   const [rodFinish, setRodFinish] = useState<"zwart" | "wit">("zwart");
@@ -997,6 +997,10 @@ const PlateConfigurator = () => {
                 <div className="border-t border-border pt-4 flex items-center gap-2">
                   <Checkbox id="showDims" checked={showDimensions} onCheckedChange={(checked) => setShowDimensions(checked === true)} />
                   <Label htmlFor="showDims" className="text-[11px] font-light cursor-pointer text-muted-foreground tracking-wide">Toon afmetingen in preview</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="centerArch" checked={centerArch} onCheckedChange={(checked) => setCenterArch(checked === true)} />
+                  <Label htmlFor="centerArch" className="text-[11px] font-light cursor-pointer text-muted-foreground tracking-wide">Boog horizontaal centreren</Label>
                 </div>
               </div>
             </section>
