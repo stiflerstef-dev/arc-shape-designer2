@@ -489,7 +489,23 @@ const PlateConfigurator = () => {
     setShoulderRadiusValue(25); setNicheColorIdx(null);
   };
 
-  const updateCabinet = (key: keyof Dims, v: number) => setCabinet((prev) => ({ ...prev, [key]: v }));
+  const updateCabinet = (key: keyof Dims, v: number) => {
+    setCabinet((prev) => {
+      const nextCab = { ...prev, [key]: v };
+      if (key === "width") {
+        const marginL = arch.position.x;
+        const marginR = Math.max(0, prev.width - arch.width - arch.position.x);
+        const newArchW = Math.max(10, v - marginL - marginR);
+        setArch((pa) => clampArch({ ...pa, width: newArchW, position: { ...pa.position, x: Math.min(marginL, Math.max(0, v - newArchW)) } }));
+      } else if (key === "height") {
+        const marginT = arch.position.y;
+        const marginB = Math.max(0, prev.height - arch.height - arch.position.y);
+        const newArchH = Math.max(10, v - marginT - marginB);
+        setArch((pa) => clampArch({ ...pa, height: newArchH, position: { ...pa.position, y: Math.min(marginT, Math.max(0, v - newArchH)) } }));
+      }
+      return nextCab;
+    });
+  };
   const updateArchDim = (key: "width" | "height", v: number) => setArch((prev) => clampArch({ ...prev, [key]: v }));
   const updateArchPos = (axis: "x" | "y", v: number) => {
     const max = axis === "x" ? cabinet.width - arch.width : cabinet.height - arch.height;
