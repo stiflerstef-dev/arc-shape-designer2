@@ -341,9 +341,19 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
 }
 
 /* ─── Main Component ─── */
-const PlateConfigurator = () => {
-  const [cabinet, setCabinet] = useState<Dims>({ ...DEFAULT_CABINET });
-  const [arch, setArch] = useState<ArchShape>({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
+type PlateConfiguratorProps = {
+  initialCabinet?: Dims;
+  onBack?: () => void;
+};
+const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = {}) => {
+  const startCabinet = initialCabinet ?? DEFAULT_CABINET;
+  const startArch: ArchShape = {
+    width: Math.max(20, startCabinet.width - 40),
+    height: Math.max(20, startCabinet.height - 50),
+    position: { x: Math.max(0, (startCabinet.width - Math.max(20, startCabinet.width - 40)) / 2), y: 50 },
+  };
+  const [cabinet, setCabinet] = useState<Dims>({ ...startCabinet });
+  const [arch, setArch] = useState<ArchShape>({ ...startArch, position: { ...startArch.position } });
   const [archType, setArchType] = useState<ArchType>("classic");
   const [shoulderRadiusValue, setShoulderRadiusValue] = useState(25);
   // Boog wordt standaard horizontaal gecentreerd in de kast
