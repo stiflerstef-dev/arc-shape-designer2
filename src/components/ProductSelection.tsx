@@ -1,0 +1,148 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+
+export type ProductId = "small" | "large" | "halmeubel" | "combi";
+
+type Preview = "small" | "large" | "halmeubel" | "combi";
+
+const CabinetIllustration = ({ variant }: { variant: Preview }) => {
+  // Common viewBox
+  const stroke = "hsl(var(--foreground))";
+  const fill = "hsl(var(--card))";
+  const niche = "hsl(var(--secondary))";
+  const accent = "hsl(var(--accent))";
+
+  if (variant === "small") {
+    // small freestanding with plinth
+    return (
+      <svg viewBox="0 0 120 120" className="w-full h-full">
+        <rect x="32" y="22" width="56" height="78" fill={fill} stroke={stroke} strokeWidth="1.2" />
+        <path d="M40 100 V44 Q40 32 60 32 Q80 32 80 44 V100 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
+        <line x1="32" y1="100" x2="88" y2="100" stroke={stroke} strokeWidth="1.2" />
+        <rect x="36" y="100" width="48" height="6" fill={fill} stroke={stroke} strokeWidth="1" />
+      </svg>
+    );
+  }
+  if (variant === "large") {
+    return (
+      <svg viewBox="0 0 120 120" className="w-full h-full">
+        <rect x="22" y="8" width="76" height="104" fill={fill} stroke={stroke} strokeWidth="1.2" />
+        <path d="M32 112 V32 Q32 18 60 18 Q88 18 88 32 V112 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
+        <line x1="32" y1="55" x2="88" y2="55" stroke={stroke} strokeWidth="0.6" opacity="0.5" />
+        <line x1="32" y1="80" x2="88" y2="80" stroke={stroke} strokeWidth="0.6" opacity="0.5" />
+      </svg>
+    );
+  }
+  if (variant === "halmeubel") {
+    return (
+      <svg viewBox="0 0 120 120" className="w-full h-full">
+        <rect x="22" y="10" width="76" height="100" fill={fill} stroke={stroke} strokeWidth="1.2" />
+        <path d="M32 70 V30 Q32 18 60 18 Q88 18 88 30 V70 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
+        <line x1="38" y1="45" x2="82" y2="45" stroke={accent} strokeWidth="1.2" />
+        <line x1="32" y1="72" x2="88" y2="72" stroke={stroke} strokeWidth="1" />
+        <line x1="60" y1="72" x2="60" y2="110" stroke={stroke} strokeWidth="1" />
+      </svg>
+    );
+  }
+  // combi
+  return (
+    <svg viewBox="0 0 120 120" className="w-full h-full">
+      <rect x="8" y="14" width="48" height="96" fill={fill} stroke={stroke} strokeWidth="1.2" />
+      <path d="M16 110 V36 Q16 24 32 24 Q48 24 48 36 V110 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
+      <rect x="64" y="14" width="48" height="96" fill={fill} stroke={stroke} strokeWidth="1.2" />
+      <path d="M72 110 V36 Q72 24 88 24 Q104 24 104 36 V110 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
+    </svg>
+  );
+};
+
+type CardData = {
+  id: ProductId;
+  title: string;
+  subtitle: string;
+  description: string;
+  badge?: string;
+  preview: Preview;
+};
+
+const CARDS: CardData[] = [
+  { id: "small", title: "Kleine Boogkast", subtitle: "Los in de ruimte · 800×1900×250mm", description: "Een sierlijke vrijstaande kast met plateau, perfect als eyecatcher.", preview: "small" },
+  { id: "large", title: "Grote Boogkast", subtitle: "Kamerhoog · 1200×2500×400mm", description: "De klassieke vloer-tot-plafond boogkast, onze meest gekozen maat.", badge: "Best seller", preview: "large" },
+  { id: "halmeubel", title: "Halmeubel", subtitle: "Boog boven · opbergruimte onder", description: "Boogkast met jassenroede gecombineerd met een schoenenkast met 2 deuren.", preview: "halmeubel" },
+  { id: "combi", title: "Maatwerk Combinatie", subtitle: "Meerdere bogen naast elkaar", description: "Ontwerp een wand met twee of meer boogkasten op maat.", preview: "combi" },
+];
+
+type Props = {
+  onSelect: (id: ProductId) => void;
+  comingSoon?: ProductId | null;
+  onDismissComingSoon?: () => void;
+};
+
+const ProductSelection = ({ onSelect }: Props) => {
+  const [comingSoon, setComingSoon] = useState<ProductId | null>(null);
+
+  const handle = (id: ProductId) => {
+    if (id === "halmeubel" || id === "combi") {
+      setComingSoon(id);
+    } else {
+      onSelect(id);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background py-16 px-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="font-serif-display text-4xl md:text-5xl text-foreground mb-3">Kies jouw kasttype</h1>
+          <p className="text-muted-foreground font-light tracking-wide">
+            Configureer jouw kast op maat en reserveer direct online.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {CARDS.map((c) => (
+            <div
+              key={c.id}
+              className="group relative bg-card border border-border rounded-md shadow-sm hover:shadow-md hover:border-copper transition-all duration-300 p-6 flex flex-col"
+            >
+              {c.badge && (
+                <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground hover:bg-accent">
+                  {c.badge}
+                </Badge>
+              )}
+              <div className="aspect-[4/3] w-full bg-canvas rounded-sm mb-5 flex items-center justify-center p-6">
+                <CabinetIllustration variant={c.preview} />
+              </div>
+              <h2 className="font-serif-display text-2xl text-foreground mb-1">{c.title}</h2>
+              <p className="text-xs uppercase tracking-widest text-copper mb-3 font-light">{c.subtitle}</p>
+              <p className="text-sm text-muted-foreground font-light leading-relaxed mb-6 flex-1">{c.description}</p>
+              <Button
+                onClick={() => handle(c.id)}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-light tracking-wide"
+              >
+                Configureer deze kast
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Dialog open={!!comingSoon} onOpenChange={(o) => !o && setComingSoon(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-serif-display text-2xl">Binnenkort beschikbaar</DialogTitle>
+            <DialogDescription className="font-light pt-2">
+              Deze configurator is nog in ontwikkeling. We laten het weten zodra hij online staat.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setComingSoon(null)} className="rounded-sm">Sluiten</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default ProductSelection;
