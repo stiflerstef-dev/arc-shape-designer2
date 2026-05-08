@@ -490,8 +490,10 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   /* ─── Clamping ─── */
   const clampArch = useCallback((a: ArchShape): ArchShape => {
-    const w = Math.min(a.width, cabinet.width);
-    const h = Math.min(a.height, cabinet.height);
+    const maxW = Math.max(10, cabinet.width - 50);
+    const maxH = Math.max(10, cabinet.height - 50);
+    const w = Math.min(a.width, maxW);
+    const h = Math.min(a.height, maxH);
     const x = Math.max(0, Math.min(a.position.x, cabinet.width - w));
     const y = Math.max(0, Math.min(a.position.y, cabinet.height - h));
     return { width: w, height: h, position: { x, y } };
