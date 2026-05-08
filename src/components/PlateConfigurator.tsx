@@ -490,12 +490,17 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   /* ─── Clamping ─── */
   const clampArch = useCallback((a: ArchShape): ArchShape => {
-    const maxW = Math.max(10, cabinet.width - 50);
-    const maxH = Math.max(10, cabinet.height - 50);
+    // Min margins: A (links) ≥ 50mm, B (rechts) ≥ 50mm, C (boven) ≥ 50mm, D (onder) ≥ 0mm
+    const maxW = Math.max(10, cabinet.width - 10); // A + B ≥ 10cm
+    const maxH = Math.max(10, cabinet.height - 5); // C ≥ 5cm; D mag 0
     const w = Math.min(a.width, maxW);
     const h = Math.min(a.height, maxH);
-    const x = Math.max(0, Math.min(a.position.x, cabinet.width - w));
-    const y = Math.max(0, Math.min(a.position.y, cabinet.height - h));
+    const minX = 5;
+    const maxX = Math.max(minX, cabinet.width - w - 5);
+    const minY = 5;
+    const maxY = Math.max(minY, cabinet.height - h);
+    const x = Math.max(minX, Math.min(a.position.x, maxX));
+    const y = Math.max(minY, Math.min(a.position.y, maxY));
     return { width: w, height: h, position: { x, y } };
   }, [cabinet.width, cabinet.height]);
 
@@ -531,9 +536,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const rect = svgRef.current.getBoundingClientRect();
     const mx = (e.clientX - rect.left - padding) / scale;
     const my = (e.clientY - rect.top - padding - dyS) / scale;
-    const cx = Math.max(0, Math.min(mx - dragOffset.x, cabinet.width - arch.width));
-    const cy = Math.max(0, Math.min(my - dragOffset.y, cabinet.height - arch.height));
-    setArch((prev) => ({ ...prev, position: { x: centerArch ? Math.max(0, (cabinet.width - arch.width) / 2) : cx, y: cy } }));
+    const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
+    const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
+    setArch((prev) => ({ ...prev, position: { x: centerArch ? Math.max(5, (cabinet.width - arch.width) / 2) : cx, y: cy } }));
   }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, centerArch]);
 
   const handleMouseUp = useCallback(() => setIsDragging(false), []);
@@ -573,8 +578,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   };
   const updateArchDim = (key: "width" | "height", v: number) => setArch((prev) => clampArch({ ...prev, [key]: v }));
   const updateArchPos = (axis: "x" | "y", v: number) => {
-    const max = axis === "x" ? cabinet.width - arch.width : cabinet.height - arch.height;
-    setArch((prev) => ({ ...prev, position: { ...prev.position, [axis]: Math.max(0, Math.min(v, max)) } }));
+    const min = axis === "x" ? 5 : 5; // A ≥ 5cm, C ≥ 5cm
+    const max = axis === "x" ? cabinet.width - arch.width - 5 : cabinet.height - arch.height;
+    setArch((prev) => ({ ...prev, position: { ...prev.position, [axis]: Math.max(min, Math.min(v, Math.max(min, max))) } }));
   };
 
   /* ─── SVG geometry ─── */
@@ -1053,14 +1059,14 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   />
                 )}
                 <div className="grid grid-cols-2 gap-4">
-                  <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 50)} />
-                  <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 50)} />
+                  <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 10)} />
+                  <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 5)} />
                 </div>
                 <div className="grid grid-cols-2 gap-4 py-2">
-                  <NumberInput id="archX" label="A" value={arch.position.x} onChange={(v) => updateArchPos("x", v)} min={0} max={Math.max(0, cabinet.width - arch.width)} disabled={centerArch} />
-                  <NumberInput id="archXR" label="B" value={Math.max(0, cabinet.width - arch.width - arch.position.x)} onChange={(v) => updateArchPos("x", cabinet.width - arch.width - v)} min={0} max={Math.max(0, cabinet.width - arch.width)} disabled={centerArch} />
-                  <NumberInput id="archY" label="C" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={0} max={Math.max(0, cabinet.height - arch.height)} />
-                  <NumberInput id="archYB" label="D" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height)} />
+                  <NumberInput id="archX" label="A" value={arch.position.x} onChange={(v) => updateArchPos("x", v)} min={5} max={Math.max(5, cabinet.width - arch.width - 5)} disabled={centerArch} />
+                  <NumberInput id="archXR" label="B" value={Math.max(0, cabinet.width - arch.width - arch.position.x)} onChange={(v) => updateArchPos("x", cabinet.width - arch.width - v)} min={5} max={Math.max(5, cabinet.width - arch.width - 5)} disabled={centerArch} />
+                  <NumberInput id="archY" label="C" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={5} max={Math.max(5, cabinet.height - arch.height)} />
+                  <NumberInput id="archYB" label="D" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height - 5)} />
                 </div>
                 <div className="border-t border-border pt-4 flex items-center gap-2">
                   <Checkbox id="showDims" checked={showDimensions} onCheckedChange={(checked) => setShowDimensions(checked === true)} />
