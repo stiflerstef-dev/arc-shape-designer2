@@ -252,6 +252,7 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(String(valueMm));
   const [freshEntry, setFreshEntry] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const openPad = () => {
     if (disabled) return;
@@ -265,7 +266,9 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
     if (isNaN(n) || raw.trim() === "") { setOpen(false); return; }
     const clampedMm = Math.max(minMm, Math.min(maxMm, Math.round(n)));
     if (Math.round(n) !== clampedMm) {
-      toast.info(`${label}: ${Math.round(n)} mm valt buiten ons standaard bereik (${minMm}–${maxMm} mm). Deze maat is alleen op aanvraag mogelijk.`);
+      setErrorMsg(`${Math.round(n)} mm valt buiten ons standaard bereik (${minMm}–${maxMm} mm). Deze maat is alleen op aanvraag mogelijk.`);
+    } else {
+      setErrorMsg(null);
     }
     const cm = Math.round(clampedMm / 10);
     onChange(Math.max(min, Math.min(max, cm)));
@@ -305,6 +308,22 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
         />
         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] tracking-wider text-muted-foreground/70 uppercase">{unit}</span>
       </div>
+      {errorMsg && (
+        <div
+          className="fixed inset-0 z-[90]"
+          onClick={() => setErrorMsg(null)}
+        >
+          <div
+            role="alert"
+            onClick={(e) => { e.stopPropagation(); setErrorMsg(null); }}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[90vw] sm:max-w-sm cursor-pointer rounded-md border border-copper/40 bg-card text-foreground shadow-lg px-4 py-3 text-[11px] leading-relaxed tracking-wide animate-in fade-in-0 zoom-in-95"
+          >
+            <div className="text-[10px] font-medium tracking-[0.18em] uppercase text-copper mb-1">{label}</div>
+            {errorMsg}
+            <div className="mt-2 text-[10px] text-muted-foreground/70 italic">Klik om te sluiten</div>
+          </div>
+        </div>
+      )}
       {open && (
         <div
           className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 animate-in fade-in-0"
