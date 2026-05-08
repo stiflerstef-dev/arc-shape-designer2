@@ -194,11 +194,22 @@ function archArea(w: number, h: number): number {
   return w * Math.max(0, h - r) + (Math.PI * r * r) / 2;
 }
 
-function calcPrice(cab: Dims, arch: ArchShape, shelfCount: number, hasRod: boolean, hasLight: boolean): number {
+function sidePanelPrice(cab: Dims, placement: Placement): number {
+  const areaM2 = (cab.height * cab.depth) / 10000; // cm² → m²
+  return PLACEMENT_VISIBLE_SIDES[placement] * areaM2 * MDF_PRICE_PER_M2;
+}
+function backPanelPrice(cab: Dims): number {
+  const areaM2 = (cab.width * cab.height) / 10000;
+  return areaM2 * MDF_PRICE_PER_M2;
+}
+
+function calcPrice(cab: Dims, arch: ArchShape, shelfCount: number, hasRod: boolean, hasLight: boolean, placement: Placement, hasBack: boolean): number {
   const totalMDF = 2 * cab.height * cab.depth + cab.width * cab.depth + cab.width * cab.height + Math.max(0, cab.width * cab.height - archArea(arch.width, arch.height));
   const material = Math.ceil(totalMDF / 28000) * 75;
   const labor = totalMDF * 0.00907;
-  return Math.round(material + labor + shelfCount * shelfUnitPrice(arch.width) + (hasRod ? ROD_PRICE : 0) + (hasLight ? LIGHT_PRICE : 0));
+  const sides = sidePanelPrice(cab, placement);
+  const back = hasBack ? backPanelPrice(cab) : 0;
+  return Math.round(material + labor + shelfCount * shelfUnitPrice(arch.width) + (hasRod ? ROD_PRICE : 0) + (hasLight ? LIGHT_PRICE : 0) + sides + back);
 }
 
 /* ─── Animated price counter hook ─── */
