@@ -35,11 +35,11 @@ const LIGHT_DIAMETER = 3.7;
 const MDF_PRICE_PER_M2 = 65;
 
 type Placement = "between" | "oneWall" | "standalone";
-const PLACEMENT_VISIBLE_SIDES: Record<Placement, number> = {
-  between: 0,
-  oneWall: 1,
-  standalone: 2,
-};
+function placementFromSides(left: boolean, right: boolean): Placement {
+  if (left && right) return "standalone";
+  if (left || right) return "oneWall";
+  return "between";
+}
 
 /* ─── Niche wall colors (vtwonen earthy tones) ─── */
 const NICHE_COLORS = [
@@ -194,20 +194,20 @@ function archArea(w: number, h: number): number {
   return w * Math.max(0, h - r) + (Math.PI * r * r) / 2;
 }
 
-function sidePanelPrice(cab: Dims, placement: Placement): number {
+function sidePanelPrice(cab: Dims, visibleSides: number): number {
   const areaM2 = (cab.height * cab.depth) / 10000; // cm² → m²
-  return PLACEMENT_VISIBLE_SIDES[placement] * areaM2 * MDF_PRICE_PER_M2;
+  return visibleSides * areaM2 * MDF_PRICE_PER_M2;
 }
 function backPanelPrice(cab: Dims): number {
   const areaM2 = (cab.width * cab.height) / 10000;
   return areaM2 * MDF_PRICE_PER_M2;
 }
 
-function calcPrice(cab: Dims, arch: ArchShape, shelfCount: number, hasRod: boolean, hasLight: boolean, placement: Placement, hasBack: boolean): number {
+function calcPrice(cab: Dims, arch: ArchShape, shelfCount: number, hasRod: boolean, hasLight: boolean, visibleSides: number, hasBack: boolean): number {
   const totalMDF = 2 * cab.height * cab.depth + cab.width * cab.depth + cab.width * cab.height + Math.max(0, cab.width * cab.height - archArea(arch.width, arch.height));
   const material = Math.ceil(totalMDF / 28000) * 75;
   const labor = totalMDF * 0.00907;
-  const sides = sidePanelPrice(cab, placement);
+  const sides = sidePanelPrice(cab, visibleSides);
   const back = hasBack ? backPanelPrice(cab) : 0;
   return Math.round(material + labor + shelfCount * shelfUnitPrice(arch.width) + (hasRod ? ROD_PRICE : 0) + (hasLight ? LIGHT_PRICE : 0) + sides + back);
 }
@@ -386,7 +386,8 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
   const [hasLight, setHasLight] = useState(false);
   const [showDimensions, setShowDimensions] = useState(true);
   const [nicheColorIdx, setNicheColorIdx] = useState<number>(0);
-  const [placement, setPlacement] = useState<Placement>("between");
+  const [finishLeft, setFinishLeft] = useState(false);
+  const [finishRight, setFinishRight] = useState(false);
   const [hasBack, setHasBack] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
@@ -441,11 +442,11 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
     setResErrors({});
     setReserveSubmitting(true);
     // Backend (e-mailverzending) volgt in een latere stap.
-    // Configuratie-overzicht voor zowel klant als beheerder:
+    const visibleSides = (finishLeft ? 1 : 0) + (finishRight ? 1 : 0);
     const placementLabel =
-      placement === "between" ? "Tussen twee muren (geen afgewerkte zijkanten)" :
-      placement === "oneWall" ? "Tegen één muur (1 afgewerkte zijkant)" :
-      "Losstaand (2 afgewerkte zijkanten)";
+      visibleSides === 0 ? "Tussen twee muren (geen afgewerkte zijkanten)" :
+      visibleSides === 1 ? `Tegen één muur (${finishLeft ? "linkerzijde" : "rechterzijde"} afgewerkt)` :
+      "Losstaand (beide zijkanten afgewerkt)";
     const summary = {
       cabinet,
       arch,
@@ -455,7 +456,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
       hasLight,
       nicheColor: nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].name : null,
       placement: placementLabel,
-      placementExtra: Math.round(sidePanelPrice(cabinet, placement)),
+      placementExtra: Math.round(sidePanelPrice(cabinet, visibleSides)),
       hasBack,
       backExtra: hasBack ? Math.round(backPanelPrice(cabinet)) : 0,
       totalPrice,
@@ -541,7 +542,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
     setArch({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
     setArchType("classic"); setShelfCount(0); setHasRod(false); setRodFinish("zwart"); setHasLight(false);
     setShoulderRadiusValue(25); setNicheColorIdx(null);
-    setPlacement("between"); setHasBack(false);
+    setFinishLeft(false); setFinishRight(false); setHasBack(false);
   };
 
   const updateCabinet = (key: keyof Dims, v: number) => {
@@ -587,7 +588,9 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
   const rodRelY = (archType === "shoulder" ? clampedShoulderR + 10 : archType === "gothic" ? Math.max(ah * 0.25, 15) : aw / 2 + 10);
   const rodWidth = getShelfWidthAtY(rodRelY, aw, archType, ah, gothicCapH, clampedShoulderR);
   const shelves = shelfPositions(shelfCount, ah, aw, archType, gothicCapH, clampedShoulderR);
-  const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, placement, hasBack);
+  const visibleSides = (finishLeft ? 1 : 0) + (finishRight ? 1 : 0);
+  const placement: Placement = placementFromSides(finishLeft, finishRight);
+  const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
   const displayPrice = useAnimatedPrice(totalPrice);
 
   const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
@@ -1109,55 +1112,63 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
               <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
                 <h2 className="font-serif-display text-xl text-foreground">Plaatsing</h2>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                {([
-                  { key: "between", title: "Tussen twee muren", desc: "Zijkanten niet zichtbaar, geen afwerking." },
-                  { key: "oneWall", title: "Tegen één muur", desc: "Eén zijkant afgewerkt." },
-                  { key: "standalone", title: "Losstaand", desc: "Beide zijkanten afgewerkt." },
-                ] as { key: Placement; title: string; desc: string }[]).map((opt) => {
-                  const active = placement === opt.key;
-                  const leftWall = opt.key === "between" || opt.key === "oneWall";
-                  const rightWall = opt.key === "between";
-                  const leftFinished = opt.key === "standalone";
-                  const rightFinished = opt.key === "oneWall" || opt.key === "standalone";
-                  return (
-                    <button
-                      key={opt.key}
-                      type="button"
-                      onClick={() => setPlacement(opt.key)}
-                      aria-pressed={active}
-                      className={`text-left rounded-sm p-3 border transition-all duration-200 focus:outline-none ${
-                        active
-                          ? "border-copper bg-secondary shadow-[0_4px_12px_rgba(28,28,26,0.10)]"
-                          : "border-border bg-card hover:border-foreground/40"
-                      }`}
-                    >
-                      <svg viewBox="0 0 80 50" className="w-full h-12 mb-2" aria-hidden="true">
-                        {leftWall && <rect x="2" y="6" width="6" height="40" fill="hsl(var(--muted))" />}
-                        {rightWall && <rect x="72" y="6" width="6" height="40" fill="hsl(var(--muted))" />}
-                        <rect
-                          x="14" y="14" width="52" height="32"
-                          fill={active ? "hsl(var(--copper) / 0.15)" : "hsl(var(--background))"}
-                          stroke="hsl(var(--foreground))"
-                          strokeWidth={leftFinished || rightFinished ? 1 : 0.6}
-                        />
-                        {/* afgewerkte zijkanten extra accent */}
-                        {leftFinished && <line x1="14" y1="14" x2="14" y2="46" stroke="hsl(var(--copper))" strokeWidth={1.5} />}
-                        {rightFinished && <line x1="66" y1="14" x2="66" y2="46" stroke="hsl(var(--copper))" strokeWidth={1.5} />}
-                      </svg>
-                      <div className={`text-[10px] tracking-[0.12em] uppercase font-medium ${active ? "text-foreground" : "text-foreground/80"}`}>
-                        {opt.title}
-                      </div>
-                      <p className="text-[10px] text-muted-foreground leading-snug mt-1">{opt.desc}</p>
-                    </button>
-                  );
-                })}
+              <p className="text-[11px] text-muted-foreground leading-relaxed mb-4">
+                Selecteer welke zijkanten zichtbaar zijn en in matwit MDF afgewerkt moeten worden. Tegen een muur? Laat de zijkant uit.
+              </p>
+              <div className="flex items-center justify-center gap-3 sm:gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFinishLeft((v) => !v)}
+                  aria-pressed={finishLeft}
+                  className={`flex-1 max-w-[110px] rounded-sm border px-2 py-3 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors focus:outline-none ${
+                    finishLeft
+                      ? "border-copper bg-secondary text-foreground"
+                      : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                  }`}
+                >
+                  {finishLeft ? "Links afgewerkt" : "Links niet afgewerkt"}
+                </button>
+                <svg viewBox="0 0 100 80" className="w-24 h-20 shrink-0" aria-hidden="true">
+                  {/* Cabinet body */}
+                  <rect
+                    x="22" y="10" width="56" height="64"
+                    fill="hsl(var(--background))"
+                    stroke="hsl(var(--foreground))"
+                    strokeWidth={1}
+                  />
+                  {/* Arch hint */}
+                  <path
+                    d="M 32 74 L 32 36 A 18 18 0 0 1 68 36 L 68 74"
+                    fill="hsl(var(--secondary))"
+                    stroke="hsl(var(--foreground) / 0.5)"
+                    strokeWidth={0.6}
+                  />
+                  {/* Left side accent */}
+                  <rect
+                    x="18" y="10" width="4" height="64"
+                    fill={finishLeft ? "hsl(var(--copper))" : "hsl(var(--muted))"}
+                    opacity={finishLeft ? 1 : 0.5}
+                  />
+                  {/* Right side accent */}
+                  <rect
+                    x="78" y="10" width="4" height="64"
+                    fill={finishRight ? "hsl(var(--copper))" : "hsl(var(--muted))"}
+                    opacity={finishRight ? 1 : 0.5}
+                  />
+                </svg>
+                <button
+                  type="button"
+                  onClick={() => setFinishRight((v) => !v)}
+                  aria-pressed={finishRight}
+                  className={`flex-1 max-w-[110px] rounded-sm border px-2 py-3 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors focus:outline-none ${
+                    finishRight
+                      ? "border-copper bg-secondary text-foreground"
+                      : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                  }`}
+                >
+                  {finishRight ? "Rechts afgewerkt" : "Rechts niet afgewerkt"}
+                </button>
               </div>
-              {placement !== "between" && (
-                <p className="text-[10px] text-muted-foreground mt-3">
-                  + €{Math.round(sidePanelPrice(cabinet, placement)).toLocaleString("nl-NL")} voor {PLACEMENT_VISIBLE_SIDES[placement]} afgewerkte zijkant{PLACEMENT_VISIBLE_SIDES[placement] > 1 ? "en" : ""} (matwit MDF)
-                </p>
-              )}
             </section>
 
             {/* Achterwand */}
@@ -1365,16 +1376,17 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
                 <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">Plaatsing</span>
                   <span className="text-right">
-                    {placement === "between" ? "Tussen twee muren" : placement === "oneWall" ? "Tegen één muur" : "Losstaand"}
-                    {placement !== "between" && (
-                      <span className="text-muted-foreground"> · +€{Math.round(sidePanelPrice(cabinet, placement)).toLocaleString("nl-NL")}</span>
-                    )}
+                    {visibleSides === 0
+                      ? "Geen zijkant afgewerkt"
+                      : visibleSides === 2
+                        ? "Beide zijkanten afgewerkt"
+                        : `${finishLeft ? "Linker" : "Rechter"}zijkant afgewerkt`}
                   </span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">Achterwand</span>
                   <span className="text-right">
-                    {hasBack ? <>Toegevoegd <span className="text-muted-foreground">· +€{Math.round(backPanelPrice(cabinet)).toLocaleString("nl-NL")}</span></> : "Geen"}
+                    {hasBack ? "Toegevoegd" : "Geen"}
                   </span>
                 </div>
               </div>
