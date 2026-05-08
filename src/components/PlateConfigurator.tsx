@@ -1376,16 +1376,17 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
                 <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">Plaatsing</span>
                   <span className="text-right">
-                    {placement === "between" ? "Tussen twee muren" : placement === "oneWall" ? "Tegen één muur" : "Losstaand"}
-                    {placement !== "between" && (
-                      <span className="text-muted-foreground"> · +€{Math.round(sidePanelPrice(cabinet, placement)).toLocaleString("nl-NL")}</span>
-                    )}
+                    {visibleSides === 0
+                      ? "Geen zijkant afgewerkt"
+                      : visibleSides === 2
+                        ? "Beide zijkanten afgewerkt"
+                        : `${finishLeft ? "Linker" : "Rechter"}zijkant afgewerkt`}
                   </span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">Achterwand</span>
                   <span className="text-right">
-                    {hasBack ? <>Toegevoegd <span className="text-muted-foreground">· +€{Math.round(backPanelPrice(cabinet)).toLocaleString("nl-NL")}</span></> : "Geen"}
+                    {hasBack ? "Toegevoegd" : "Geen"}
                   </span>
                 </div>
               </div>
