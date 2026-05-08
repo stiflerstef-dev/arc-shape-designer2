@@ -966,8 +966,8 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
                   const labels = [
                     { key: "A", x: (cabL + archL) / 2, y: archCY, show: ax > 0 },
                     { key: "B", x: (cabR + archR) / 2, y: archCY, show: cabinet.width - ax - aw > 0 },
-                    { key: "C", x: archCX, y: (cabT + archT) / 2, show: ay > 0 },
-                     { key: "D", x: archCX, y: cabinet.height - ay - ah > 0 ? (cabB + archB) / 2 : cabB + 16, show: true },
+                     { key: "C", x: archCX, y: (cabT + archT) / 2, show: ay > 0 },
+                     { key: "D", x: archCX, y: (cabB + archB) / 2, show: cabinet.height - ay - ah > 0 },
                   ];
                   const r = 11;
                   return (
