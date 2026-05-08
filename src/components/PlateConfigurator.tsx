@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 import { RotateCcw, Plus, Minus, Check, Info } from "lucide-react";
 import { Delete } from "lucide-react";
+import { toast } from "sonner";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
 import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
 import roedeWitThumb from "@/assets/roede-wit-thumb.webp";
@@ -262,6 +263,9 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
     const n = parseFloat(raw);
     if (isNaN(n) || raw.trim() === "") { setOpen(false); return; }
     const clampedMm = Math.max(minMm, Math.min(maxMm, Math.round(n)));
+    if (Math.round(n) !== clampedMm) {
+      toast.info(`${label}: ${Math.round(n)} mm valt buiten ons standaard bereik (${minMm}–${maxMm} mm). Deze maat is alleen op aanvraag mogelijk.`);
+    }
     const cm = Math.round(clampedMm / 10);
     onChange(Math.max(min, Math.min(max, cm)));
     setOpen(false);
@@ -962,8 +966,8 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
                   const labels = [
                     { key: "A", x: (cabL + archL) / 2, y: archCY, show: ax > 0 },
                     { key: "B", x: (cabR + archR) / 2, y: archCY, show: cabinet.width - ax - aw > 0 },
-                    { key: "C", x: archCX, y: (cabT + archT) / 2, show: ay > 0 },
-                     { key: "D", x: archCX, y: cabinet.height - ay - ah > 0 ? (cabB + archB) / 2 : cabB + 16, show: true },
+                     { key: "C", x: archCX, y: (cabT + archT) / 2, show: ay > 0 },
+                     { key: "D", x: archCX, y: (cabB + archB) / 2, show: cabinet.height - ay - ah > 0 },
                   ];
                   const r = 11;
                   return (
