@@ -15,13 +15,12 @@ const CabinetIllustration = ({ variant }: { variant: Preview }) => {
   const accent = "hsl(var(--accent))";
 
   if (variant === "small") {
-    // small freestanding with plinth
+    // small freestanding
     return (
       <svg viewBox="0 0 120 120" className="w-full h-full">
         <rect x="32" y="22" width="56" height="78" fill={fill} stroke={stroke} strokeWidth="1.2" />
         <path d="M40 100 V44 Q40 32 60 32 Q80 32 80 44 V100 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
         <line x1="32" y1="100" x2="88" y2="100" stroke={stroke} strokeWidth="1.2" />
-        <rect x="36" y="100" width="48" height="6" fill={fill} stroke={stroke} strokeWidth="1" />
       </svg>
     );
   }
