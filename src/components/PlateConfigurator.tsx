@@ -386,7 +386,8 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
   const [hasLight, setHasLight] = useState(false);
   const [showDimensions, setShowDimensions] = useState(true);
   const [nicheColorIdx, setNicheColorIdx] = useState<number>(0);
-  const [placement, setPlacement] = useState<Placement>("between");
+  const [finishLeft, setFinishLeft] = useState(false);
+  const [finishRight, setFinishRight] = useState(false);
   const [hasBack, setHasBack] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
