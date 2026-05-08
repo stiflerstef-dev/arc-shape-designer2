@@ -31,7 +31,7 @@ const SHELF_THICKNESS = 7;
 const ROD_DIAMETER = 3.2;
 const ROD_PRICE = 15;
 const LIGHT_PRICE = 50;
-const LIGHT_DIAMETER = 3.7;
+const LIGHT_DIAMETER = 4.2;
 
 /* ─── Finished MDF panels (zichtbare zij- en achterwanden) ─── */
 /* Prijs per m² voor afgewerkte matwit MDF panelen, incl. afwerking */
@@ -1259,7 +1259,19 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                           </DialogContent>
                         </Dialog>
                       )}
-                      <Label htmlFor="rod" className="text-xs font-light text-foreground tracking-wide">Roede <span className="text-muted-foreground">(Ø32mm)</span></Label>
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="rod" className="text-xs font-light text-foreground tracking-wide">Roede (ovaal)</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button type="button" className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                              <Info className="w-3.5 h-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                            Een ovale garderobe- of decoratieroede, gemonteerd met twee beugels aan beide zijwanden. Geschikt voor kleding, planten of decoratie.
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                     </div>
                     <Switch id="rod" checked={hasRod} onCheckedChange={setHasRod} />
                   </div>
@@ -1315,9 +1327,21 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                           </DialogContent>
                         </Dialog>
                       )}
-                      <Label htmlFor="light" className={`text-xs font-light tracking-wide ${archType === "gothic" ? "text-muted-foreground/60" : "text-foreground"}`}>
-                        Verlichting <span className="text-muted-foreground">(Ø37mm · €{LIGHT_PRICE})</span>
-                      </Label>
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="light" className={`text-xs font-light tracking-wide ${archType === "gothic" ? "text-muted-foreground/60" : "text-foreground"}`}>
+                          Verlichting (Ø42mm RGB · €50)
+                        </Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button type="button" className={`hover:text-foreground transition-colors shrink-0 ${archType === "gothic" ? "text-muted-foreground/40" : "text-muted-foreground"}`}>
+                              <Info className="w-3.5 h-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                            Een ingebouwde RGB LED spot van 42mm diameter, gemonteerd in het plafond van de nis. De spot geeft instelbaar gekleurd licht en wordt geleverd inclusief afstandsbediening. Het gat wordt gefreesd en de bedrading voorbereid geleverd. Aansluiting door een elektricien aanbevolen.
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                     </div>
                     <Switch id="light" checked={hasLight && archType !== "gothic"} onCheckedChange={setHasLight} disabled={archType === "gothic"} />
                   </div>
