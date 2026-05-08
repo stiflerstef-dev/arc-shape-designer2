@@ -1084,6 +1084,85 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
               </p>
             </section>
 
+            {/* Plaatsing */}
+            <section>
+              <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
+                <h2 className="font-serif-display text-xl text-foreground">Plaatsing</h2>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {([
+                  { key: "between", title: "Tussen twee muren", desc: "Zijkanten niet zichtbaar, geen afwerking." },
+                  { key: "oneWall", title: "Tegen één muur", desc: "Eén zijkant afgewerkt." },
+                  { key: "standalone", title: "Losstaand", desc: "Beide zijkanten afgewerkt." },
+                ] as { key: Placement; title: string; desc: string }[]).map((opt) => {
+                  const active = placement === opt.key;
+                  const leftWall = opt.key === "between" || opt.key === "oneWall";
+                  const rightWall = opt.key === "between";
+                  const leftFinished = opt.key === "standalone";
+                  const rightFinished = opt.key === "oneWall" || opt.key === "standalone";
+                  return (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() => setPlacement(opt.key)}
+                      aria-pressed={active}
+                      className={`text-left rounded-sm p-3 border transition-all duration-200 focus:outline-none ${
+                        active
+                          ? "border-copper bg-secondary shadow-[0_4px_12px_rgba(28,28,26,0.10)]"
+                          : "border-border bg-card hover:border-foreground/40"
+                      }`}
+                    >
+                      <svg viewBox="0 0 80 50" className="w-full h-12 mb-2" aria-hidden="true">
+                        {leftWall && <rect x="2" y="6" width="6" height="40" fill="hsl(var(--muted))" />}
+                        {rightWall && <rect x="72" y="6" width="6" height="40" fill="hsl(var(--muted))" />}
+                        <rect
+                          x="14" y="14" width="52" height="32"
+                          fill={active ? "hsl(var(--copper) / 0.15)" : "hsl(var(--background))"}
+                          stroke="hsl(var(--foreground))"
+                          strokeWidth={leftFinished || rightFinished ? 1 : 0.6}
+                        />
+                        {/* afgewerkte zijkanten extra accent */}
+                        {leftFinished && <line x1="14" y1="14" x2="14" y2="46" stroke="hsl(var(--copper))" strokeWidth={1.5} />}
+                        {rightFinished && <line x1="66" y1="14" x2="66" y2="46" stroke="hsl(var(--copper))" strokeWidth={1.5} />}
+                      </svg>
+                      <div className={`text-[10px] tracking-[0.12em] uppercase font-medium ${active ? "text-foreground" : "text-foreground/80"}`}>
+                        {opt.title}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-snug mt-1">{opt.desc}</p>
+                    </button>
+                  );
+                })}
+              </div>
+              {placement !== "between" && (
+                <p className="text-[10px] text-muted-foreground mt-3">
+                  + €{Math.round(sidePanelPrice(cabinet, placement)).toLocaleString("nl-NL")} voor {PLACEMENT_VISIBLE_SIDES[placement]} afgewerkte zijkant{PLACEMENT_VISIBLE_SIDES[placement] > 1 ? "en" : ""} (matwit MDF)
+                </p>
+              )}
+            </section>
+
+            {/* Achterwand */}
+            <section>
+              <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
+                <h2 className="font-serif-display text-xl text-foreground">Achterwand</h2>
+              </div>
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1 min-w-0">
+                  <Label htmlFor="hasBack" className="text-xs font-light text-foreground tracking-wide">
+                    Achterwand toevoegen
+                  </Label>
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                    Een afgewerkte achterwand in matwit MDF.
+                  </p>
+                  {hasBack && (
+                    <p className="text-[10px] text-muted-foreground">
+                      + €{Math.round(backPanelPrice(cabinet)).toLocaleString("nl-NL")}
+                    </p>
+                  )}
+                </div>
+                <Switch id="hasBack" checked={hasBack} onCheckedChange={setHasBack} />
+              </div>
+            </section>
+
             {/* Opties */}
             <section>
               <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
