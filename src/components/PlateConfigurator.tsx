@@ -964,11 +964,12 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   const archB = padding + dyS + (ay + ah) * scale;
                   const archCY = (archT + archB) / 2;
                   const archCX = (archL + archR) / 2;
+                  const dMarginPx = cabB - archB;
                   const labels = [
                     { key: "A", x: (cabL + archL) / 2, y: archCY, show: ax > 0 },
                     { key: "B", x: (cabR + archR) / 2, y: archCY, show: cabinet.width - ax - aw > 0 },
                      { key: "C", x: archCX, y: (cabT + archT) / 2, show: ay > 0 },
-                     { key: "D", x: archCX, y: (cabB + archB) / 2, show: cabinet.height - ay - ah > 0 },
+                     { key: "D", x: archCX, y: dMarginPx >= 24 ? (cabB + archB) / 2 : cabB - 14, show: true },
                   ];
                   const r = 11;
                   return (
