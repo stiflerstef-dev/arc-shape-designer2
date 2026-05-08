@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
-import { RotateCcw, Plus, Minus, Check, Info } from "lucide-react";
+import { RotateCcw, Plus, Minus, Check, Info, ArrowLeftRight } from "lucide-react";
 import { Delete } from "lucide-react";
 import { toast } from "sonner";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
@@ -399,6 +399,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
+  const archDimsRef = useRef<HTMLElement>(null);
 
   // Reservation modal state
   const [reserveOpen, setReserveOpen] = useState(false);
@@ -529,6 +530,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const my = (e.clientY - rect.top - padding - dyS) / scale;
     setDragOffset({ x: mx - arch.position.x, y: my - arch.position.y });
     setIsDragging(true);
+    if (centerArch) setCenterArch(false);
+    archDimsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -538,10 +541,23 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const my = (e.clientY - rect.top - padding - dyS) / scale;
     const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
     const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    setArch((prev) => ({ ...prev, position: { x: centerArch ? Math.max(5, (cabinet.width - arch.width) / 2) : cx, y: cy } }));
-  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, centerArch]);
+    // Round to nearest mm (0.1 cm)
+    const cxR = Math.round(cx * 10) / 10;
+    const cyR = Math.round(cy * 10) / 10;
+    setArch((prev) => ({ ...prev, position: { x: cxR, y: cyR } }));
+  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS]);
 
-  const handleMouseUp = useCallback(() => setIsDragging(false), []);
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+    // Snap to nearest whole mm on release
+    setArch((prev) => ({
+      ...prev,
+      position: {
+        x: Math.round(prev.position.x * 10) / 10,
+        y: Math.round(prev.position.y * 10) / 10,
+      },
+    }));
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
