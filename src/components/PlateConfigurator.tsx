@@ -1019,7 +1019,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
               </div>
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Vorm Niche</Label>
+                  <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Boogvorm</Label>
                   <Select value={archType} onValueChange={(v) => setArchType(v as ArchType)}>
                     <SelectTrigger className="input-artisan h-10 text-sm font-light text-foreground">
                       <SelectValue />
