@@ -658,9 +658,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
   const displayPrice = useAnimatedPrice(totalPrice);
 
-  const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
-  const svgHeight = (cabinet.height + depthOffset) * scale + padding * 2;
-
   // Niche interior color
   const nicheBackColor = nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].hex : COL.nicheBack;
 
