@@ -544,8 +544,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleReset = () => {
-    setCabinet({ ...DEFAULT_CABINET });
-    setArch({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
+    setCabinet({ ...startCabinet });
+    setArch({ ...startArch, position: { ...startArch.position } });
     setArchType("classic"); setShelfCount(0); setHasRod(false); setRodFinish("zwart"); setHasLight(false);
     setShoulderRadiusValue(25); setNicheColorIdx(null);
     setFinishLeft(false); setFinishRight(false); setHasBack(false);
