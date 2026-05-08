@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
-import { RotateCcw, Plus, Minus, Check, Info } from "lucide-react";
+import { RotateCcw, Plus, Minus, Check, Info, ArrowLeftRight } from "lucide-react";
 import { Delete } from "lucide-react";
 import { toast } from "sonner";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
@@ -399,6 +399,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
+  const archDimsRef = useRef<HTMLElement>(null);
 
   // Reservation modal state
   const [reserveOpen, setReserveOpen] = useState(false);
@@ -529,6 +530,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const my = (e.clientY - rect.top - padding - dyS) / scale;
     setDragOffset({ x: mx - arch.position.x, y: my - arch.position.y });
     setIsDragging(true);
+    if (centerArch) setCenterArch(false);
+    archDimsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -538,10 +541,23 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const my = (e.clientY - rect.top - padding - dyS) / scale;
     const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
     const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    setArch((prev) => ({ ...prev, position: { x: centerArch ? Math.max(5, (cabinet.width - arch.width) / 2) : cx, y: cy } }));
-  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, centerArch]);
+    // Round to nearest mm (0.1 cm)
+    const cxR = Math.round(cx * 10) / 10;
+    const cyR = Math.round(cy * 10) / 10;
+    setArch((prev) => ({ ...prev, position: { x: cxR, y: cyR } }));
+  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS]);
 
-  const handleMouseUp = useCallback(() => setIsDragging(false), []);
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+    // Snap to nearest whole mm on release
+    setArch((prev) => ({
+      ...prev,
+      position: {
+        x: Math.round(prev.position.x * 10) / 10,
+        y: Math.round(prev.position.y * 10) / 10,
+      },
+    }));
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
@@ -889,6 +905,20 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     {/* Arch drag handle */}
                     <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab" }} onMouseDown={handleMouseDown} />
                     <path d={archPathOpen} fill="none" stroke="hsl(var(--accent))" strokeWidth={2 / scale} strokeLinejoin="miter" strokeMiterlimit={10} style={{ cursor: "grab", pointerEvents: "none" }} />
+                    {/* "Versleep mij" hint inside arch, on top of shelves */}
+                    <text
+                      x={ax + aw / 2}
+                      y={ay + ah / 2}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fontSize={Math.max(2.5, Math.min(5, aw / 12))}
+                      fontStyle="italic"
+                      fill={COL.dim}
+                      fillOpacity={0.45}
+                      style={{ pointerEvents: "none", fontFamily: "Inter, sans-serif", fontWeight: 300 }}
+                    >
+                      Versleep mij
+                    </text>
                   </g>
                 </g>
 
@@ -1024,7 +1054,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
             </section>
 
             {/* Boog Afmetingen */}
-            <section>
+            <section ref={archDimsRef}>
               <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
                 <h2 className="font-serif-display text-xl text-foreground">Boog Afmetingen</h2>
               </div>
@@ -1062,19 +1092,59 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 10)} />
                   <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 5)} />
                 </div>
+                <div className="grid grid-cols-[1fr_auto_1fr] gap-3 py-2 items-end">
+                  <NumberInput
+                    id="archX"
+                    label="A — links"
+                    value={arch.position.x}
+                    onChange={(v) => {
+                      if (centerArch) {
+                        const newW = Math.max(10, cabinet.width - 2 * v);
+                        setArch((prev) => clampArch({ ...prev, width: newW, position: { ...prev.position, x: v } }));
+                      } else {
+                        updateArchPos("x", v);
+                      }
+                    }}
+                    min={5}
+                    max={Math.max(5, cabinet.width - arch.width - 5)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCenterArch((s) => !s)}
+                    aria-pressed={centerArch}
+                    aria-label="Boog horizontaal centreren (A en B spiegelen)"
+                    title="Spiegel A en B (centreer)"
+                    className={`h-10 w-10 rounded-md border flex items-center justify-center transition-colors mb-0 ${
+                      centerArch
+                        ? "bg-copper/15 border-copper text-copper"
+                        : "bg-card border-border text-muted-foreground hover:border-copper hover:text-copper"
+                    }`}
+                  >
+                    <ArrowLeftRight className="h-4 w-4" />
+                  </button>
+                  <NumberInput
+                    id="archXR"
+                    label="B — rechts"
+                    value={Math.max(0, cabinet.width - arch.width - arch.position.x)}
+                    onChange={(v) => {
+                      if (centerArch) {
+                        const newW = Math.max(10, cabinet.width - 2 * v);
+                        setArch((prev) => clampArch({ ...prev, width: newW, position: { ...prev.position, x: v } }));
+                      } else {
+                        updateArchPos("x", cabinet.width - arch.width - v);
+                      }
+                    }}
+                    min={5}
+                    max={Math.max(5, cabinet.width - arch.width - 5)}
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-4 py-2">
-                  <NumberInput id="archX" label="A" value={arch.position.x} onChange={(v) => updateArchPos("x", v)} min={5} max={Math.max(5, cabinet.width - arch.width - 5)} disabled={centerArch} />
-                  <NumberInput id="archXR" label="B" value={Math.max(0, cabinet.width - arch.width - arch.position.x)} onChange={(v) => updateArchPos("x", cabinet.width - arch.width - v)} min={5} max={Math.max(5, cabinet.width - arch.width - 5)} disabled={centerArch} />
-                  <NumberInput id="archY" label="C" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={5} max={Math.max(5, cabinet.height - arch.height)} />
-                  <NumberInput id="archYB" label="D" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height - 5)} />
+                  <NumberInput id="archY" label="C — boven" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={5} max={Math.max(5, cabinet.height - arch.height)} />
+                  <NumberInput id="archYB" label="D — onder" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height - 5)} />
                 </div>
                 <div className="border-t border-border pt-4 flex items-center gap-2">
                   <Checkbox id="showDims" checked={showDimensions} onCheckedChange={(checked) => setShowDimensions(checked === true)} />
                   <Label htmlFor="showDims" className="text-[11px] font-light cursor-pointer text-muted-foreground tracking-wide">Toon afmetingen in preview</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="centerArch" checked={centerArch} onCheckedChange={(checked) => setCenterArch(checked === true)} />
-                  <Label htmlFor="centerArch" className="text-[11px] font-light cursor-pointer text-muted-foreground tracking-wide">Boog horizontaal centreren</Label>
                 </div>
               </div>
             </section>
