@@ -521,6 +521,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
     setArch({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
     setArchType("classic"); setShelfCount(0); setHasRod(false); setRodFinish("zwart"); setHasLight(false);
     setShoulderRadiusValue(25); setNicheColorIdx(null);
+    setPlacement("between"); setHasBack(false);
   };
 
   const updateCabinet = (key: keyof Dims, v: number) => {
