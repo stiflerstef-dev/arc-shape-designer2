@@ -1184,11 +1184,6 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
                   <p className="text-[10px] text-muted-foreground leading-relaxed">
                     Een afgewerkte achterwand in matwit MDF.
                   </p>
-                  {hasBack && (
-                    <p className="text-[10px] text-muted-foreground">
-                      + €{Math.round(backPanelPrice(cabinet)).toLocaleString("nl-NL")}
-                    </p>
-                  )}
                 </div>
                 <Switch id="hasBack" checked={hasBack} onCheckedChange={setHasBack} />
               </div>
