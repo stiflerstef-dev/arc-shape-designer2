@@ -542,7 +542,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
     setArch({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
     setArchType("classic"); setShelfCount(0); setHasRod(false); setRodFinish("zwart"); setHasLight(false);
     setShoulderRadiusValue(25); setNicheColorIdx(null);
-    setPlacement("between"); setHasBack(false);
+    setFinishLeft(false); setFinishRight(false); setHasBack(false);
   };
 
   const updateCabinet = (key: keyof Dims, v: number) => {
@@ -588,7 +588,9 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
   const rodRelY = (archType === "shoulder" ? clampedShoulderR + 10 : archType === "gothic" ? Math.max(ah * 0.25, 15) : aw / 2 + 10);
   const rodWidth = getShelfWidthAtY(rodRelY, aw, archType, ah, gothicCapH, clampedShoulderR);
   const shelves = shelfPositions(shelfCount, ah, aw, archType, gothicCapH, clampedShoulderR);
-  const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, placement, hasBack);
+  const visibleSides = (finishLeft ? 1 : 0) + (finishRight ? 1 : 0);
+  const placement: Placement = placementFromSides(finishLeft, finishRight);
+  const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
   const displayPrice = useAnimatedPrice(totalPrice);
 
   const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
