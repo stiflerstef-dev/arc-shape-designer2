@@ -386,6 +386,8 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
   const [hasLight, setHasLight] = useState(false);
   const [showDimensions, setShowDimensions] = useState(true);
   const [nicheColorIdx, setNicheColorIdx] = useState<number>(0);
+  const [placement, setPlacement] = useState<Placement>("between");
+  const [hasBack, setHasBack] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
@@ -564,7 +566,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
   const rodRelY = (archType === "shoulder" ? clampedShoulderR + 10 : archType === "gothic" ? Math.max(ah * 0.25, 15) : aw / 2 + 10);
   const rodWidth = getShelfWidthAtY(rodRelY, aw, archType, ah, gothicCapH, clampedShoulderR);
   const shelves = shelfPositions(shelfCount, ah, aw, archType, gothicCapH, clampedShoulderR);
-  const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight);
+  const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, placement, hasBack);
   const displayPrice = useAnimatedPrice(totalPrice);
 
   const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
