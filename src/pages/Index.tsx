@@ -6,7 +6,8 @@ const PRESETS = {
   small: {
     cabinet: { width: 80, height: 190, depth: 25 },
     // D (bottom margin) = 20 cm, top margin 5 cm
-    arch: { width: 60, height: 165, position: { x: 10, y: 5 } },
+    // A + B = 5 cm (min 50mm), boogbreedte = 75 cm
+    arch: { width: 75, height: 165, position: { x: 2.5, y: 5 } },
   },
   large: {
     cabinet: { width: 120, height: 250, depth: 40 },
