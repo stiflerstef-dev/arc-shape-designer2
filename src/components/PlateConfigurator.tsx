@@ -578,8 +578,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   };
   const updateArchDim = (key: "width" | "height", v: number) => setArch((prev) => clampArch({ ...prev, [key]: v }));
   const updateArchPos = (axis: "x" | "y", v: number) => {
-    const max = axis === "x" ? cabinet.width - arch.width : cabinet.height - arch.height;
-    setArch((prev) => ({ ...prev, position: { ...prev.position, [axis]: Math.max(0, Math.min(v, max)) } }));
+    const min = axis === "x" ? 5 : 5; // A ≥ 5cm, C ≥ 5cm
+    const max = axis === "x" ? cabinet.width - arch.width - 5 : cabinet.height - arch.height;
+    setArch((prev) => ({ ...prev, position: { ...prev.position, [axis]: Math.max(min, Math.min(v, Math.max(min, max))) } }));
   };
 
   /* ─── SVG geometry ─── */
