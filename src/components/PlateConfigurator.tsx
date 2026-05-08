@@ -905,6 +905,20 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     {/* Arch drag handle */}
                     <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab" }} onMouseDown={handleMouseDown} />
                     <path d={archPathOpen} fill="none" stroke="hsl(var(--accent))" strokeWidth={2 / scale} strokeLinejoin="miter" strokeMiterlimit={10} style={{ cursor: "grab", pointerEvents: "none" }} />
+                    {/* "Versleep mij" hint inside arch, on top of shelves */}
+                    <text
+                      x={ax + aw / 2}
+                      y={ay + ah / 2}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fontSize={Math.max(2.5, Math.min(5, aw / 12))}
+                      fontStyle="italic"
+                      fill={COL.dim}
+                      fillOpacity={0.45}
+                      style={{ pointerEvents: "none", fontFamily: "Inter, sans-serif", fontWeight: 300 }}
+                    >
+                      Versleep mij
+                    </text>
                   </g>
                 </g>
 
