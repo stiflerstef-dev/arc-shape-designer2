@@ -1112,55 +1112,63 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
               <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
                 <h2 className="font-serif-display text-xl text-foreground">Plaatsing</h2>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                {([
-                  { key: "between", title: "Tussen twee muren", desc: "Zijkanten niet zichtbaar, geen afwerking." },
-                  { key: "oneWall", title: "Tegen één muur", desc: "Eén zijkant afgewerkt." },
-                  { key: "standalone", title: "Losstaand", desc: "Beide zijkanten afgewerkt." },
-                ] as { key: Placement; title: string; desc: string }[]).map((opt) => {
-                  const active = placement === opt.key;
-                  const leftWall = opt.key === "between" || opt.key === "oneWall";
-                  const rightWall = opt.key === "between";
-                  const leftFinished = opt.key === "standalone";
-                  const rightFinished = opt.key === "oneWall" || opt.key === "standalone";
-                  return (
-                    <button
-                      key={opt.key}
-                      type="button"
-                      onClick={() => setPlacement(opt.key)}
-                      aria-pressed={active}
-                      className={`text-left rounded-sm p-3 border transition-all duration-200 focus:outline-none ${
-                        active
-                          ? "border-copper bg-secondary shadow-[0_4px_12px_rgba(28,28,26,0.10)]"
-                          : "border-border bg-card hover:border-foreground/40"
-                      }`}
-                    >
-                      <svg viewBox="0 0 80 50" className="w-full h-12 mb-2" aria-hidden="true">
-                        {leftWall && <rect x="2" y="6" width="6" height="40" fill="hsl(var(--muted))" />}
-                        {rightWall && <rect x="72" y="6" width="6" height="40" fill="hsl(var(--muted))" />}
-                        <rect
-                          x="14" y="14" width="52" height="32"
-                          fill={active ? "hsl(var(--copper) / 0.15)" : "hsl(var(--background))"}
-                          stroke="hsl(var(--foreground))"
-                          strokeWidth={leftFinished || rightFinished ? 1 : 0.6}
-                        />
-                        {/* afgewerkte zijkanten extra accent */}
-                        {leftFinished && <line x1="14" y1="14" x2="14" y2="46" stroke="hsl(var(--copper))" strokeWidth={1.5} />}
-                        {rightFinished && <line x1="66" y1="14" x2="66" y2="46" stroke="hsl(var(--copper))" strokeWidth={1.5} />}
-                      </svg>
-                      <div className={`text-[10px] tracking-[0.12em] uppercase font-medium ${active ? "text-foreground" : "text-foreground/80"}`}>
-                        {opt.title}
-                      </div>
-                      <p className="text-[10px] text-muted-foreground leading-snug mt-1">{opt.desc}</p>
-                    </button>
-                  );
-                })}
+              <p className="text-[11px] text-muted-foreground leading-relaxed mb-4">
+                Selecteer welke zijkanten zichtbaar zijn en in matwit MDF afgewerkt moeten worden. Tegen een muur? Laat de zijkant uit.
+              </p>
+              <div className="flex items-center justify-center gap-3 sm:gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFinishLeft((v) => !v)}
+                  aria-pressed={finishLeft}
+                  className={`flex-1 max-w-[110px] rounded-sm border px-2 py-3 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors focus:outline-none ${
+                    finishLeft
+                      ? "border-copper bg-secondary text-foreground"
+                      : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                  }`}
+                >
+                  {finishLeft ? "Links afgewerkt" : "Links niet afgewerkt"}
+                </button>
+                <svg viewBox="0 0 100 80" className="w-24 h-20 shrink-0" aria-hidden="true">
+                  {/* Cabinet body */}
+                  <rect
+                    x="22" y="10" width="56" height="64"
+                    fill="hsl(var(--background))"
+                    stroke="hsl(var(--foreground))"
+                    strokeWidth={1}
+                  />
+                  {/* Arch hint */}
+                  <path
+                    d="M 32 74 L 32 36 A 18 18 0 0 1 68 36 L 68 74"
+                    fill="hsl(var(--secondary))"
+                    stroke="hsl(var(--foreground) / 0.5)"
+                    strokeWidth={0.6}
+                  />
+                  {/* Left side accent */}
+                  <rect
+                    x="18" y="10" width="4" height="64"
+                    fill={finishLeft ? "hsl(var(--copper))" : "hsl(var(--muted))"}
+                    opacity={finishLeft ? 1 : 0.5}
+                  />
+                  {/* Right side accent */}
+                  <rect
+                    x="78" y="10" width="4" height="64"
+                    fill={finishRight ? "hsl(var(--copper))" : "hsl(var(--muted))"}
+                    opacity={finishRight ? 1 : 0.5}
+                  />
+                </svg>
+                <button
+                  type="button"
+                  onClick={() => setFinishRight((v) => !v)}
+                  aria-pressed={finishRight}
+                  className={`flex-1 max-w-[110px] rounded-sm border px-2 py-3 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors focus:outline-none ${
+                    finishRight
+                      ? "border-copper bg-secondary text-foreground"
+                      : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                  }`}
+                >
+                  {finishRight ? "Rechts afgewerkt" : "Rechts niet afgewerkt"}
+                </button>
               </div>
-              {placement !== "between" && (
-                <p className="text-[10px] text-muted-foreground mt-3">
-                  + €{Math.round(sidePanelPrice(cabinet, placement)).toLocaleString("nl-NL")} voor {PLACEMENT_VISIBLE_SIDES[placement]} afgewerkte zijkant{PLACEMENT_VISIBLE_SIDES[placement] > 1 ? "en" : ""} (matwit MDF)
-                </p>
-              )}
             </section>
 
             {/* Achterwand */}
