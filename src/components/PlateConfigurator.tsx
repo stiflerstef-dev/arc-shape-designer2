@@ -30,6 +30,17 @@ const ROD_PRICE = 15;
 const LIGHT_PRICE = 50;
 const LIGHT_DIAMETER = 3.7;
 
+/* ─── Finished MDF panels (zichtbare zij- en achterwanden) ─── */
+/* Prijs per m² voor afgewerkte matwit MDF panelen, incl. afwerking */
+const MDF_PRICE_PER_M2 = 65;
+
+type Placement = "between" | "oneWall" | "standalone";
+const PLACEMENT_VISIBLE_SIDES: Record<Placement, number> = {
+  between: 0,
+  oneWall: 1,
+  standalone: 2,
+};
+
 /* ─── Niche wall colors (vtwonen earthy tones) ─── */
 const NICHE_COLORS = [
   { name: "Zandduinen", hex: "#D4C5A9" },
