@@ -507,6 +507,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const dy = -depthOffset;
   const dxS = dx * scale;
   const dyS = Math.abs(dy) * scale;
+  const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
+  const svgHeight = (cabinet.height + depthOffset) * scale + padding * 2;
 
   /* ─── Clamping ─── */
   const clampArch = useCallback((a: ArchShape): ArchShape => {
