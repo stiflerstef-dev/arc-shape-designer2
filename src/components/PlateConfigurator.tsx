@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 import { RotateCcw, Plus, Minus, Check, Info } from "lucide-react";
 import { Delete } from "lucide-react";
+import { toast } from "sonner";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
 import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
 import roedeWitThumb from "@/assets/roede-wit-thumb.webp";
