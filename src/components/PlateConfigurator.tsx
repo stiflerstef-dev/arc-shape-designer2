@@ -7,8 +7,9 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-import { RotateCcw, Plus, Minus, Check } from "lucide-react";
+import { RotateCcw, Plus, Minus, Check, Info } from "lucide-react";
 import { Delete } from "lucide-react";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
 import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
@@ -198,8 +199,8 @@ function sidePanelPrice(cab: Dims, visibleSides: number): number {
   const areaM2 = (cab.height * cab.depth) / 10000; // cm² → m²
   return visibleSides * areaM2 * MDF_PRICE_PER_M2;
 }
-function backPanelPrice(cab: Dims): number {
-  const areaM2 = (cab.width * cab.height) / 10000;
+function backPanelPrice(arch: ArchShape): number {
+  const areaM2 = (arch.width * arch.height) / 10000;
   return areaM2 * MDF_PRICE_PER_M2;
 }
 
@@ -208,7 +209,7 @@ function calcPrice(cab: Dims, arch: ArchShape, shelfCount: number, hasRod: boole
   const material = Math.ceil(totalMDF / 28000) * 75;
   const labor = totalMDF * 0.00907;
   const sides = sidePanelPrice(cab, visibleSides);
-  const back = hasBack ? backPanelPrice(cab) : 0;
+  const back = hasBack ? backPanelPrice(arch) : 0;
   return Math.round(material + labor + shelfCount * shelfUnitPrice(arch.width) + (hasRod ? ROD_PRICE : 0) + (hasLight ? LIGHT_PRICE : 0) + sides + back);
 }
 
@@ -458,7 +459,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
       placement: placementLabel,
       placementExtra: Math.round(sidePanelPrice(cabinet, visibleSides)),
       hasBack,
-      backExtra: hasBack ? Math.round(backPanelPrice(cabinet)) : 0,
+      backExtra: hasBack ? Math.round(backPanelPrice(arch)) : 0,
       totalPrice,
       contact: { name, email, phone: resPhone.trim(), street, postcode, city },
     };
@@ -1184,11 +1185,6 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
                   <p className="text-[10px] text-muted-foreground leading-relaxed">
                     Een afgewerkte achterwand in matwit MDF.
                   </p>
-                  {hasBack && (
-                    <p className="text-[10px] text-muted-foreground">
-                      + €{Math.round(backPanelPrice(cabinet)).toLocaleString("nl-NL")}
-                    </p>
-                  )}
                 </div>
                 <Switch id="hasBack" checked={hasBack} onCheckedChange={setHasBack} />
               </div>
@@ -1201,13 +1197,25 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
               </div>
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Legplanken</Label>
+                  <div className="flex items-center gap-1.5">
+                    <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Legplanken</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button type="button" aria-label="Info legplanken" className="text-muted-foreground hover:text-copper transition-colors">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent side="top" className="w-72 text-[11px] leading-relaxed font-light">
+                        Onze legplanken zijn standaard 70&nbsp;mm dik en worden blind gemonteerd — eerst worden stroken in de kast bevestigd, daarna schuift de plank er naadloos overheen. Andere diktes zijn op aanvraag mogelijk.
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <div className="flex items-center gap-3">
                     <Button variant="outline" size="icon" className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors" onClick={() => setShelfCount((c) => Math.max(0, c - 1))} disabled={shelfCount <= 0}>
                       <Minus className="w-3.5 h-3.5" />
                     </Button>
                     <span className="text-sm font-light w-24 text-center text-foreground tabular-nums">{shelfCount === 0 ? "Geen" : `${shelfCount} plank${shelfCount > 1 ? "en" : ""}`}</span>
-                    <Button variant="outline" size="icon" className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors" onClick={() => setShelfCount((c) => Math.min(6, c + 1))} disabled={shelfCount >= 6}>
+                    <Button variant="outline" size="icon" className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors" onClick={() => setShelfCount((c) => c + 1)}>
                       <Plus className="w-3.5 h-3.5" />
                     </Button>
                   </div>
