@@ -1059,14 +1059,14 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   />
                 )}
                 <div className="grid grid-cols-2 gap-4">
-                  <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 50)} />
-                  <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 50)} />
+                  <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 10)} />
+                  <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 5)} />
                 </div>
                 <div className="grid grid-cols-2 gap-4 py-2">
-                  <NumberInput id="archX" label="A" value={arch.position.x} onChange={(v) => updateArchPos("x", v)} min={0} max={Math.max(0, cabinet.width - arch.width)} disabled={centerArch} />
-                  <NumberInput id="archXR" label="B" value={Math.max(0, cabinet.width - arch.width - arch.position.x)} onChange={(v) => updateArchPos("x", cabinet.width - arch.width - v)} min={0} max={Math.max(0, cabinet.width - arch.width)} disabled={centerArch} />
-                  <NumberInput id="archY" label="C" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={0} max={Math.max(0, cabinet.height - arch.height)} />
-                  <NumberInput id="archYB" label="D" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height)} />
+                  <NumberInput id="archX" label="A" value={arch.position.x} onChange={(v) => updateArchPos("x", v)} min={5} max={Math.max(5, cabinet.width - arch.width - 5)} disabled={centerArch} />
+                  <NumberInput id="archXR" label="B" value={Math.max(0, cabinet.width - arch.width - arch.position.x)} onChange={(v) => updateArchPos("x", cabinet.width - arch.width - v)} min={5} max={Math.max(5, cabinet.width - arch.width - 5)} disabled={centerArch} />
+                  <NumberInput id="archY" label="C" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={5} max={Math.max(5, cabinet.height - arch.height)} />
+                  <NumberInput id="archYB" label="D" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height - 5)} />
                 </div>
                 <div className="border-t border-border pt-4 flex items-center gap-2">
                   <Checkbox id="showDims" checked={showDimensions} onCheckedChange={(checked) => setShowDimensions(checked === true)} />
