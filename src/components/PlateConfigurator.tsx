@@ -539,36 +539,44 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     });
   }, [clampArch, centerArch, cabinet.width, arch.width]);
 
-  /* ─── Drag ─── */
-  const handleMouseDown = (e: React.MouseEvent<SVGPathElement>) => {
-    e.preventDefault();
+  /* ─── Drag (pointer events for mouse + touch) ─── */
+  const clientToCab = (clientX: number, clientY: number) => {
     const svg = svgRef.current;
-    if (!svg) return;
+    if (!svg) return { x: 0, y: 0 };
     const rect = svg.getBoundingClientRect();
-    const mx = (e.clientX - rect.left - padding) / scale;
-    const my = (e.clientY - rect.top - padding - dyS) / scale;
+    // Convert client px → viewBox units, then to cabinet cm coordinates
+    const vbToPxX = rect.width / svgWidth;
+    const vbToPxY = rect.height / svgHeight;
+    const vbX = (clientX - rect.left) / vbToPxX;
+    const vbY = (clientY - rect.top) / vbToPxY;
+    return {
+      x: (vbX - padding) / scale,
+      y: (vbY - padding - dyS) / scale,
+    };
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<SVGPathElement>) => {
+    e.preventDefault();
+    (e.currentTarget as SVGPathElement).setPointerCapture(e.pointerId);
+    const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     setDragOffset({ x: mx - arch.position.x, y: my - arch.position.y });
     setIsDragging(true);
     if (centerArch) setCenterArch(false);
     archDimsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const mx = (e.clientX - rect.left - padding) / scale;
-    const my = (e.clientY - rect.top - padding - dyS) / scale;
+  const handlePointerMove = useCallback((e: PointerEvent) => {
+    if (!isDragging) return;
+    const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
     const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    // Round to nearest mm (0.1 cm)
     const cxR = Math.round(cx * 10) / 10;
     const cyR = Math.round(cy * 10) / 10;
     setArch((prev) => ({ ...prev, position: { x: cxR, y: cyR } }));
-  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS]);
+  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     setIsDragging(false);
-    // Snap to nearest whole mm on release
     setArch((prev) => ({
       ...prev,
       position: {
@@ -580,11 +588,16 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
-      return () => { window.removeEventListener("mousemove", handleMouseMove); window.removeEventListener("mouseup", handleMouseUp); };
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
+      return () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerup", handlePointerUp);
+        window.removeEventListener("pointercancel", handlePointerUp);
+      };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handlePointerMove, handlePointerUp]);
 
   const handleReset = () => {
     setCabinet({ ...startCabinet });
