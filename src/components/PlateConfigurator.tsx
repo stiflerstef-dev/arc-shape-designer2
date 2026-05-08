@@ -35,11 +35,11 @@ const LIGHT_DIAMETER = 3.7;
 const MDF_PRICE_PER_M2 = 65;
 
 type Placement = "between" | "oneWall" | "standalone";
-const PLACEMENT_VISIBLE_SIDES: Record<Placement, number> = {
-  between: 0,
-  oneWall: 1,
-  standalone: 2,
-};
+function placementFromSides(left: boolean, right: boolean): Placement {
+  if (left && right) return "standalone";
+  if (left || right) return "oneWall";
+  return "between";
+}
 
 /* ─── Niche wall colors (vtwonen earthy tones) ─── */
 const NICHE_COLORS = [
@@ -194,20 +194,20 @@ function archArea(w: number, h: number): number {
   return w * Math.max(0, h - r) + (Math.PI * r * r) / 2;
 }
 
-function sidePanelPrice(cab: Dims, placement: Placement): number {
+function sidePanelPrice(cab: Dims, visibleSides: number): number {
   const areaM2 = (cab.height * cab.depth) / 10000; // cm² → m²
-  return PLACEMENT_VISIBLE_SIDES[placement] * areaM2 * MDF_PRICE_PER_M2;
+  return visibleSides * areaM2 * MDF_PRICE_PER_M2;
 }
 function backPanelPrice(cab: Dims): number {
   const areaM2 = (cab.width * cab.height) / 10000;
   return areaM2 * MDF_PRICE_PER_M2;
 }
 
-function calcPrice(cab: Dims, arch: ArchShape, shelfCount: number, hasRod: boolean, hasLight: boolean, placement: Placement, hasBack: boolean): number {
+function calcPrice(cab: Dims, arch: ArchShape, shelfCount: number, hasRod: boolean, hasLight: boolean, visibleSides: number, hasBack: boolean): number {
   const totalMDF = 2 * cab.height * cab.depth + cab.width * cab.depth + cab.width * cab.height + Math.max(0, cab.width * cab.height - archArea(arch.width, arch.height));
   const material = Math.ceil(totalMDF / 28000) * 75;
   const labor = totalMDF * 0.00907;
-  const sides = sidePanelPrice(cab, placement);
+  const sides = sidePanelPrice(cab, visibleSides);
   const back = hasBack ? backPanelPrice(cab) : 0;
   return Math.round(material + labor + shelfCount * shelfUnitPrice(arch.width) + (hasRod ? ROD_PRICE : 0) + (hasLight ? LIGHT_PRICE : 0) + sides + back);
 }
