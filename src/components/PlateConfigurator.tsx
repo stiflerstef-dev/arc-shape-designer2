@@ -1196,13 +1196,25 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
               </div>
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Legplanken</Label>
+                  <div className="flex items-center gap-1.5">
+                    <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Legplanken</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button type="button" aria-label="Info legplanken" className="text-muted-foreground hover:text-copper transition-colors">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent side="top" className="w-72 text-[11px] leading-relaxed font-light">
+                        Onze legplanken zijn standaard 70&nbsp;mm dik en worden blind gemonteerd — eerst worden stroken in de kast bevestigd, daarna schuift de plank er naadloos overheen. Andere diktes zijn op aanvraag mogelijk.
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <div className="flex items-center gap-3">
                     <Button variant="outline" size="icon" className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors" onClick={() => setShelfCount((c) => Math.max(0, c - 1))} disabled={shelfCount <= 0}>
                       <Minus className="w-3.5 h-3.5" />
                     </Button>
                     <span className="text-sm font-light w-24 text-center text-foreground tabular-nums">{shelfCount === 0 ? "Geen" : `${shelfCount} plank${shelfCount > 1 ? "en" : ""}`}</span>
-                    <Button variant="outline" size="icon" className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors" onClick={() => setShelfCount((c) => Math.min(6, c + 1))} disabled={shelfCount >= 6}>
+                    <Button variant="outline" size="icon" className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors" onClick={() => setShelfCount((c) => c + 1)}>
                       <Plus className="w-3.5 h-3.5" />
                     </Button>
                   </div>
