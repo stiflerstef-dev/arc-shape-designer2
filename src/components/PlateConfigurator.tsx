@@ -442,11 +442,11 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
     setResErrors({});
     setReserveSubmitting(true);
     // Backend (e-mailverzending) volgt in een latere stap.
-    // Configuratie-overzicht voor zowel klant als beheerder:
+    const visibleSides = (finishLeft ? 1 : 0) + (finishRight ? 1 : 0);
     const placementLabel =
-      placement === "between" ? "Tussen twee muren (geen afgewerkte zijkanten)" :
-      placement === "oneWall" ? "Tegen één muur (1 afgewerkte zijkant)" :
-      "Losstaand (2 afgewerkte zijkanten)";
+      visibleSides === 0 ? "Tussen twee muren (geen afgewerkte zijkanten)" :
+      visibleSides === 1 ? `Tegen één muur (${finishLeft ? "linkerzijde" : "rechterzijde"} afgewerkt)` :
+      "Losstaand (beide zijkanten afgewerkt)";
     const summary = {
       cabinet,
       arch,
@@ -456,7 +456,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
       hasLight,
       nicheColor: nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].name : null,
       placement: placementLabel,
-      placementExtra: Math.round(sidePanelPrice(cabinet, placement)),
+      placementExtra: Math.round(sidePanelPrice(cabinet, visibleSides)),
       hasBack,
       backExtra: hasBack ? Math.round(backPanelPrice(cabinet)) : 0,
       totalPrice,
