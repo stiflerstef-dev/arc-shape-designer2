@@ -507,6 +507,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const dy = -depthOffset;
   const dxS = dx * scale;
   const dyS = Math.abs(dy) * scale;
+  const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
+  const svgHeight = (cabinet.height + depthOffset) * scale + padding * 2;
 
   /* ─── Clamping ─── */
   const clampArch = useCallback((a: ArchShape): ArchShape => {
@@ -539,36 +541,44 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     });
   }, [clampArch, centerArch, cabinet.width, arch.width]);
 
-  /* ─── Drag ─── */
-  const handleMouseDown = (e: React.MouseEvent<SVGPathElement>) => {
-    e.preventDefault();
+  /* ─── Drag (pointer events for mouse + touch) ─── */
+  const clientToCab = (clientX: number, clientY: number) => {
     const svg = svgRef.current;
-    if (!svg) return;
+    if (!svg) return { x: 0, y: 0 };
     const rect = svg.getBoundingClientRect();
-    const mx = (e.clientX - rect.left - padding) / scale;
-    const my = (e.clientY - rect.top - padding - dyS) / scale;
+    // Convert client px → viewBox units, then to cabinet cm coordinates
+    const vbToPxX = rect.width / svgWidth;
+    const vbToPxY = rect.height / svgHeight;
+    const vbX = (clientX - rect.left) / vbToPxX;
+    const vbY = (clientY - rect.top) / vbToPxY;
+    return {
+      x: (vbX - padding) / scale,
+      y: (vbY - padding - dyS) / scale,
+    };
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<SVGPathElement>) => {
+    e.preventDefault();
+    (e.currentTarget as SVGPathElement).setPointerCapture(e.pointerId);
+    const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     setDragOffset({ x: mx - arch.position.x, y: my - arch.position.y });
     setIsDragging(true);
     if (centerArch) setCenterArch(false);
     archDimsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const mx = (e.clientX - rect.left - padding) / scale;
-    const my = (e.clientY - rect.top - padding - dyS) / scale;
+  const handlePointerMove = useCallback((e: PointerEvent) => {
+    if (!isDragging) return;
+    const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
     const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    // Round to nearest mm (0.1 cm)
     const cxR = Math.round(cx * 10) / 10;
     const cyR = Math.round(cy * 10) / 10;
     setArch((prev) => ({ ...prev, position: { x: cxR, y: cyR } }));
-  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS]);
+  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     setIsDragging(false);
-    // Snap to nearest whole mm on release
     setArch((prev) => ({
       ...prev,
       position: {
@@ -580,11 +590,16 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
-      return () => { window.removeEventListener("mousemove", handleMouseMove); window.removeEventListener("mouseup", handleMouseUp); };
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
+      return () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerup", handlePointerUp);
+        window.removeEventListener("pointercancel", handlePointerUp);
+      };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handlePointerMove, handlePointerUp]);
 
   const handleReset = () => {
     setCabinet({ ...startCabinet });
@@ -642,9 +657,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const placement: Placement = placementFromSides(finishLeft, finishRight);
   const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
   const displayPrice = useAnimatedPrice(totalPrice);
-
-  const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
-  const svgHeight = (cabinet.height + depthOffset) * scale + padding * 2;
 
   // Niche interior color
   const nicheBackColor = nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].hex : COL.nicheBack;
@@ -922,7 +934,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     <path d={archPathOpen} fill="none" stroke="#D8D3C7" strokeWidth={2.2 / scale} strokeOpacity={0.5} strokeLinejoin="miter" strokeMiterlimit={10} />
 
                     {/* Arch drag handle */}
-                    <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab" }} onMouseDown={handleMouseDown} />
+                    <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab", touchAction: "none" }} onPointerDown={handlePointerDown} />
                     <path d={archPathOpen} fill="none" stroke="hsl(var(--accent))" strokeWidth={2 / scale} strokeLinejoin="miter" strokeMiterlimit={10} style={{ cursor: "grab", pointerEvents: "none" }} />
                     {/* "Versleep mij" hint inside arch, on top of shelves */}
                     <text
