@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
-import { RotateCcw, Plus, Minus, Check } from "lucide-react";
+import { RotateCcw, Plus, Minus, Check, Info } from "lucide-react";
 import { Delete } from "lucide-react";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
 import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
@@ -198,8 +198,8 @@ function sidePanelPrice(cab: Dims, visibleSides: number): number {
   const areaM2 = (cab.height * cab.depth) / 10000; // cm² → m²
   return visibleSides * areaM2 * MDF_PRICE_PER_M2;
 }
-function backPanelPrice(cab: Dims): number {
-  const areaM2 = (cab.width * cab.height) / 10000;
+function backPanelPrice(arch: ArchShape): number {
+  const areaM2 = (arch.width * arch.height) / 10000;
   return areaM2 * MDF_PRICE_PER_M2;
 }
 
@@ -208,7 +208,7 @@ function calcPrice(cab: Dims, arch: ArchShape, shelfCount: number, hasRod: boole
   const material = Math.ceil(totalMDF / 28000) * 75;
   const labor = totalMDF * 0.00907;
   const sides = sidePanelPrice(cab, visibleSides);
-  const back = hasBack ? backPanelPrice(cab) : 0;
+  const back = hasBack ? backPanelPrice(arch) : 0;
   return Math.round(material + labor + shelfCount * shelfUnitPrice(arch.width) + (hasRod ? ROD_PRICE : 0) + (hasLight ? LIGHT_PRICE : 0) + sides + back);
 }
 
@@ -458,7 +458,7 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
       placement: placementLabel,
       placementExtra: Math.round(sidePanelPrice(cabinet, visibleSides)),
       hasBack,
-      backExtra: hasBack ? Math.round(backPanelPrice(cabinet)) : 0,
+      backExtra: hasBack ? Math.round(backPanelPrice(arch)) : 0,
       totalPrice,
       contact: { name, email, phone: resPhone.trim(), street, postcode, city },
     };
