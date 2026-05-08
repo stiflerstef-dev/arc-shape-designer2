@@ -1054,7 +1054,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
             </section>
 
             {/* Boog Afmetingen */}
-            <section>
+            <section ref={archDimsRef}>
               <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
                 <h2 className="font-serif-display text-xl text-foreground">Boog Afmetingen</h2>
               </div>
@@ -1092,19 +1092,59 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 10)} />
                   <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 5)} />
                 </div>
+                <div className="grid grid-cols-[1fr_auto_1fr] gap-3 py-2 items-end">
+                  <NumberInput
+                    id="archX"
+                    label="A — links"
+                    value={arch.position.x}
+                    onChange={(v) => {
+                      if (centerArch) {
+                        const newW = Math.max(10, cabinet.width - 2 * v);
+                        setArch((prev) => clampArch({ ...prev, width: newW, position: { ...prev.position, x: v } }));
+                      } else {
+                        updateArchPos("x", v);
+                      }
+                    }}
+                    min={5}
+                    max={Math.max(5, cabinet.width - arch.width - 5)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCenterArch((s) => !s)}
+                    aria-pressed={centerArch}
+                    aria-label="Boog horizontaal centreren (A en B spiegelen)"
+                    title="Spiegel A en B (centreer)"
+                    className={`h-10 w-10 rounded-md border flex items-center justify-center transition-colors mb-0 ${
+                      centerArch
+                        ? "bg-copper/15 border-copper text-copper"
+                        : "bg-card border-border text-muted-foreground hover:border-copper hover:text-copper"
+                    }`}
+                  >
+                    <ArrowLeftRight className="h-4 w-4" />
+                  </button>
+                  <NumberInput
+                    id="archXR"
+                    label="B — rechts"
+                    value={Math.max(0, cabinet.width - arch.width - arch.position.x)}
+                    onChange={(v) => {
+                      if (centerArch) {
+                        const newW = Math.max(10, cabinet.width - 2 * v);
+                        setArch((prev) => clampArch({ ...prev, width: newW, position: { ...prev.position, x: v } }));
+                      } else {
+                        updateArchPos("x", cabinet.width - arch.width - v);
+                      }
+                    }}
+                    min={5}
+                    max={Math.max(5, cabinet.width - arch.width - 5)}
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-4 py-2">
-                  <NumberInput id="archX" label="A" value={arch.position.x} onChange={(v) => updateArchPos("x", v)} min={5} max={Math.max(5, cabinet.width - arch.width - 5)} disabled={centerArch} />
-                  <NumberInput id="archXR" label="B" value={Math.max(0, cabinet.width - arch.width - arch.position.x)} onChange={(v) => updateArchPos("x", cabinet.width - arch.width - v)} min={5} max={Math.max(5, cabinet.width - arch.width - 5)} disabled={centerArch} />
-                  <NumberInput id="archY" label="C" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={5} max={Math.max(5, cabinet.height - arch.height)} />
-                  <NumberInput id="archYB" label="D" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height - 5)} />
+                  <NumberInput id="archY" label="C — boven" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={5} max={Math.max(5, cabinet.height - arch.height)} />
+                  <NumberInput id="archYB" label="D — onder" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height - 5)} />
                 </div>
                 <div className="border-t border-border pt-4 flex items-center gap-2">
                   <Checkbox id="showDims" checked={showDimensions} onCheckedChange={(checked) => setShowDimensions(checked === true)} />
                   <Label htmlFor="showDims" className="text-[11px] font-light cursor-pointer text-muted-foreground tracking-wide">Toon afmetingen in preview</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="centerArch" checked={centerArch} onCheckedChange={(checked) => setCenterArch(checked === true)} />
-                  <Label htmlFor="centerArch" className="text-[11px] font-light cursor-pointer text-muted-foreground tracking-wide">Boog horizontaal centreren</Label>
                 </div>
               </div>
             </section>
