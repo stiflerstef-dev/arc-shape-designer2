@@ -370,11 +370,12 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
 /* ─── Main Component ─── */
 type PlateConfiguratorProps = {
   initialCabinet?: Dims;
+  initialArch?: ArchShape;
   onBack?: () => void;
 };
-const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = {}) => {
+const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfiguratorProps = {}) => {
   const startCabinet = initialCabinet ?? DEFAULT_CABINET;
-  const startArch: ArchShape = {
+  const startArch: ArchShape = initialArch ?? {
     width: Math.max(20, startCabinet.width - 40),
     height: Math.max(20, startCabinet.height - 50),
     position: { x: Math.max(0, (startCabinet.width - Math.max(20, startCabinet.width - 40)) / 2), y: 50 },
