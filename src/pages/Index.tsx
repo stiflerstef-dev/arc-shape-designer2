@@ -3,15 +3,29 @@ import PlateConfigurator from "@/components/PlateConfigurator";
 import ProductSelection, { ProductId } from "@/components/ProductSelection";
 
 const PRESETS = {
-  small: { width: 80, height: 190, depth: 25 },
-  large: { width: 120, height: 250, depth: 40 },
+  small: {
+    cabinet: { width: 80, height: 190, depth: 25 },
+    // D (bottom margin) = 20 cm, top margin 5 cm
+    arch: { width: 60, height: 165, position: { x: 10, y: 5 } },
+  },
+  large: {
+    cabinet: { width: 120, height: 250, depth: 40 },
+    arch: undefined,
+  },
 } as const;
 
 const Index = () => {
   const [selected, setSelected] = useState<"small" | "large" | null>(null);
 
   if (selected) {
-    return <PlateConfigurator initialCabinet={PRESETS[selected]} onBack={() => setSelected(null)} />;
+    const preset = PRESETS[selected];
+    return (
+      <PlateConfigurator
+        initialCabinet={preset.cabinet}
+        initialArch={preset.arch ? { ...preset.arch, position: { ...preset.arch.position } } : undefined}
+        onBack={() => setSelected(null)}
+      />
+    );
   }
 
   return (

@@ -370,11 +370,12 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
 /* ─── Main Component ─── */
 type PlateConfiguratorProps = {
   initialCabinet?: Dims;
+  initialArch?: ArchShape;
   onBack?: () => void;
 };
-const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = {}) => {
+const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfiguratorProps = {}) => {
   const startCabinet = initialCabinet ?? DEFAULT_CABINET;
-  const startArch: ArchShape = {
+  const startArch: ArchShape = initialArch ?? {
     width: Math.max(20, startCabinet.width - 40),
     height: Math.max(20, startCabinet.height - 50),
     position: { x: Math.max(0, (startCabinet.width - Math.max(20, startCabinet.width - 40)) / 2), y: 50 },
@@ -543,8 +544,8 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleReset = () => {
-    setCabinet({ ...DEFAULT_CABINET });
-    setArch({ ...DEFAULT_ARCH, position: { ...DEFAULT_ARCH.position } });
+    setCabinet({ ...startCabinet });
+    setArch({ ...startArch, position: { ...startArch.position } });
     setArchType("classic"); setShelfCount(0); setHasRod(false); setRodFinish("zwart"); setHasLight(false);
     setShoulderRadiusValue(25); setNicheColorIdx(null);
     setFinishLeft(false); setFinishRight(false); setHasBack(false);
@@ -963,11 +964,12 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
                   const archB = padding + dyS + (ay + ah) * scale;
                   const archCY = (archT + archB) / 2;
                   const archCX = (archL + archR) / 2;
+                  const dMarginPx = cabB - archB;
                   const labels = [
                     { key: "A", x: (cabL + archL) / 2, y: archCY, show: ax > 0 },
                     { key: "B", x: (cabR + archR) / 2, y: archCY, show: cabinet.width - ax - aw > 0 },
                      { key: "C", x: archCX, y: (cabT + archT) / 2, show: ay > 0 },
-                     { key: "D", x: archCX, y: (cabB + archB) / 2, show: cabinet.height - ay - ah > 0 },
+                     { key: "D", x: archCX, y: dMarginPx >= 24 ? (cabB + archB) / 2 : cabB - 14, show: true },
                   ];
                   const r = 11;
                   return (
