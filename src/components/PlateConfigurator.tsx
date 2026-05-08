@@ -263,6 +263,9 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
     const n = parseFloat(raw);
     if (isNaN(n) || raw.trim() === "") { setOpen(false); return; }
     const clampedMm = Math.max(minMm, Math.min(maxMm, Math.round(n)));
+    if (Math.round(n) !== clampedMm) {
+      toast.info(`${label}: ${Math.round(n)} mm valt buiten ons standaard bereik (${minMm}–${maxMm} mm). Deze maat is alleen op aanvraag mogelijk.`);
+    }
     const cm = Math.round(clampedMm / 10);
     onChange(Math.max(min, Math.min(max, cm)));
     setOpen(false);
