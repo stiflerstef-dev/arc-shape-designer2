@@ -490,12 +490,17 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   /* ─── Clamping ─── */
   const clampArch = useCallback((a: ArchShape): ArchShape => {
-    const maxW = Math.max(10, cabinet.width - 50);
-    const maxH = Math.max(10, cabinet.height - 50);
+    // Min margins: A (links) ≥ 50mm, B (rechts) ≥ 50mm, C (boven) ≥ 50mm, D (onder) ≥ 0mm
+    const maxW = Math.max(10, cabinet.width - 10); // A + B ≥ 10cm
+    const maxH = Math.max(10, cabinet.height - 5); // C ≥ 5cm; D mag 0
     const w = Math.min(a.width, maxW);
     const h = Math.min(a.height, maxH);
-    const x = Math.max(0, Math.min(a.position.x, cabinet.width - w));
-    const y = Math.max(0, Math.min(a.position.y, cabinet.height - h));
+    const minX = 5;
+    const maxX = Math.max(minX, cabinet.width - w - 5);
+    const minY = 5;
+    const maxY = Math.max(minY, cabinet.height - h);
+    const x = Math.max(minX, Math.min(a.position.x, maxX));
+    const y = Math.max(minY, Math.min(a.position.y, maxY));
     return { width: w, height: h, position: { x, y } };
   }, [cabinet.width, cabinet.height]);
 
