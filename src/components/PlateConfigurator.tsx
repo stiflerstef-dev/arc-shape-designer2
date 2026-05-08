@@ -536,9 +536,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const rect = svgRef.current.getBoundingClientRect();
     const mx = (e.clientX - rect.left - padding) / scale;
     const my = (e.clientY - rect.top - padding - dyS) / scale;
-    const cx = Math.max(0, Math.min(mx - dragOffset.x, cabinet.width - arch.width));
-    const cy = Math.max(0, Math.min(my - dragOffset.y, cabinet.height - arch.height));
-    setArch((prev) => ({ ...prev, position: { x: centerArch ? Math.max(0, (cabinet.width - arch.width) / 2) : cx, y: cy } }));
+    const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
+    const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
+    setArch((prev) => ({ ...prev, position: { x: centerArch ? Math.max(5, (cabinet.width - arch.width) / 2) : cx, y: cy } }));
   }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, centerArch]);
 
   const handleMouseUp = useCallback(() => setIsDragging(false), []);
