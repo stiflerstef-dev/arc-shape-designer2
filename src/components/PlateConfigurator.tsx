@@ -935,7 +935,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     <path d={archPathOpen} fill="none" stroke="#D8D3C7" strokeWidth={2.2 / scale} strokeOpacity={0.5} strokeLinejoin="miter" strokeMiterlimit={10} />
 
                     {/* Arch drag handle */}
-                    <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab" }} onMouseDown={handleMouseDown} />
+                    <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab", touchAction: "none" }} onPointerDown={handlePointerDown} />
                     <path d={archPathOpen} fill="none" stroke="hsl(var(--accent))" strokeWidth={2 / scale} strokeLinejoin="miter" strokeMiterlimit={10} style={{ cursor: "grab", pointerEvents: "none" }} />
                     {/* "Versleep mij" hint inside arch, on top of shelves */}
                     <text
