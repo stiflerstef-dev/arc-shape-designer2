@@ -441,7 +441,27 @@ const PlateConfigurator = ({ initialCabinet, onBack }: PlateConfiguratorProps = 
     setResErrors({});
     setReserveSubmitting(true);
     // Backend (e-mailverzending) volgt in een latere stap.
-    // Voor nu: lokaal bevestigen.
+    // Configuratie-overzicht voor zowel klant als beheerder:
+    const placementLabel =
+      placement === "between" ? "Tussen twee muren (geen afgewerkte zijkanten)" :
+      placement === "oneWall" ? "Tegen één muur (1 afgewerkte zijkant)" :
+      "Losstaand (2 afgewerkte zijkanten)";
+    const summary = {
+      cabinet,
+      arch,
+      archType,
+      shelfCount,
+      hasRod, rodFinish,
+      hasLight,
+      nicheColor: nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].name : null,
+      placement: placementLabel,
+      placementExtra: Math.round(sidePanelPrice(cabinet, placement)),
+      hasBack,
+      backExtra: hasBack ? Math.round(backPanelPrice(cabinet)) : 0,
+      totalPrice,
+      contact: { name, email, phone: resPhone.trim(), street, postcode, city },
+    };
+    console.log("[Reservering] samenvatting voor e-mail:", summary);
     await new Promise((r) => setTimeout(r, 400));
     setReserveSubmitting(false);
     setReserveSubmitted(true);
