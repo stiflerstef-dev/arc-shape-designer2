@@ -575,8 +575,18 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     e.preventDefault();
     e.stopPropagation();
     (e.currentTarget as SVGPathElement).setPointerCapture(e.pointerId);
+    if (!dragPageStylesRef.current) {
+      dragPageStylesRef.current = {
+        userSelect: document.body.style.userSelect,
+        touchAction: document.body.style.touchAction,
+        overflow: document.body.style.overflow,
+      };
+      document.body.style.userSelect = "none";
+      document.body.style.touchAction = "none";
+      document.body.style.overflow = "hidden";
+    }
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
-    setDragOffset({ x: mx - arch.position.x, y: my - arch.position.y });
+    dragOffsetRef.current = { x: mx - arch.position.x, y: my - arch.position.y };
     setIsDragging(true);
     if (centerArch) setCenterArch(false);
   };
@@ -585,8 +595,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     if (!isDragging) return;
     e.preventDefault();
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
-    const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
-    const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
+    const cx = Math.max(5, Math.min(mx - dragOffsetRef.current.x, Math.max(5, cabinet.width - arch.width - 5)));
+    const cy = Math.max(5, Math.min(my - dragOffsetRef.current.y, Math.max(5, cabinet.height - arch.height)));
     pendingDragPositionRef.current = { x: cx, y: cy };
 
     if (dragFrameRef.current !== null) return;
@@ -596,7 +606,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
       if (!next) return;
       setArch((prev) => ({ ...prev, position: next }));
     });
-  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
+  }, [isDragging, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
 
   const handlePointerUp = useCallback(() => {
     setIsDragging(false);
