@@ -584,9 +584,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
     const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    const cxR = roundToMm(cx);
-    const cyR = roundToMm(cy);
-    setArch((prev) => ({ ...prev, position: { x: cxR, y: cyR } }));
+    setArch((prev) => ({ ...prev, position: { x: cx, y: cy } }));
   }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
 
   const handlePointerUp = useCallback(() => {
