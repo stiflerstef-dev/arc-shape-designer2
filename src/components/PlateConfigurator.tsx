@@ -26,7 +26,7 @@ interface ArchShape { width: number; height: number; position: Position; }
 
 /* ─── Defaults (all in cm) ─── */
 const DEFAULT_CABINET: Dims = { width: 120, height: 250, depth: 40 };
-const DEFAULT_ARCH: ArchShape = { width: 60, height: 150, position: { x: 30, y: 15 } };
+const DEFAULT_ARCH: ArchShape = { width: 60, height: 150, position: { x: 30, y: 85 } };
 const SHELF_THICKNESS = 7;
 const ROD_DIAMETER = 3.2;
 const ROD_PRICE = 15;
