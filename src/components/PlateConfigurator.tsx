@@ -1004,7 +1004,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     <text x={padding - 40} y={padding + dyS + (cabinet.height * scale) / 2}
                       fill={COL.dim} textAnchor="middle" fontSize={13} fontWeight={900}
                       transform={`rotate(-90, ${padding - 40}, ${padding + dyS + (cabinet.height * scale) / 2})`}>
-                      {cabinet.height * 10} mm
+                      {Math.round(cabinet.height * 10)} mm
                     </text>
 
                     <line x1={padding} y1={padding + dyS + cabinet.height * scale + 35}
@@ -1012,7 +1012,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
                     <text x={padding + (cabinet.width * scale) / 2} y={padding + dyS + cabinet.height * scale + 52}
                       fill={COL.dim} textAnchor="middle" fontSize={13} fontWeight={900}>
-                      {cabinet.width * 10} mm
+                      {Math.round(cabinet.width * 10)} mm
                     </text>
 
                     <line x1={padding + ax * scale} y1={padding + dyS + cabinet.height * scale + 12}
@@ -1020,7 +1020,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
                     <text x={padding + (ax + aw / 2) * scale} y={padding + dyS + cabinet.height * scale + 27}
                       fill={COL.dim} textAnchor="middle" fontSize={11} fontWeight={900}>
-                      {aw * 10} mm
+                      {Math.round(aw * 10)} mm
                     </text>
 
                     <line x1={padding + cabinet.width * scale} y1={padding + dyS}
