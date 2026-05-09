@@ -610,6 +610,12 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   const handlePointerUp = useCallback(() => {
     setIsDragging(false);
+    if (dragPageStylesRef.current) {
+      document.body.style.userSelect = dragPageStylesRef.current.userSelect;
+      document.body.style.touchAction = dragPageStylesRef.current.touchAction;
+      document.body.style.overflow = dragPageStylesRef.current.overflow;
+      dragPageStylesRef.current = null;
+    }
     if (dragFrameRef.current !== null) {
       cancelAnimationFrame(dragFrameRef.current);
       dragFrameRef.current = null;
@@ -627,22 +633,19 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   useEffect(() => {
     if (isDragging) {
-      const previousUserSelect = document.body.style.userSelect;
-      const previousTouchAction = document.body.style.touchAction;
-      const previousOverflow = document.body.style.overflow;
-      document.body.style.userSelect = "none";
-      document.body.style.touchAction = "none";
-      document.body.style.overflow = "hidden";
       window.addEventListener("pointermove", handlePointerMove, { passive: false });
       window.addEventListener("pointerup", handlePointerUp);
       window.addEventListener("pointercancel", handlePointerUp);
       return () => {
-        document.body.style.userSelect = previousUserSelect;
-        document.body.style.touchAction = previousTouchAction;
-        document.body.style.overflow = previousOverflow;
         window.removeEventListener("pointermove", handlePointerMove);
         window.removeEventListener("pointerup", handlePointerUp);
         window.removeEventListener("pointercancel", handlePointerUp);
+        if (dragPageStylesRef.current) {
+          document.body.style.userSelect = dragPageStylesRef.current.userSelect;
+          document.body.style.touchAction = dragPageStylesRef.current.touchAction;
+          document.body.style.overflow = dragPageStylesRef.current.overflow;
+          dragPageStylesRef.current = null;
+        }
         if (dragFrameRef.current !== null) {
           cancelAnimationFrame(dragFrameRef.current);
           dragFrameRef.current = null;
