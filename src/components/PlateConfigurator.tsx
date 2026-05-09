@@ -395,11 +395,20 @@ type PlateConfiguratorProps = {
 };
 const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfiguratorProps = {}) => {
   const startCabinet = initialCabinet ?? DEFAULT_CABINET;
-  const startArch: ArchShape = initialArch ?? {
-    width: Math.max(20, startCabinet.width - 40),
-    height: Math.max(20, startCabinet.height - 50),
-    position: { x: Math.max(0, (startCabinet.width - Math.max(20, startCabinet.width - 40)) / 2), y: 50 },
-  };
+  const startArch: ArchShape = initialArch ?? (() => {
+    const defaultW = 60;
+    const defaultH = 150;
+    const defaultD = 15;
+    const minSide = 5; // cm
+    const minTop = 5;  // cm
+    const w = Math.min(defaultW, Math.max(20, startCabinet.width - minSide * 2));
+    const h = Math.min(defaultH, Math.max(20, startCabinet.height - defaultD - minTop));
+    return {
+      width: w,
+      height: h,
+      position: { x: Math.max(minSide, (startCabinet.width - w) / 2), y: defaultD },
+    };
+  })();
   const [cabinet, setCabinet] = useState<Dims>({ ...startCabinet });
   const [arch, setArch] = useState<ArchShape>({ ...startArch, position: { ...startArch.position } });
   const [archType, setArchType] = useState<ArchType>("classic");
