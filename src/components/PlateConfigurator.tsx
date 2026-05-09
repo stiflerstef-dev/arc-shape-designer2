@@ -429,7 +429,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
-  const archDimsRef = useRef<HTMLElement>(null);
+  const dragFrameRef = useRef<number | null>(null);
+  const pendingDragPositionRef = useRef<Position | null>(null);
 
   // Reservation modal state
   const [reserveOpen, setReserveOpen] = useState(false);
@@ -571,42 +572,70 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   const handlePointerDown = (e: React.PointerEvent<SVGPathElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     (e.currentTarget as SVGPathElement).setPointerCapture(e.pointerId);
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     setDragOffset({ x: mx - arch.position.x, y: my - arch.position.y });
     setIsDragging(true);
     if (centerArch) setCenterArch(false);
-    archDimsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handlePointerMove = useCallback((e: PointerEvent) => {
     if (!isDragging) return;
+    e.preventDefault();
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
     const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    setArch((prev) => ({ ...prev, position: { x: cx, y: cy } }));
+    pendingDragPositionRef.current = { x: cx, y: cy };
+
+    if (dragFrameRef.current !== null) return;
+    dragFrameRef.current = requestAnimationFrame(() => {
+      dragFrameRef.current = null;
+      const next = pendingDragPositionRef.current;
+      if (!next) return;
+      setArch((prev) => ({ ...prev, position: next }));
+    });
   }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
 
   const handlePointerUp = useCallback(() => {
     setIsDragging(false);
+    if (dragFrameRef.current !== null) {
+      cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
+    const finalPosition = pendingDragPositionRef.current;
+    pendingDragPositionRef.current = null;
     setArch((prev) => ({
       ...prev,
       position: {
-        x: roundToMm(prev.position.x),
-        y: roundToMm(prev.position.y),
+        x: roundToMm(finalPosition?.x ?? prev.position.x),
+        y: roundToMm(finalPosition?.y ?? prev.position.y),
       },
     }));
   }, []);
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener("pointermove", handlePointerMove);
+      const previousUserSelect = document.body.style.userSelect;
+      const previousTouchAction = document.body.style.touchAction;
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.userSelect = "none";
+      document.body.style.touchAction = "none";
+      document.body.style.overflow = "hidden";
+      window.addEventListener("pointermove", handlePointerMove, { passive: false });
       window.addEventListener("pointerup", handlePointerUp);
       window.addEventListener("pointercancel", handlePointerUp);
       return () => {
+        document.body.style.userSelect = previousUserSelect;
+        document.body.style.touchAction = previousTouchAction;
+        document.body.style.overflow = previousOverflow;
         window.removeEventListener("pointermove", handlePointerMove);
         window.removeEventListener("pointerup", handlePointerUp);
         window.removeEventListener("pointercancel", handlePointerUp);
+        if (dragFrameRef.current !== null) {
+          cancelAnimationFrame(dragFrameRef.current);
+          dragFrameRef.current = null;
+        }
       };
     }
   }, [isDragging, handlePointerMove, handlePointerUp]);
