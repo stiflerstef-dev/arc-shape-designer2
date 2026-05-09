@@ -246,9 +246,9 @@ function useAnimatedPrice(target: number, duration = 400) {
 /* Values are stored in cm; UI displays mm (×10) for user-friendly precision. */
 function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabled = false }: { value: number; onChange: (v: number) => void; min: number; max: number; label: string; id: string; unit?: string; disabled?: boolean }) {
   // Display value in mm (cm * 10)
-  const valueMm = value * 10;
-  const minMm = min * 10;
-  const maxMm = max * 10;
+  const valueMm = Math.round(value * 10);
+  const minMm = Math.round(min * 10);
+  const maxMm = Math.round(max * 10);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(String(valueMm));
   const [freshEntry, setFreshEntry] = useState(true);
@@ -522,18 +522,19 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const svgHeight = (cabinet.height + depthOffset) * scale + padding * 2;
 
   /* ─── Clamping ─── */
+  const roundToMm = (v: number) => parseFloat((Math.round(v * 10) / 10).toFixed(1));
   const clampArch = useCallback((a: ArchShape): ArchShape => {
     // Min margins: A (links) ≥ 50mm, B (rechts) ≥ 50mm, C (boven) ≥ 50mm, D (onder) ≥ 0mm
     const maxW = Math.max(10, cabinet.width - 10); // A + B ≥ 10cm
     const maxH = Math.max(10, cabinet.height - 5); // C ≥ 5cm; D mag 0
-    const w = Math.min(a.width, maxW);
-    const h = Math.min(a.height, maxH);
+    const w = roundToMm(Math.min(a.width, maxW));
+    const h = roundToMm(Math.min(a.height, maxH));
     const minX = 5;
     const maxX = Math.max(minX, cabinet.width - w - 5);
     const minY = 5;
     const maxY = Math.max(minY, cabinet.height - h);
-    const x = Math.max(minX, Math.min(a.position.x, maxX));
-    const y = Math.max(minY, Math.min(a.position.y, maxY));
+    const x = roundToMm(Math.max(minX, Math.min(a.position.x, maxX)));
+    const y = roundToMm(Math.max(minY, Math.min(a.position.y, maxY)));
     return { width: w, height: h, position: { x, y } };
   }, [cabinet.width, cabinet.height]);
 
@@ -583,8 +584,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
     const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    const cxR = Math.round(cx * 10) / 10;
-    const cyR = Math.round(cy * 10) / 10;
+    const cxR = roundToMm(cx);
+    const cyR = roundToMm(cy);
     setArch((prev) => ({ ...prev, position: { x: cxR, y: cyR } }));
   }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
 
@@ -593,8 +594,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     setArch((prev) => ({
       ...prev,
       position: {
-        x: Math.round(prev.position.x * 10) / 10,
-        y: Math.round(prev.position.y * 10) / 10,
+        x: roundToMm(prev.position.x),
+        y: roundToMm(prev.position.y),
       },
     }));
   }, []);
@@ -1004,7 +1005,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     <text x={padding - 40} y={padding + dyS + (cabinet.height * scale) / 2}
                       fill={COL.dim} textAnchor="middle" fontSize={13} fontWeight={900}
                       transform={`rotate(-90, ${padding - 40}, ${padding + dyS + (cabinet.height * scale) / 2})`}>
-                      {cabinet.height * 10} mm
+                      {Math.round(cabinet.height * 10)} mm
                     </text>
 
                     <line x1={padding} y1={padding + dyS + cabinet.height * scale + 35}
@@ -1012,7 +1013,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
                     <text x={padding + (cabinet.width * scale) / 2} y={padding + dyS + cabinet.height * scale + 52}
                       fill={COL.dim} textAnchor="middle" fontSize={13} fontWeight={900}>
-                      {cabinet.width * 10} mm
+                      {Math.round(cabinet.width * 10)} mm
                     </text>
 
                     <line x1={padding + ax * scale} y1={padding + dyS + cabinet.height * scale + 12}
@@ -1020,7 +1021,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
                     <text x={padding + (ax + aw / 2) * scale} y={padding + dyS + cabinet.height * scale + 27}
                       fill={COL.dim} textAnchor="middle" fontSize={11} fontWeight={900}>
-                      {aw * 10} mm
+                      {Math.round(aw * 10)} mm
                     </text>
 
                     <line x1={padding + cabinet.width * scale} y1={padding + dyS}
@@ -1028,7 +1029,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       stroke={COL.dim} strokeWidth={1.5} strokeDasharray="4 2" />
                     <text x={padding + cabinet.width * scale + dxS / 2 + 10} y={padding + dyS / 2 - 6}
                       fill={COL.dim} textAnchor="middle" fontSize={11} fontWeight={900}>
-                      {cabinet.depth * 10} mm
+                      {Math.round(cabinet.depth * 10)} mm
                     </text>
                   </>
                 )}
@@ -1117,7 +1118,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
                 {archType === "gothic" && (
                   <p className="text-[10px] text-muted-foreground italic leading-relaxed">
-                    Spitsboog ratio is vast: {gothicCapH * 10} mm puntkapje · 37,5% van de breedte (klassieke ogief).
+                    Spitsboog ratio is vast: {Math.round(gothicCapH * 10)} mm puntkapje · 37,5% van de breedte (klassieke ogief).
                   </p>
                 )}
                 {archType === "shoulder" && (
