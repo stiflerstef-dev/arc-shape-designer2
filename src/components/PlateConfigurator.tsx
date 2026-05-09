@@ -522,18 +522,19 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const svgHeight = (cabinet.height + depthOffset) * scale + padding * 2;
 
   /* ─── Clamping ─── */
+  const roundToMm = (v: number) => parseFloat((Math.round(v * 10) / 10).toFixed(1));
   const clampArch = useCallback((a: ArchShape): ArchShape => {
     // Min margins: A (links) ≥ 50mm, B (rechts) ≥ 50mm, C (boven) ≥ 50mm, D (onder) ≥ 0mm
     const maxW = Math.max(10, cabinet.width - 10); // A + B ≥ 10cm
     const maxH = Math.max(10, cabinet.height - 5); // C ≥ 5cm; D mag 0
-    const w = Math.min(a.width, maxW);
-    const h = Math.min(a.height, maxH);
+    const w = roundToMm(Math.min(a.width, maxW));
+    const h = roundToMm(Math.min(a.height, maxH));
     const minX = 5;
     const maxX = Math.max(minX, cabinet.width - w - 5);
     const minY = 5;
     const maxY = Math.max(minY, cabinet.height - h);
-    const x = Math.max(minX, Math.min(a.position.x, maxX));
-    const y = Math.max(minY, Math.min(a.position.y, maxY));
+    const x = roundToMm(Math.max(minX, Math.min(a.position.x, maxX)));
+    const y = roundToMm(Math.max(minY, Math.min(a.position.y, maxY)));
     return { width: w, height: h, position: { x, y } };
   }, [cabinet.width, cabinet.height]);
 
