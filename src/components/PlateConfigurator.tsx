@@ -431,7 +431,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
   const dragFrameRef = useRef<number | null>(null);
   const pendingDragPositionRef = useRef<Position | null>(null);
-  const dragPageStylesRef = useRef<{ userSelect: string; touchAction: string; overflow: string } | null>(null);
+  const dragPageStylesRef = useRef<{ userSelect: string; touchAction: string; overflow: string; htmlTouchAction: string; htmlOverflow: string } | null>(null);
 
   // Reservation modal state
   const [reserveOpen, setReserveOpen] = useState(false);
@@ -580,10 +580,14 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
         userSelect: document.body.style.userSelect,
         touchAction: document.body.style.touchAction,
         overflow: document.body.style.overflow,
+        htmlTouchAction: document.documentElement.style.touchAction,
+        htmlOverflow: document.documentElement.style.overflow,
       };
       document.body.style.userSelect = "none";
       document.body.style.touchAction = "none";
       document.body.style.overflow = "hidden";
+      document.documentElement.style.touchAction = "none";
+      document.documentElement.style.overflow = "hidden";
     }
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     dragOffsetRef.current = { x: mx - arch.position.x, y: my - arch.position.y };
@@ -614,6 +618,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
       document.body.style.userSelect = dragPageStylesRef.current.userSelect;
       document.body.style.touchAction = dragPageStylesRef.current.touchAction;
       document.body.style.overflow = dragPageStylesRef.current.overflow;
+      document.documentElement.style.touchAction = dragPageStylesRef.current.htmlTouchAction;
+      document.documentElement.style.overflow = dragPageStylesRef.current.htmlOverflow;
       dragPageStylesRef.current = null;
     }
     if (dragFrameRef.current !== null) {
@@ -631,19 +637,27 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     }));
   }, []);
 
+  const preventNativeScroll = useCallback((e: TouchEvent) => {
+    if (isDragging) e.preventDefault();
+  }, [isDragging]);
+
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("pointermove", handlePointerMove, { passive: false });
+      window.addEventListener("touchmove", preventNativeScroll, { passive: false });
       window.addEventListener("pointerup", handlePointerUp);
       window.addEventListener("pointercancel", handlePointerUp);
       return () => {
         window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("touchmove", preventNativeScroll);
         window.removeEventListener("pointerup", handlePointerUp);
         window.removeEventListener("pointercancel", handlePointerUp);
         if (dragPageStylesRef.current) {
           document.body.style.userSelect = dragPageStylesRef.current.userSelect;
           document.body.style.touchAction = dragPageStylesRef.current.touchAction;
           document.body.style.overflow = dragPageStylesRef.current.overflow;
+          document.documentElement.style.touchAction = dragPageStylesRef.current.htmlTouchAction;
+          document.documentElement.style.overflow = dragPageStylesRef.current.htmlOverflow;
           dragPageStylesRef.current = null;
         }
         if (dragFrameRef.current !== null) {
@@ -652,7 +666,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
         }
       };
     }
-  }, [isDragging, handlePointerMove, handlePointerUp]);
+  }, [isDragging, handlePointerMove, handlePointerUp, preventNativeScroll]);
 
   const handleReset = () => {
     setCabinet({ ...startCabinet });
