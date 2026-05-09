@@ -1028,7 +1028,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       stroke={COL.dim} strokeWidth={1.5} strokeDasharray="4 2" />
                     <text x={padding + cabinet.width * scale + dxS / 2 + 10} y={padding + dyS / 2 - 6}
                       fill={COL.dim} textAnchor="middle" fontSize={11} fontWeight={900}>
-                      {cabinet.depth * 10} mm
+                      {Math.round(cabinet.depth * 10)} mm
                     </text>
                   </>
                 )}
