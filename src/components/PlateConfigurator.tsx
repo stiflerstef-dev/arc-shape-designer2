@@ -427,10 +427,11 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const [finishRight, setFinishRight] = useState(false);
   const [hasBack, setHasBack] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
+  const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
   const dragFrameRef = useRef<number | null>(null);
   const pendingDragPositionRef = useRef<Position | null>(null);
+  const dragPageStylesRef = useRef<{ userSelect: string; touchAction: string; overflow: string } | null>(null);
 
   // Reservation modal state
   const [reserveOpen, setReserveOpen] = useState(false);
