@@ -584,8 +584,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
     const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
     const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    const cxR = Math.round(cx * 10) / 10;
-    const cyR = Math.round(cy * 10) / 10;
+    const cxR = roundToMm(cx);
+    const cyR = roundToMm(cy);
     setArch((prev) => ({ ...prev, position: { x: cxR, y: cyR } }));
   }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
 
@@ -594,8 +594,8 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     setArch((prev) => ({
       ...prev,
       position: {
-        x: Math.round(prev.position.x * 10) / 10,
-        y: Math.round(prev.position.y * 10) / 10,
+        x: roundToMm(prev.position.x),
+        y: roundToMm(prev.position.y),
       },
     }));
   }, []);
