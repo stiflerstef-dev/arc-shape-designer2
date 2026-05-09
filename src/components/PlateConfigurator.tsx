@@ -26,7 +26,7 @@ interface ArchShape { width: number; height: number; position: Position; }
 
 /* ─── Defaults (all in cm) ─── */
 const DEFAULT_CABINET: Dims = { width: 120, height: 250, depth: 40 };
-const DEFAULT_ARCH: ArchShape = { width: 60, height: 150, position: { x: 30, y: 15 } };
+const DEFAULT_ARCH: ArchShape = { width: 60, height: 150, position: { x: 30, y: 85 } };
 const SHELF_THICKNESS = 7;
 const ROD_DIAMETER = 3.2;
 const ROD_PRICE = 15;
@@ -396,17 +396,19 @@ type PlateConfiguratorProps = {
 const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfiguratorProps = {}) => {
   const startCabinet = initialCabinet ?? DEFAULT_CABINET;
   const startArch: ArchShape = initialArch ?? (() => {
-    const defaultW = 60;
-    const defaultH = 150;
-    const defaultD = 15;
-    const minSide = 5; // cm
-    const minTop = 5;  // cm
+    const defaultW = 60;   // cm
+    const defaultH = 150;  // cm
+    const defaultD = 15;   // cm (onder)
+    const minSide = 5;     // cm (A/B minimum)
+    const minTop = 5;      // cm (C minimum)
     const w = Math.min(defaultW, Math.max(20, startCabinet.width - minSide * 2));
     const h = Math.min(defaultH, Math.max(20, startCabinet.height - defaultD - minTop));
+    // C = kasthoogte - booghoogte - D
+    const c = startCabinet.height - h - defaultD;
     return {
       width: w,
       height: h,
-      position: { x: Math.max(minSide, (startCabinet.width - w) / 2), y: defaultD },
+      position: { x: Math.max(minSide, (startCabinet.width - w) / 2), y: Math.max(minTop, c) },
     };
   })();
   const [cabinet, setCabinet] = useState<Dims>({ ...startCabinet });
