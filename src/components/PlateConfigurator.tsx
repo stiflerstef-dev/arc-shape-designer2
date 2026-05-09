@@ -427,9 +427,11 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const [finishRight, setFinishRight] = useState(false);
   const [hasBack, setHasBack] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
-  const archDimsRef = useRef<HTMLElement>(null);
+  const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
+  const dragFrameRef = useRef<number | null>(null);
+  const pendingDragPositionRef = useRef<Position | null>(null);
+  const dragPageStylesRef = useRef<{ userSelect: string; touchAction: string; overflow: string; htmlTouchAction: string; htmlOverflow: string } | null>(null);
 
   // Reservation modal state
   const [reserveOpen, setReserveOpen] = useState(false);
@@ -571,45 +573,100 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
   const handlePointerDown = (e: React.PointerEvent<SVGPathElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     (e.currentTarget as SVGPathElement).setPointerCapture(e.pointerId);
+    if (!dragPageStylesRef.current) {
+      dragPageStylesRef.current = {
+        userSelect: document.body.style.userSelect,
+        touchAction: document.body.style.touchAction,
+        overflow: document.body.style.overflow,
+        htmlTouchAction: document.documentElement.style.touchAction,
+        htmlOverflow: document.documentElement.style.overflow,
+      };
+      document.body.style.userSelect = "none";
+      document.body.style.touchAction = "none";
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.touchAction = "none";
+      document.documentElement.style.overflow = "hidden";
+    }
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
-    setDragOffset({ x: mx - arch.position.x, y: my - arch.position.y });
+    dragOffsetRef.current = { x: mx - arch.position.x, y: my - arch.position.y };
     setIsDragging(true);
     if (centerArch) setCenterArch(false);
-    archDimsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handlePointerMove = useCallback((e: PointerEvent) => {
     if (!isDragging) return;
+    e.preventDefault();
     const { x: mx, y: my } = clientToCab(e.clientX, e.clientY);
-    const cx = Math.max(5, Math.min(mx - dragOffset.x, Math.max(5, cabinet.width - arch.width - 5)));
-    const cy = Math.max(5, Math.min(my - dragOffset.y, Math.max(5, cabinet.height - arch.height)));
-    setArch((prev) => ({ ...prev, position: { x: cx, y: cy } }));
-  }, [isDragging, dragOffset, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
+    const cx = Math.max(5, Math.min(mx - dragOffsetRef.current.x, Math.max(5, cabinet.width - arch.width - 5)));
+    const cy = Math.max(5, Math.min(my - dragOffsetRef.current.y, Math.max(5, cabinet.height - arch.height)));
+    pendingDragPositionRef.current = { x: cx, y: cy };
+
+    if (dragFrameRef.current !== null) return;
+    dragFrameRef.current = requestAnimationFrame(() => {
+      dragFrameRef.current = null;
+      const next = pendingDragPositionRef.current;
+      if (!next) return;
+      setArch((prev) => ({ ...prev, position: next }));
+    });
+  }, [isDragging, arch.width, arch.height, cabinet.width, cabinet.height, scale, dyS, padding, svgWidth, svgHeight]);
 
   const handlePointerUp = useCallback(() => {
     setIsDragging(false);
+    if (dragPageStylesRef.current) {
+      document.body.style.userSelect = dragPageStylesRef.current.userSelect;
+      document.body.style.touchAction = dragPageStylesRef.current.touchAction;
+      document.body.style.overflow = dragPageStylesRef.current.overflow;
+      document.documentElement.style.touchAction = dragPageStylesRef.current.htmlTouchAction;
+      document.documentElement.style.overflow = dragPageStylesRef.current.htmlOverflow;
+      dragPageStylesRef.current = null;
+    }
+    if (dragFrameRef.current !== null) {
+      cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
+    const finalPosition = pendingDragPositionRef.current;
+    pendingDragPositionRef.current = null;
     setArch((prev) => ({
       ...prev,
       position: {
-        x: roundToMm(prev.position.x),
-        y: roundToMm(prev.position.y),
+        x: roundToMm(finalPosition?.x ?? prev.position.x),
+        y: roundToMm(finalPosition?.y ?? prev.position.y),
       },
     }));
   }, []);
 
+  const preventNativeScroll = useCallback((e: TouchEvent) => {
+    if (isDragging) e.preventDefault();
+  }, [isDragging]);
+
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointermove", handlePointerMove, { passive: false });
+      window.addEventListener("touchmove", preventNativeScroll, { passive: false });
       window.addEventListener("pointerup", handlePointerUp);
       window.addEventListener("pointercancel", handlePointerUp);
       return () => {
         window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("touchmove", preventNativeScroll);
         window.removeEventListener("pointerup", handlePointerUp);
         window.removeEventListener("pointercancel", handlePointerUp);
+        if (dragPageStylesRef.current) {
+          document.body.style.userSelect = dragPageStylesRef.current.userSelect;
+          document.body.style.touchAction = dragPageStylesRef.current.touchAction;
+          document.body.style.overflow = dragPageStylesRef.current.overflow;
+          document.documentElement.style.touchAction = dragPageStylesRef.current.htmlTouchAction;
+          document.documentElement.style.overflow = dragPageStylesRef.current.htmlOverflow;
+          dragPageStylesRef.current = null;
+        }
+        if (dragFrameRef.current !== null) {
+          cancelAnimationFrame(dragFrameRef.current);
+          dragFrameRef.current = null;
+        }
       };
     }
-  }, [isDragging, handlePointerMove, handlePointerUp]);
+  }, [isDragging, handlePointerMove, handlePointerUp, preventNativeScroll]);
 
   const handleReset = () => {
     setCabinet({ ...startCabinet });
@@ -701,7 +758,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
           <div className="sticky top-0 z-30 -mx-6 md:-mx-12 lg:mx-0 lg:order-2 lg:sticky lg:top-4 lg:self-start bg-background lg:bg-transparent pt-2 pb-3 lg:p-0 border-b border-border lg:border-b-0">
             <div className="relative bg-canvas overflow-hidden border-y border-border lg:border lg:rounded-sm">
               <div className="px-1 py-1 lg:p-8 flex items-center justify-center lg:min-h-[600px] lg:max-h-[calc(100vh-2rem)] relative">
-              <svg ref={svgRef} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="w-full h-auto max-h-[55vh] lg:max-h-none" style={{ filter: "drop-shadow(0 28px 22px rgba(28,28,26,0.22)) drop-shadow(0 10px 14px rgba(28,28,26,0.14)) drop-shadow(0 2px 3px rgba(28,28,26,0.08))", cursor: isDragging ? "grabbing" : "default" }}>
+              <svg ref={svgRef} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="w-full h-auto max-h-[55vh] lg:max-h-none" style={{ filter: "drop-shadow(0 28px 22px rgba(28,28,26,0.22)) drop-shadow(0 10px 14px rgba(28,28,26,0.14)) drop-shadow(0 2px 3px rgba(28,28,26,0.08))", cursor: isDragging ? "grabbing" : "default", touchAction: "none", overscrollBehavior: "contain" }}>
                 <defs>
                   <marker id="arrowL" markerWidth="8" markerHeight="8" refX="0" refY="4" orient="auto"><path d="M8 0 L0 4 L8 8 Z" fill={COL.dim} /></marker>
                   <marker id="arrowR" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill={COL.dim} /></marker>
@@ -944,7 +1001,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     <path d={archPathOpen} fill="none" stroke="#D8D3C7" strokeWidth={2.2 / scale} strokeOpacity={0.5} strokeLinejoin="miter" strokeMiterlimit={10} />
 
                     {/* Arch drag handle */}
-                    <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: "grab", touchAction: "none" }} onPointerDown={handlePointerDown} />
+                    <path d={archPathClosed} fill="transparent" stroke="transparent" strokeWidth={12 / scale} style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }} onPointerDown={handlePointerDown} />
                     <path d={archPathOpen} fill="none" stroke="hsl(var(--accent))" strokeWidth={2 / scale} strokeLinejoin="miter" strokeMiterlimit={10} style={{ cursor: "grab", pointerEvents: "none" }} />
                     {/* "Versleep mij" hint inside arch, on top of shelves */}
                     <text
@@ -1095,7 +1152,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
             </section>
 
             {/* Boog Afmetingen */}
-            <section ref={archDimsRef}>
+            <section>
               <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
                 <h2 className="font-serif-display text-xl text-foreground">Boog Afmetingen</h2>
               </div>
