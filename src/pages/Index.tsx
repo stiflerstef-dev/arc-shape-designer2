@@ -10,7 +10,8 @@ const PRESETS = {
   },
   large: {
     cabinet: { width: 120, height: 250, depth: 40 },
-    arch: undefined,
+    // A = 20 cm, B = 20 cm, C = 50 cm, D = 0 cm (boog 80×200)
+    arch: { width: 80, height: 200, position: { x: 20, y: 50 } },
   },
 } as const;
 
