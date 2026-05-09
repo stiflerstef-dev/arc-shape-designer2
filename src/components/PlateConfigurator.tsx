@@ -1117,7 +1117,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
                 {archType === "gothic" && (
                   <p className="text-[10px] text-muted-foreground italic leading-relaxed">
-                    Spitsboog ratio is vast: {gothicCapH * 10} mm puntkapje · 37,5% van de breedte (klassieke ogief).
+                    Spitsboog ratio is vast: {Math.round(gothicCapH * 10)} mm puntkapje · 37,5% van de breedte (klassieke ogief).
                   </p>
                 )}
                 {archType === "shoulder" && (
