@@ -1124,7 +1124,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
             </section>
 
             {/* Boog Afmetingen */}
-            <section ref={archDimsRef}>
+            <section>
               <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
                 <h2 className="font-serif-display text-xl text-foreground">Boog Afmetingen</h2>
               </div>
