@@ -246,9 +246,9 @@ function useAnimatedPrice(target: number, duration = 400) {
 /* Values are stored in cm; UI displays mm (×10) for user-friendly precision. */
 function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabled = false }: { value: number; onChange: (v: number) => void; min: number; max: number; label: string; id: string; unit?: string; disabled?: boolean }) {
   // Display value in mm (cm * 10)
-  const valueMm = value * 10;
-  const minMm = min * 10;
-  const maxMm = max * 10;
+  const valueMm = Math.round(value * 10);
+  const minMm = Math.round(min * 10);
+  const maxMm = Math.round(max * 10);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(String(valueMm));
   const [freshEntry, setFreshEntry] = useState(true);
