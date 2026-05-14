@@ -121,7 +121,7 @@ const ProductSelection = ({ onSelect }: Props) => {
               <span
                 className="inline-flex items-center justify-center w-full h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-light tracking-wide text-sm"
               >
-                Configureer deze kast
+                Stel jouw kast op maat samen
               </span>
             </button>
           ))}
@@ -133,7 +133,7 @@ const ProductSelection = ({ onSelect }: Props) => {
           <DialogHeader>
             <DialogTitle className="font-serif-display text-2xl">Binnenkort beschikbaar</DialogTitle>
             <DialogDescription className="font-light pt-2">
-              Deze configurator is nog in ontwikkeling. We laten het weten zodra hij online staat.
+              Deze optie is nog in ontwikkeling. We laten het weten zodra hij online staat.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

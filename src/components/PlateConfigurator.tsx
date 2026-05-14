@@ -749,7 +749,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
       <div className="max-w-[1500px] mx-auto px-6 md:px-12 py-10 md:py-14">
         <header className="mb-12 md:mb-16 border-b border-border pb-8">
           <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-copper mb-3">Handgemaakt Maatwerk</p>
-          <h1 className="font-serif-display text-4xl md:text-5xl text-foreground leading-[1.05]">Boogkast Configurator</h1>
+          <h1 className="font-serif-display text-4xl md:text-5xl text-foreground leading-[1.05]">Boogkast op maat</h1>
           
         </header>
 
