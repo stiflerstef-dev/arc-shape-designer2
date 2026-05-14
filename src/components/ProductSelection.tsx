@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -125,6 +126,18 @@ const ProductSelection = ({ onSelect }: Props) => {
               </span>
             </button>
           ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <p className="text-muted-foreground font-light text-sm mb-2">
+            Niet zeker welke kast je nodig hebt?
+          </p>
+          <Link
+            to="/faq"
+            className="text-sm text-copper hover:underline font-light tracking-wide transition-colors"
+          >
+            Bekijk de veelgestelde vragen →
+          </Link>
         </div>
       </div>
 
