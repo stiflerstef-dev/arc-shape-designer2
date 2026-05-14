@@ -101,9 +101,10 @@ const ProductSelection = ({ onSelect }: Props) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {CARDS.map((c) => (
-            <div
+            <button
               key={c.id}
-              className="group relative bg-card border border-border rounded-md shadow-sm hover:shadow-md hover:border-copper transition-all duration-300 p-6 flex flex-col"
+              onClick={() => handle(c.id)}
+              className="group relative bg-card border border-border rounded-sm shadow-sm hover:shadow-md hover:border-copper transition-all duration-300 p-6 flex flex-col text-left cursor-pointer"
             >
               {c.badge && (
                 <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground hover:bg-accent">
@@ -116,13 +117,12 @@ const ProductSelection = ({ onSelect }: Props) => {
               <h2 className="font-serif-display text-2xl text-foreground mb-1">{c.title}</h2>
               <p className="text-xs uppercase tracking-widest text-copper mb-3 font-light">{c.subtitle}</p>
               <p className="text-sm text-muted-foreground font-light leading-relaxed mb-6 flex-1">{c.description}</p>
-              <Button
-                onClick={() => handle(c.id)}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-light tracking-wide"
+              <span
+                className="inline-flex items-center justify-center w-full h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-light tracking-wide text-sm"
               >
                 Configureer deze kast
-              </Button>
-            </div>
+              </span>
+            </button>
           ))}
         </div>
       </div>
