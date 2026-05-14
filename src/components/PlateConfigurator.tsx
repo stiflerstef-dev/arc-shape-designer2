@@ -1757,6 +1757,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   <p className="text-[10px] text-muted-foreground/80 text-center leading-relaxed">
                     ✓ Binnen 1 werkdag ontvang je een bevestiging en betaallink.
                   </p>
+                  <p className="text-[9px] text-muted-foreground/60 text-center leading-relaxed mt-1">
+                    Gratis verzending binnen Nederland. Voor de Waddeneilanden en overige eilanden geldt een bezorgtoeslag — we nemen vooraf contact met je op over de kosten.
+                  </p>
                 </div>
               </form>
             </>
