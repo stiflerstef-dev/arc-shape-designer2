@@ -1755,7 +1755,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     {reserveSubmitting ? "Versturen…" : "Verstuur reservering"}
                   </Button>
                   <p className="text-[10px] text-muted-foreground/80 text-center leading-relaxed">
-                    ✓ Geen betaling nu — je ontvangt eerst een bevestiging binnen 1 werkdag.
+                    ✓ Binnen 1 werkdag ontvang je een bevestiging en betaallink.
                   </p>
                 </div>
               </form>
