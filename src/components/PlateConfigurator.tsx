@@ -1310,7 +1310,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
                   }`}
                 >
-                  {finishLeft ? "Links afgewerkt" : "Links niet afgewerkt"}
+                  {finishLeft ? "Links afgewerkt" : "Links tegen muur"}
                 </button>
                 <svg viewBox="0 0 100 80" className="w-24 h-20 shrink-0" aria-hidden="true">
                   {/* Cabinet body */}
@@ -1350,7 +1350,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
                   }`}
                 >
-                  {finishRight ? "Rechts afgewerkt" : "Rechts niet afgewerkt"}
+                  {finishRight ? "Rechts afgewerkt" : "Rechts tegen muur"}
                 </button>
               </div>
             </section>
@@ -1553,7 +1553,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   "Geproduceerd in matwit MDF",
                   "Geleverd als bouwpakket — eenvoudig zelf te monteren",
                   "Binnen 1 werkdag ontvang je een bevestiging",
-                  "Geen betaling nu",
+                  "Binnen 1 werkdag ontvang je een bevestiging en betaallink",
                   "Gratis verzending binnen Nederland*",
                 ].map((line) => (
                   <li key={line} className="flex items-start gap-2 text-[12px] leading-snug text-foreground/75">
