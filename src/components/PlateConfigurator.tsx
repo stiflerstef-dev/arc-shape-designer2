@@ -1362,9 +1362,21 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
               </div>
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1 min-w-0">
-                  <Label htmlFor="hasBack" className="text-xs font-light text-foreground tracking-wide">
-                    Achterwand toevoegen
-                  </Label>
+                  <div className="flex items-center gap-1.5">
+                    <Label htmlFor="hasBack" className="text-xs font-light text-foreground tracking-wide">
+                      Achterwand toevoegen
+                    </Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button type="button" className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                        De achterwand bestaat uit meerdere delen. De aansluitingen lopen horizontaal — tip: plaats een legplank op de naad voor een strak resultaat.
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <p className="text-[10px] text-muted-foreground leading-relaxed">
                     Een afgewerkte achterwand in matwit MDF.
                   </p>
