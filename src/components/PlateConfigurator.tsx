@@ -1368,7 +1368,11 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     </Label>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button type="button" className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                        <button
+                          type="button"
+                          className="p-2 -m-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-help"
+                          aria-label="Informatie achterwand"
+                        >
                           <Info className="w-3.5 h-3.5" />
                         </button>
                       </TooltipTrigger>
