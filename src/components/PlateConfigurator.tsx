@@ -1287,7 +1287,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                 })}
               </div>
               <p className="text-[10px] text-muted-foreground/80 leading-relaxed italic mt-4">
-                Het meubel wordt altijd geleverd in matwit MDF. De interieurkleur is ter inspiratie — u schildert de binnenzijde zelf in de gewenste kleur.
+                Het meubel wordt altijd geleverd in matwit MDF. De interieurkleur is ter inspiratie — je schildert de binnenzijde zelf in de gewenste kleur.
               </p>
             </section>
 
