@@ -66,8 +66,8 @@ type CardData = {
 };
 
 const CARDS: CardData[] = [
-  { id: "small", title: "Kleine Boogkast", subtitle: "Los in de ruimte · 800×1900×250mm", description: "Een sierlijke vrijstaande kast met plateau, perfect als eyecatcher.", preview: "small" },
-  { id: "large", title: "Grote Boogkast", subtitle: "Kamerhoog · 1200×2500×400mm", description: "De klassieke vloer-tot-plafond boogkast, onze meest gekozen maat.", badge: "Best seller", preview: "large" },
+  { id: "small", title: "Kleine Boogkast", subtitle: "Los in de ruimte", description: "Een sierlijke vrijstaande kast met plateau, perfect als eyecatcher.", preview: "small" },
+  { id: "large", title: "Grote Boogkast", subtitle: "Kamerhoog", description: "De klassieke vloer-tot-plafond boogkast, onze meest gekozen maat.", badge: "Best seller", preview: "large" },
   { id: "halmeubel", title: "Halmeubel", subtitle: "Boog boven · opbergruimte onder", description: "Boogkast met jassenroede gecombineerd met een schoenenkast met 2 deuren.", preview: "halmeubel" },
   { id: "combi", title: "Maatwerk Combinatie", subtitle: "Meerdere bogen naast elkaar", description: "Ontwerp een wand met twee of meer boogkasten op maat.", preview: "combi" },
 ];
