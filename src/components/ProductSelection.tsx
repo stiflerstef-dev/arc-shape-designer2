@@ -20,6 +20,7 @@ const CabinetIllustration = ({ variant }: { variant: Preview }) => {
       <svg viewBox="0 0 120 120" className="w-full h-full">
         <rect x="32" y="22" width="56" height="78" fill={fill} stroke={stroke} strokeWidth="1.2" />
         <path d="M40 100 V44 Q40 32 60 32 Q80 32 80 44 V100 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
+        <line x1="40" y1="68" x2="80" y2="68" stroke={stroke} strokeWidth="0.6" opacity="0.5" />
         <line x1="32" y1="100" x2="88" y2="100" stroke={stroke} strokeWidth="1.2" />
       </svg>
     );
