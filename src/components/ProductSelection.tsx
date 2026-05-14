@@ -127,6 +127,18 @@ const ProductSelection = ({ onSelect }: Props) => {
             </button>
           ))}
         </div>
+
+        <div className="mt-12 text-center">
+          <p className="text-muted-foreground font-light text-sm mb-2">
+            Niet zeker welke kast je nodig hebt?
+          </p>
+          <Link
+            to="/faq"
+            className="text-sm text-copper hover:underline font-light tracking-wide transition-colors"
+          >
+            Bekijk de veelgestelde vragen →
+          </Link>
+        </div>
       </div>
 
       <Dialog open={!!comingSoon} onOpenChange={(o) => !o && setComingSoon(null)}>
