@@ -1249,7 +1249,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
             </section>
 
             {/* Inklapbare secties: Plaatsing, Interieur kleur, Extra opties */}
-            <Accordion type="multiple" defaultValue={["opties"]} className="space-y-0">
+            <Accordion type="multiple" className="space-y-0">
 
               {/* Plaatsing */}
               <AccordionItem value="plaatsing" className="border-b border-border">
