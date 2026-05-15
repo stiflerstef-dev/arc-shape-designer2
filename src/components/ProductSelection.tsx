@@ -16,13 +16,13 @@ const CabinetIllustration = ({ variant }: { variant: Preview }) => {
   const accent = "hsl(var(--accent))";
 
   if (variant === "small") {
-    // small freestanding
+    // small freestanding — 80×190×25 cabinet, arch 60×150, plateau 15 cm onder
     return (
       <svg viewBox="0 0 120 120" className="w-full h-full">
-        <rect x="32" y="22" width="56" height="78" fill={fill} stroke={stroke} strokeWidth="1.2" />
-        <path d="M40 100 V44 Q40 32 60 32 Q80 32 80 44 V100 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
-        <line x1="40" y1="68" x2="80" y2="68" stroke={stroke} strokeWidth="0.6" opacity="0.5" />
-        <line x1="32" y1="100" x2="88" y2="100" stroke={stroke} strokeWidth="1.2" />
+        <rect x="38" y="8" width="44" height="104" fill={fill} stroke={stroke} strokeWidth="1.2" />
+        <path d="M44 95 V38 A16 16 0 0 1 76 38 V95 Z" fill={niche} stroke={stroke} strokeWidth="0.8" />
+        <line x1="38" y1="95" x2="82" y2="95" stroke={stroke} strokeWidth="0.8" opacity="0.7" />
+        <line x1="38" y1="112" x2="82" y2="112" stroke={stroke} strokeWidth="1.2" />
       </svg>
     );
   }
