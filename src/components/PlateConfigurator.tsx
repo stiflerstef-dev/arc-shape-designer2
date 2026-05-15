@@ -1525,8 +1525,10 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     </p>
                   )}
                 </div>
-              </div>
-            </section>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             {/* Prijs */}
             <section className="bg-secondary/40 border border-border rounded-sm p-6 space-y-4">
