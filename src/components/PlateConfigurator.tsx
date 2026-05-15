@@ -726,8 +726,12 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
   const displayPrice = useAnimatedPrice(totalPrice);
 
-  // Niche interior color
-  const nicheBackColor = nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].hex : COL.nicheBack;
+  // Niche interior color — zonder achterwand kijk je dwars door de kast (canvaskleur),
+  // mét achterwand toon je de matwitte achterwand (of gekozen interieurkleur).
+  const CANVAS_HEX = "#EDEAE5";
+  const nicheBackColor = hasBack
+    ? (nicheColorIdx !== null ? NICHE_COLORS[nicheColorIdx].hex : COL.nicheBack)
+    : CANVAS_HEX;
 
   // Darken/lighten helpers for shading
   const shade = (hex: string, amount: number) => {
