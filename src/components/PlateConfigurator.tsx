@@ -1540,7 +1540,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                 {[
                   "Geproduceerd in matwit MDF",
                   "Geleverd als bouwpakket — eenvoudig zelf te monteren",
-                  "Binnen 1 werkdag ontvang je een bevestiging",
                   "Binnen 1 werkdag ontvang je een bevestiging en betaallink",
                   "Gratis verzending binnen Nederland*",
                 ].map((line) => (
