@@ -1380,20 +1380,20 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                         <Label htmlFor="hasBack" className="text-xs font-light text-foreground tracking-wide">
                           Achterwand toevoegen
                         </Label>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                        <Popover>
+                          <PopoverTrigger asChild>
                             <button
                               type="button"
-                              className="p-2 -m-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-help"
+                              className="p-2 -m-1.5 rounded-full text-muted-foreground hover:text-copper transition-colors shrink-0"
                               aria-label="Informatie achterwand"
                             >
                               <Info className="w-3.5 h-3.5" />
                             </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                          </PopoverTrigger>
+                          <PopoverContent side="top" className="w-72 text-[11px] leading-relaxed font-light">
                             De achterwand bestaat uit meerdere delen. De aansluitingen lopen horizontaal — tip: plaats een legplank op de naad voor een strak resultaat.
-                          </TooltipContent>
-                        </Tooltip>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                       <p className="text-[10px] text-muted-foreground leading-relaxed">
                         Een afgewerkte achterwand in matwit MDF.
@@ -1435,16 +1435,16 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       )}
                       <div className="flex items-center gap-1.5">
                         <Label htmlFor="rod" className="text-xs font-light text-foreground tracking-wide">Roede (ovaal)</Label>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button type="button" className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button type="button" aria-label="Info roede" className="text-muted-foreground hover:text-copper transition-colors shrink-0">
                               <Info className="w-3.5 h-3.5" />
                             </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                          </PopoverTrigger>
+                          <PopoverContent side="top" className="w-72 text-[11px] leading-relaxed font-light">
                             Een ovale garderobe- of decoratieroede, gemonteerd met twee beugels aan beide zijwanden. Geschikt voor kleding, planten of decoratie.
-                          </TooltipContent>
-                        </Tooltip>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </div>
                     <Switch id="rod" checked={hasRod} onCheckedChange={setHasRod} />
@@ -1505,16 +1505,16 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                         <Label htmlFor="light" className={`text-xs font-light tracking-wide ${archType === "gothic" ? "text-muted-foreground/60" : "text-foreground"}`}>
                           Verlichting (Ø42mm RGB · €50)
                         </Label>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button type="button" className={`hover:text-foreground transition-colors shrink-0 ${archType === "gothic" ? "text-muted-foreground/40" : "text-muted-foreground"}`}>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button type="button" aria-label="Info verlichting" className={`hover:text-copper transition-colors shrink-0 ${archType === "gothic" ? "text-muted-foreground/40" : "text-muted-foreground"}`}>
                               <Info className="w-3.5 h-3.5" />
                             </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                          </PopoverTrigger>
+                          <PopoverContent side="top" className="w-72 text-[11px] leading-relaxed font-light">
                             Een ingebouwde RGB LED spot van 42mm diameter, gemonteerd in het plafond van de nis. De spot geeft instelbaar gekleurd licht en wordt geleverd inclusief afstandsbediening. Het gat wordt gefreesd en de bedrading voorbereid geleverd. Aansluiting door een elektricien aanbevolen.
-                          </TooltipContent>
-                        </Tooltip>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </div>
                     <Switch id="light" checked={hasLight && archType !== "gothic"} onCheckedChange={setHasLight} disabled={archType === "gothic"} />
