@@ -1,80 +1,47 @@
+## Doel
 
+Het rechterpaneel van de configurator toont nu zes losse blokken onder elkaar (Kast, Boog, Kleur, Plaatsing, Achterwand, Opties). Dat oogt druk. We groeperen ze in uitvouwbare velden (accordion) zodat de gebruiker per categorie inklapt en focus krijgt op wat hij configureert.
 
-## Plan: Overhaul Arch Geometry + Shape-Specific Controls
+## Voorgestelde indeling
 
-### File: `src/components/PlateConfigurator.tsx`
+Twee altijd-zichtbare basisblokken bovenaan (geen accordion — dit zijn de kernkeuzes), daaronder drie inklapbare secties:
 
-### 1. Gothic Arch — True Sharp Apex with Cubic Beziers
-
-**Current problem:** Lines 59-63 use quadratic bezier (`Q`) curves that meet at the top center with a rounded transition — no sharp point.
-
-**Fix:** Replace with two cubic bezier (`C`) curves that converge to a single sharp apex point at `(x + aw/2, y)`. The control points determine steepness:
-
-```text
-  Sharp apex ──► (cx, y)
-     /    \
-    /      \    ← Two cubic bezier curves
-   /        \      meeting at the exact same point
-  /          \
-(x, bottom)  (x+aw, bottom)
+```
+┌─ AFMETINGEN (altijd open, niet inklapbaar)
+│   ├─ Kast Afmetingen
+│   └─ Boog Afmetingen + boogvorm
+│
+├─ ▸ Plaatsing in de ruimte         (collapsed by default)
+├─ ▾ Interieur kleur                 (collapsed by default)
+├─ ▾ Extra opties                    (open by default)
+│   ├─ Legplanken
+│   ├─ Achterwand (matwit MDF)
+│   ├─ Roede (ovaal)
+│   └─ Verlichting
 ```
 
-- New `gothicPointiness` state (0–100, default 70)
-- Path formula: `M x,bottom L x,y+ah*transitionFrac C x,y+cpY  cx,y  cx,y C cx,y  x+aw,y+cpY  x+aw,y+ah*transitionFrac L x+aw,bottom`
-- `transitionFrac` derived from pointiness: lower pointiness = wider curves, higher = steeper
-- The apex is always the single point `(x+aw/2, y)` — guaranteed sharp regardless of slider value
+### Waarom deze indeling
 
-### 2. Double Shoulder Arch — Configurable Large Radius
+- **Afmetingen** zijn de eerste keuze die elke klant maakt — die moeten meteen zichtbaar zijn, geen extra klik.
+- **Plaatsing** wordt vaak één keer ingesteld en dan vergeten — prima om in te klappen.
+- **Interieur kleur** is "pure inspiratie" (disclaimer-feature). Hoort bij de beleving, mag dichtgeklapt starten zodat het de focus niet steelt.
+- **Extra opties** worden samengevoegd: legplanken + achterwand + roede + verlichting horen logisch bij elkaar als "wat zit er in de kast". Open by default omdat dit de upsell-zone is en de prijs zichtbaar laat bewegen.
 
-**Current problem:** `shoulderRadius` uses `aw * 0.2` = 16cm for 80cm width — too small/subtle.
+## Gedrag
 
-**Fix:**
-- Add `shoulderRadiusValue` state (range: 5 to `aw/2`, default 20cm)
-- Remove `SHOULDER_R_RATIO` constant and `shoulderRadius()` function
-- Use `Math.min(shoulderRadiusValue, aw/2, ah*0.4)` directly in all path calculations
-- Update `archPaths`, `ceilingPath`, `leftWallTopY`, and `getShelfWidthAtY` to use the new value
+- Eén sectie per keer open mag, of meerdere tegelijk — voorstel: **meerdere tegelijk** (`type="multiple"`), zodat een gebruiker bv. plaatsing en kleur tegelijk kan zien.
+- Header toont sectienaam + chevron; klik op de hele balk vouwt uit.
+- Smooth open/close animatie (zit al in de shadcn Accordion).
+- Styling matched bestaande artisan look: Playfair Display headers, dunne border, copper hover.
 
-### 3. `getShelfWidthAtY` — Accurate for Cubic Bezier Gothic
+## Technische details
 
-**Current problem:** Line 111-118 uses a rough linear/sqrt approximation that doesn't match cubic beziers.
+- Bestand: `src/components/PlateConfigurator.tsx` (rond regels 1140–1620)
+- Vervang de zes losse `<section>`/`<Card>` blokken door een `<Accordion type="multiple" defaultValue={["opties"]}>` met `AccordionItem` per sectie.
+- Component `accordion.tsx` is al aanwezig — geen nieuwe dependency.
+- "Achterwand" als losse sectie verdwijnt en wordt een rij binnen "Extra opties" (zelfde switch + thumbnail).
+- Geen prijsberekening of validatielogica raken — puur layout.
 
-**Fix for Gothic:** Numerically solve the cubic bezier x-coordinate at each Y level. Use a simple iterative approach:
-- For a given `relY`, compute the parametric `t` where the bezier reaches that Y
-- Evaluate the bezier x at that `t` for left curve, mirror for right
-- Shelf width = right_x - left_x
-- This ensures shelves never bleed through the curved walls
+## Open vraag
 
-**Shoulder:** Already correct (circle-based inset calculation), just swap `shoulderRadius()` calls for the state value.
-
-### 4. Conditional UI Controls
-
-After the "Vorm Niche" selector (line 540), add:
-
-- **Gothic selected:** `Slider` labeled "Scherpte Punt" (0–100, default 70) + `NumberInput`
-- **Shoulder selected:** `Slider` + `NumberInput` labeled "Hoek Radius (cm)" (5 to aw/2, default 20)
-
-Import `Slider` from `@/components/ui/slider`.
-
-### 5. Default Values
-
-Already correct (120x250x40 cabinet, 80x200 niche, position 20/50). Add:
-- `gothicPointiness: 70`
-- `shoulderRadiusValue: 20`
-
-### 6. Consistency Preserved
-
-- All shapes: open bottom path (no `Z`, no bottom segment)
-- Shelves: `#FFFFFF`, `fillOpacity={1}`, `#666666` front stroke
-- Dimension lines: `#000000`, `fontWeight={900}`
-- Height arrows: `orient="0"` / `orient="180"` (vertical)
-- `ceilingPath` and `leftWallTopY` updated for new geometry
-
-### Summary of Changes
-
-- ~15 lines: new state + imports (`Slider`)
-- ~30 lines: rewritten `archPaths` gothic/shoulder branches
-- ~20 lines: rewritten `getShelfWidthAtY` gothic branch (bezier solver)
-- ~5 lines: updated `ceilingPath`, `leftWallTopY`, rod position helpers
-- ~20 lines: conditional UI controls in the Boog Afmetingen card
-- Remove `SHOULDER_R_RATIO` and `shoulderRadius()` function
-
+Vóór ik begin: wil je deze indeling, of liever een andere groepering (bijv. ook Boog inklapbaar, of Plaatsing samen met Achterwand)?
