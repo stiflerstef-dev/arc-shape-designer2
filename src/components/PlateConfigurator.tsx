@@ -1248,12 +1248,60 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
               </div>
             </section>
 
-            {/* Interieur Kleur — tegels */}
-            <section>
-              <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
-                <h2 className="font-serif-display text-xl text-foreground">Interieur Kleur</h2>
-              </div>
-              <div className="grid grid-cols-5 gap-3">
+            {/* Inklapbare secties: Plaatsing, Interieur kleur, Extra opties */}
+            <Accordion type="multiple" defaultValue={["opties"]} className="space-y-0">
+
+              {/* Plaatsing */}
+              <AccordionItem value="plaatsing" className="border-b border-border">
+                <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
+                  Plaatsing
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-6">
+                  <p className="text-[11px] text-muted-foreground leading-relaxed mb-4">
+                    Selecteer welke zijkanten zichtbaar zijn en in matwit MDF afgewerkt moeten worden. Tegen een muur? Laat de zijkant uit.
+                  </p>
+                  <div className="flex items-center justify-center gap-3 sm:gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setFinishLeft((v) => !v)}
+                      aria-pressed={finishLeft}
+                      className={`flex-1 max-w-[110px] rounded-sm border px-2 py-3 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors focus:outline-none ${
+                        finishLeft
+                          ? "border-copper bg-secondary text-foreground"
+                          : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                      }`}
+                    >
+                      {finishLeft ? "Links afgewerkt" : "Links tegen muur"}
+                    </button>
+                    <svg viewBox="0 0 100 80" className="w-24 h-20 shrink-0" aria-hidden="true">
+                      <rect x="22" y="10" width="56" height="64" fill="hsl(var(--background))" stroke="hsl(var(--foreground))" strokeWidth={1} />
+                      <path d="M 32 74 L 32 36 A 18 18 0 0 1 68 36 L 68 74" fill="hsl(var(--secondary))" stroke="hsl(var(--foreground) / 0.5)" strokeWidth={0.6} />
+                      <rect x="18" y="10" width="4" height="64" fill={finishLeft ? "hsl(var(--copper))" : "hsl(var(--muted))"} opacity={finishLeft ? 1 : 0.5} />
+                      <rect x="78" y="10" width="4" height="64" fill={finishRight ? "hsl(var(--copper))" : "hsl(var(--muted))"} opacity={finishRight ? 1 : 0.5} />
+                    </svg>
+                    <button
+                      type="button"
+                      onClick={() => setFinishRight((v) => !v)}
+                      aria-pressed={finishRight}
+                      className={`flex-1 max-w-[110px] rounded-sm border px-2 py-3 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors focus:outline-none ${
+                        finishRight
+                          ? "border-copper bg-secondary text-foreground"
+                          : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                      }`}
+                    >
+                      {finishRight ? "Rechts afgewerkt" : "Rechts tegen muur"}
+                    </button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Interieur Kleur */}
+              <AccordionItem value="kleur" className="border-b border-border">
+                <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
+                  Interieur kleur
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-6">
+                  <div className="grid grid-cols-5 gap-3">
                 {NICHE_COLORS.map((c, i) => {
                   const active = nicheColorIdx === i;
                   return (
@@ -1286,116 +1334,20 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     </button>
                   );
                 })}
-              </div>
-              <p className="text-[10px] text-muted-foreground/80 leading-relaxed italic mt-4">
-                Het meubel wordt altijd geleverd in matwit MDF. De interieurkleur is ter inspiratie — je schildert de binnenzijde zelf in de gewenste kleur.
-              </p>
-            </section>
-
-            {/* Plaatsing */}
-            <section>
-              <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
-                <h2 className="font-serif-display text-xl text-foreground">Plaatsing</h2>
-              </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed mb-4">
-                Selecteer welke zijkanten zichtbaar zijn en in matwit MDF afgewerkt moeten worden. Tegen een muur? Laat de zijkant uit.
-              </p>
-              <div className="flex items-center justify-center gap-3 sm:gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFinishLeft((v) => !v)}
-                  aria-pressed={finishLeft}
-                  className={`flex-1 max-w-[110px] rounded-sm border px-2 py-3 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors focus:outline-none ${
-                    finishLeft
-                      ? "border-copper bg-secondary text-foreground"
-                      : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                  }`}
-                >
-                  {finishLeft ? "Links afgewerkt" : "Links tegen muur"}
-                </button>
-                <svg viewBox="0 0 100 80" className="w-24 h-20 shrink-0" aria-hidden="true">
-                  {/* Cabinet body */}
-                  <rect
-                    x="22" y="10" width="56" height="64"
-                    fill="hsl(var(--background))"
-                    stroke="hsl(var(--foreground))"
-                    strokeWidth={1}
-                  />
-                  {/* Arch hint */}
-                  <path
-                    d="M 32 74 L 32 36 A 18 18 0 0 1 68 36 L 68 74"
-                    fill="hsl(var(--secondary))"
-                    stroke="hsl(var(--foreground) / 0.5)"
-                    strokeWidth={0.6}
-                  />
-                  {/* Left side accent */}
-                  <rect
-                    x="18" y="10" width="4" height="64"
-                    fill={finishLeft ? "hsl(var(--copper))" : "hsl(var(--muted))"}
-                    opacity={finishLeft ? 1 : 0.5}
-                  />
-                  {/* Right side accent */}
-                  <rect
-                    x="78" y="10" width="4" height="64"
-                    fill={finishRight ? "hsl(var(--copper))" : "hsl(var(--muted))"}
-                    opacity={finishRight ? 1 : 0.5}
-                  />
-                </svg>
-                <button
-                  type="button"
-                  onClick={() => setFinishRight((v) => !v)}
-                  aria-pressed={finishRight}
-                  className={`flex-1 max-w-[110px] rounded-sm border px-2 py-3 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors focus:outline-none ${
-                    finishRight
-                      ? "border-copper bg-secondary text-foreground"
-                      : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                  }`}
-                >
-                  {finishRight ? "Rechts afgewerkt" : "Rechts tegen muur"}
-                </button>
-              </div>
-            </section>
-
-            {/* Achterwand */}
-            <section>
-              <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
-                <h2 className="font-serif-display text-xl text-foreground">Achterwand</h2>
-              </div>
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <Label htmlFor="hasBack" className="text-xs font-light text-foreground tracking-wide">
-                      Achterwand toevoegen
-                    </Label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          className="p-2 -m-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-help"
-                          aria-label="Informatie achterwand"
-                        >
-                          <Info className="w-3.5 h-3.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                        De achterwand bestaat uit meerdere delen. De aansluitingen lopen horizontaal — tip: plaats een legplank op de naad voor een strak resultaat.
-                      </TooltipContent>
-                    </Tooltip>
                   </div>
-                  <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    Een afgewerkte achterwand in matwit MDF.
+                  <p className="text-[10px] text-muted-foreground/80 leading-relaxed italic mt-4">
+                    Het meubel wordt altijd geleverd in matwit MDF. De interieurkleur is ter inspiratie — je schildert de binnenzijde zelf in de gewenste kleur.
                   </p>
-                </div>
-                <Switch id="hasBack" checked={hasBack} onCheckedChange={setHasBack} />
-              </div>
-            </section>
+                </AccordionContent>
+              </AccordionItem>
 
-            {/* Opties */}
-            <section>
-              <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
-                <h2 className="font-serif-display text-xl text-foreground">Opties</h2>
-              </div>
-              <div className="space-y-5">
+              {/* Extra opties (legplanken, achterwand, roede, verlichting) */}
+              <AccordionItem value="opties" className="border-b border-border">
+                <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
+                  Extra opties
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-6">
+                  <div className="space-y-5">
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
                     <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Legplanken</Label>
@@ -1420,6 +1372,35 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                     </Button>
                   </div>
                   {shelfCount > 0 && <p className="text-[10px] text-muted-foreground">Dikte: {SHELF_THICKNESS * 10} mm · €{shelfUnitPrice(arch.width)}/stuk</p>}
+                </div>
+                <div className="py-1">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="hasBack" className="text-xs font-light text-foreground tracking-wide">
+                          Achterwand toevoegen
+                        </Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              className="p-2 -m-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-help"
+                              aria-label="Informatie achterwand"
+                            >
+                              <Info className="w-3.5 h-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                            De achterwand bestaat uit meerdere delen. De aansluitingen lopen horizontaal — tip: plaats een legplank op de naad voor een strak resultaat.
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Een afgewerkte achterwand in matwit MDF.
+                      </p>
+                    </div>
+                    <Switch id="hasBack" checked={hasBack} onCheckedChange={setHasBack} />
+                  </div>
                 </div>
                 <div className="py-1 space-y-2">
                   <div className="flex items-center justify-between">
