@@ -1390,6 +1390,13 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   Interieur kleur
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-6">
+                  <div className="mb-4 inline-flex items-start gap-2 rounded-sm border border-copper/40 bg-copper/10 px-3 py-2 text-[10px] leading-relaxed text-foreground/85">
+                    <Info className="w-3.5 h-3.5 text-copper shrink-0 mt-px" />
+                    <span>
+                      <strong className="font-medium text-copper tracking-wide uppercase text-[9px]">Ter inspiratie</strong>
+                      <span className="block mt-0.5">Het meubel wordt altijd in matwit MDF geleverd. Je schildert de binnenzijde zelf in de gewenste kleur.</span>
+                    </span>
+                  </div>
                   <div className="grid grid-cols-5 gap-3">
                 {NICHE_COLORS.map((c, i) => {
                   const active = nicheColorIdx === i;
@@ -1424,9 +1431,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   );
                 })}
                   </div>
-                  <p className="text-[10px] text-muted-foreground/80 leading-relaxed italic mt-4">
-                    Het meubel wordt altijd geleverd in matwit MDF. De interieurkleur is ter inspiratie — je schildert de binnenzijde zelf in de gewenste kleur.
-                  </p>
                 </AccordionContent>
               </AccordionItem>
 
