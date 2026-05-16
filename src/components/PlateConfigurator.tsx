@@ -12,9 +12,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
-import { RotateCcw, Plus, Minus, Check, Info, ArrowLeftRight } from "lucide-react";
+import { RotateCcw, Plus, Minus, Check, Info, ArrowLeftRight, Link2 } from "lucide-react";
 import { Delete } from "lucide-react";
 import { toast } from "sonner";
+import SiteFooter from "@/components/SiteFooter";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
 import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
 import roedeWitThumb from "@/assets/roede-wit-thumb.webp";
