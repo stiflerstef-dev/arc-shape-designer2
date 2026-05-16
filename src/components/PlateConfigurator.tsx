@@ -1637,6 +1637,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   </li>
                 ))}
               </ul>
+              <p className="text-[10px] text-muted-foreground/60 italic leading-relaxed -mt-1">
+                * Op de Waddeneilanden en enkele afgelegen regio's kunnen aanvullende transportkosten gelden.
+              </p>
               <div className="flex items-baseline justify-between">
                 <p className="text-[10px] font-medium tracking-[0.25em] uppercase text-muted-foreground">Jouw prijs inclusief btw</p>
               </div>
