@@ -1864,25 +1864,50 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
       </Dialog>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-border bg-background mt-8">
-        <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[12px] text-muted-foreground font-light">
-          <p>© 2026 Ronde Fronten</p>
-          <div className="flex items-center gap-6">
-            <Link
-              to="/algemene-voorwaarden"
-              className="hover:text-copper transition-colors"
-            >
-              Algemene voorwaarden
-            </Link>
-            <Link
-              to="/faq"
-              className="hover:text-copper transition-colors"
-            >
-              FAQ
-            </Link>
-          </div>
+      <div className="pb-24 lg:pb-0"><SiteFooter /></div>
+
+      {/* ─── Mobiele sticky bestelbalk ─── */}
+      <div
+        className="fixed bottom-0 inset-x-0 z-40 lg:hidden border-t border-border bg-background/95 backdrop-blur px-4 py-3 flex items-center gap-3"
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground leading-none">Jouw prijs</p>
+          <p className="font-serif-display text-xl text-foreground tabular-nums leading-tight mt-0.5 truncate">
+            {isPriceOnRequest ? "Op aanvraag" : `€${displayPrice.toLocaleString("nl-NL")}`}
+          </p>
         </div>
-      </footer>
+        <Button
+          onClick={handleReserveOpen}
+          disabled={isPriceOnRequest}
+          className="bg-foreground text-background hover:bg-foreground/90 text-[10px] tracking-[0.2em] uppercase font-medium rounded-sm px-5 h-11 disabled:opacity-50"
+        >
+          Bestel
+        </Button>
+      </div>
+
+      {/* ─── Reset bevestiging ─── */}
+      <Dialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
+        <DialogContent className="sm:max-w-sm bg-background border-border">
+          <DialogHeader>
+            <DialogTitle className="font-serif-display text-xl text-foreground">Configuratie resetten?</DialogTitle>
+            <DialogDescription className="text-[12px] text-muted-foreground leading-relaxed pt-1">
+              Al je aanpassingen worden teruggezet naar de standaard. Dit kan niet ongedaan worden gemaakt.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setResetConfirmOpen(false)} className="rounded-sm">
+              Annuleren
+            </Button>
+            <Button
+              onClick={() => { handleReset(); setResetConfirmOpen(false); }}
+              className="rounded-sm bg-foreground text-background hover:bg-foreground/90"
+            >
+              Ja, reset
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
