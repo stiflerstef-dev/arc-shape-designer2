@@ -1775,6 +1775,27 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
           )}
         </DialogContent>
       </Dialog>
+
+      {/* ─── Footer ─── */}
+      <footer className="border-t border-border bg-background mt-8">
+        <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[12px] text-muted-foreground font-light">
+          <p>© 2026 Ronde Fronten</p>
+          <div className="flex items-center gap-6">
+            <Link
+              to="/algemene-voorwaarden"
+              className="hover:text-copper transition-colors"
+            >
+              Algemene voorwaarden
+            </Link>
+            <Link
+              to="/faq"
+              className="hover:text-copper transition-colors"
+            >
+              FAQ
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
