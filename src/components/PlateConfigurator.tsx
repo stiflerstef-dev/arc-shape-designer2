@@ -1234,11 +1234,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   Kast Afmetingen
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-6">
-                  <div className="flex items-baseline justify-end mb-4">
-                    <Button variant="ghost" onClick={handleReset} className="h-auto p-0 gap-1.5 text-copper hover:text-copper-dark hover:bg-transparent text-[10px] tracking-[0.25em] uppercase font-medium">
-                      <RotateCcw className="w-3 h-3" /> Reset
-                    </Button>
-                  </div>
                   <div className="grid grid-cols-3 gap-4">
                     <NumberInput id="cabW" label="Breedte" value={cabinet.width} onChange={(v) => updateCabinet("width", v)} min={50} max={400} />
                     <NumberInput id="cabH" label="Hoogte" value={cabinet.height} onChange={(v) => updateCabinet("height", v)} min={50} max={500} />
