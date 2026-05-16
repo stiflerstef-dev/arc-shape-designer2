@@ -449,6 +449,40 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const [resTerms, setResTerms] = useState(false);
   const [resErrors, setResErrors] = useState<{ name?: string; email?: string; street?: string; postcode?: string; city?: string; terms?: string }>({});
 
+  // Reset bevestigingsdialog
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
+  // Configuratie uit URL laden bij mount (één keer)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    if (!sp.has("w")) return;
+    const num = (k: string, d: number) => {
+      const v = Number(sp.get(k));
+      return Number.isFinite(v) ? v : d;
+    };
+    setCabinet({ width: num("w", 120), height: num("h", 250), depth: num("d", 40) });
+    setArch({
+      width: num("aw", 60),
+      height: num("ah", 150),
+      position: { x: num("ax", 30), y: num("ay", 85) },
+    });
+    const at = sp.get("at");
+    if (at === "classic" || at === "gothic" || at === "shoulder") setArchType(at);
+    setShelfCount(num("sc", 0));
+    setHasRod(sp.get("rod") === "1");
+    const rf = sp.get("rf");
+    if (rf === "wit" || rf === "zwart") setRodFinish(rf);
+    setHasLight(sp.get("li") === "1");
+    setNicheColorIdx(sp.has("nc") ? num("nc", 0) : null);
+    setFinishLeft(sp.get("fl") === "1");
+    setFinishRight(sp.get("fr") === "1");
+    setHasBack(sp.get("bk") === "1");
+    setShoulderRadiusValue(num("sr", 25));
+    setCenterArch(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleReserveOpen = () => {
     setReserveSubmitted(false);
     setResErrors({});
