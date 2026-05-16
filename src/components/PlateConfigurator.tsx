@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -12,9 +11,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
-import { RotateCcw, Plus, Minus, Check, Info, ArrowLeftRight } from "lucide-react";
+import { RotateCcw, Plus, Minus, Check, Info, ArrowLeftRight, Link2 } from "lucide-react";
 import { Delete } from "lucide-react";
 import { toast } from "sonner";
+import SiteFooter from "@/components/SiteFooter";
 import verlichtingThumb from "@/assets/verlichting-thumb.jpg";
 import roedeZwartThumb from "@/assets/roede-zwart-thumb.jpg";
 import roedeWitThumb from "@/assets/roede-wit-thumb.webp";
@@ -448,6 +448,40 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const [resTerms, setResTerms] = useState(false);
   const [resErrors, setResErrors] = useState<{ name?: string; email?: string; street?: string; postcode?: string; city?: string; terms?: string }>({});
 
+  // Reset bevestigingsdialog
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
+  // Configuratie uit URL laden bij mount (één keer)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    if (!sp.has("w")) return;
+    const num = (k: string, d: number) => {
+      const v = Number(sp.get(k));
+      return Number.isFinite(v) ? v : d;
+    };
+    setCabinet({ width: num("w", 120), height: num("h", 250), depth: num("d", 40) });
+    setArch({
+      width: num("aw", 60),
+      height: num("ah", 150),
+      position: { x: num("ax", 30), y: num("ay", 85) },
+    });
+    const at = sp.get("at");
+    if (at === "classic" || at === "gothic" || at === "shoulder") setArchType(at);
+    setShelfCount(num("sc", 0));
+    setHasRod(sp.get("rod") === "1");
+    const rf = sp.get("rf");
+    if (rf === "wit" || rf === "zwart") setRodFinish(rf);
+    setHasLight(sp.get("li") === "1");
+    setNicheColorIdx(sp.has("nc") ? num("nc", 0) : null);
+    setFinishLeft(sp.get("fl") === "1");
+    setFinishRight(sp.get("fr") === "1");
+    setHasBack(sp.get("bk") === "1");
+    setShoulderRadiusValue(num("sr", 25));
+    setCenterArch(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleReserveOpen = () => {
     setReserveSubmitted(false);
     setResErrors({});
@@ -678,6 +712,35 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     setFinishLeft(false); setFinishRight(false); setHasBack(false);
   };
 
+  const handleShare = async () => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams();
+    sp.set("w", String(cabinet.width));
+    sp.set("h", String(cabinet.height));
+    sp.set("d", String(cabinet.depth));
+    sp.set("aw", String(arch.width));
+    sp.set("ah", String(arch.height));
+    sp.set("ax", String(arch.position.x));
+    sp.set("ay", String(arch.position.y));
+    sp.set("at", archType);
+    sp.set("sc", String(shelfCount));
+    if (hasRod) sp.set("rod", "1");
+    sp.set("rf", rodFinish);
+    if (hasLight) sp.set("li", "1");
+    if (nicheColorIdx !== null) sp.set("nc", String(nicheColorIdx));
+    if (finishLeft) sp.set("fl", "1");
+    if (finishRight) sp.set("fr", "1");
+    if (hasBack) sp.set("bk", "1");
+    sp.set("sr", String(shoulderRadiusValue));
+    const url = `${window.location.origin}${window.location.pathname}?${sp.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link gekopieerd. Bewaar of deel hem.");
+    } catch {
+      toast.error("Kopiëren mislukt — probeer het opnieuw.");
+    }
+  };
+
   const updateCabinet = (key: keyof Dims, v: number) => {
     setCabinet((prev) => {
       const nextCab = { ...prev, [key]: v };
@@ -753,10 +816,32 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1500px] mx-auto px-6 md:px-12 py-10 md:py-14">
-        <header className="mb-12 md:mb-16 border-b border-border pb-8">
-          <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-copper mb-3">Handgemaakt Maatwerk</p>
-          <h1 className="font-serif-display text-4xl md:text-5xl text-foreground leading-[1.05]">Boogkast op maat</h1>
-          
+        <header className="mb-12 md:mb-16 border-b border-border pb-8 flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-copper mb-3">Handgemaakt Maatwerk</p>
+            <h1 className="font-serif-display text-4xl md:text-5xl text-foreground leading-[1.05]">Boogkast op maat</h1>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleShare}
+              className="h-9 px-3 gap-1.5 text-[10px] tracking-[0.2em] uppercase font-medium rounded-sm border-border hover:border-copper hover:text-copper"
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Deel ontwerp</span>
+              <span className="sm:hidden">Deel</span>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setResetConfirmOpen(true)}
+              className="h-9 px-3 gap-1.5 text-[10px] tracking-[0.2em] uppercase font-medium rounded-sm border-border hover:border-copper hover:text-copper"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset
+            </Button>
+          </div>
         </header>
 
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
@@ -1148,11 +1233,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   Kast Afmetingen
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-6">
-                  <div className="flex items-baseline justify-end mb-4">
-                    <Button variant="ghost" onClick={handleReset} className="h-auto p-0 gap-1.5 text-copper hover:text-copper-dark hover:bg-transparent text-[10px] tracking-[0.25em] uppercase font-medium">
-                      <RotateCcw className="w-3 h-3" /> Reset
-                    </Button>
-                  </div>
                   <div className="grid grid-cols-3 gap-4">
                     <NumberInput id="cabW" label="Breedte" value={cabinet.width} onChange={(v) => updateCabinet("width", v)} min={50} max={400} />
                     <NumberInput id="cabH" label="Hoogte" value={cabinet.height} onChange={(v) => updateCabinet("height", v)} min={50} max={500} />
@@ -1309,6 +1389,13 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   Interieur kleur
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-6">
+                  <div className="mb-4 inline-flex items-start gap-2 rounded-sm border border-copper/40 bg-copper/10 px-3 py-2 text-[10px] leading-relaxed text-foreground/85">
+                    <Info className="w-3.5 h-3.5 text-copper shrink-0 mt-px" />
+                    <span>
+                      <strong className="font-medium text-copper tracking-wide uppercase text-[9px]">Ter inspiratie</strong>
+                      <span className="block mt-0.5">Het meubel wordt altijd in matwit MDF geleverd. Je schildert de binnenzijde zelf in de gewenste kleur.</span>
+                    </span>
+                  </div>
                   <div className="grid grid-cols-5 gap-3">
                 {NICHE_COLORS.map((c, i) => {
                   const active = nicheColorIdx === i;
@@ -1343,9 +1430,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   );
                 })}
                   </div>
-                  <p className="text-[10px] text-muted-foreground/80 leading-relaxed italic mt-4">
-                    Het meubel wordt altijd geleverd in matwit MDF. De interieurkleur is ter inspiratie — je schildert de binnenzijde zelf in de gewenste kleur.
-                  </p>
                 </AccordionContent>
               </AccordionItem>
 
@@ -1544,7 +1628,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                 {[
                   "Geproduceerd in matwit MDF",
                   "Geleverd als bouwpakket — eenvoudig zelf te monteren",
-                  "Binnen 1 werkdag ontvang je een bevestiging en betaallink",
                   "Gratis verzending binnen Nederland*",
                 ].map((line) => (
                   <li key={line} className="flex items-start gap-2 text-[12px] leading-snug text-foreground/75">
@@ -1780,25 +1863,50 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
       </Dialog>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-border bg-background mt-8">
-        <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[12px] text-muted-foreground font-light">
-          <p>© 2026 Ronde Fronten</p>
-          <div className="flex items-center gap-6">
-            <Link
-              to="/algemene-voorwaarden"
-              className="hover:text-copper transition-colors"
-            >
-              Algemene voorwaarden
-            </Link>
-            <Link
-              to="/faq"
-              className="hover:text-copper transition-colors"
-            >
-              FAQ
-            </Link>
-          </div>
+      <div className="pb-24 lg:pb-0"><SiteFooter /></div>
+
+      {/* ─── Mobiele sticky bestelbalk ─── */}
+      <div
+        className="fixed bottom-0 inset-x-0 z-40 lg:hidden border-t border-border bg-background/95 backdrop-blur px-4 py-3 flex items-center gap-3"
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground leading-none">Jouw prijs</p>
+          <p className="font-serif-display text-xl text-foreground tabular-nums leading-tight mt-0.5 truncate">
+            {isPriceOnRequest ? "Op aanvraag" : `€${displayPrice.toLocaleString("nl-NL")}`}
+          </p>
         </div>
-      </footer>
+        <Button
+          onClick={handleReserveOpen}
+          disabled={isPriceOnRequest}
+          className="bg-foreground text-background hover:bg-foreground/90 text-[10px] tracking-[0.2em] uppercase font-medium rounded-sm px-5 h-11 disabled:opacity-50"
+        >
+          Bestel
+        </Button>
+      </div>
+
+      {/* ─── Reset bevestiging ─── */}
+      <Dialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
+        <DialogContent className="sm:max-w-sm bg-background border-border">
+          <DialogHeader>
+            <DialogTitle className="font-serif-display text-xl text-foreground">Configuratie resetten?</DialogTitle>
+            <DialogDescription className="text-[12px] text-muted-foreground leading-relaxed pt-1">
+              Al je aanpassingen worden teruggezet naar de standaard. Dit kan niet ongedaan worden gemaakt.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setResetConfirmOpen(false)} className="rounded-sm">
+              Annuleren
+            </Button>
+            <Button
+              onClick={() => { handleReset(); setResetConfirmOpen(false); }}
+              className="rounded-sm bg-foreground text-background hover:bg-foreground/90"
+            >
+              Ja, reset
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
