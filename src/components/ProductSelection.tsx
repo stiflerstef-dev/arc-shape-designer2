@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import SiteFooter from "@/components/SiteFooter";
 
 export type ProductId = "small" | "large" | "halmeubel" | "combi";
 
@@ -92,8 +93,8 @@ const ProductSelection = ({ onSelect }: Props) => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-16 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="max-w-5xl mx-auto w-full px-4 py-16 flex-1">
         <div className="text-center mb-12">
           <h1 className="font-serif-display text-4xl md:text-5xl text-foreground mb-3">Kies jouw kasttype</h1>
           <p className="text-muted-foreground font-light tracking-wide">
@@ -154,6 +155,7 @@ const ProductSelection = ({ onSelect }: Props) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <SiteFooter />
     </div>
   );
 };
