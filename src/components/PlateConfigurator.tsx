@@ -817,10 +817,32 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1500px] mx-auto px-6 md:px-12 py-10 md:py-14">
-        <header className="mb-12 md:mb-16 border-b border-border pb-8">
-          <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-copper mb-3">Handgemaakt Maatwerk</p>
-          <h1 className="font-serif-display text-4xl md:text-5xl text-foreground leading-[1.05]">Boogkast op maat</h1>
-          
+        <header className="mb-12 md:mb-16 border-b border-border pb-8 flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-copper mb-3">Handgemaakt Maatwerk</p>
+            <h1 className="font-serif-display text-4xl md:text-5xl text-foreground leading-[1.05]">Boogkast op maat</h1>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleShare}
+              className="h-9 px-3 gap-1.5 text-[10px] tracking-[0.2em] uppercase font-medium rounded-sm border-border hover:border-copper hover:text-copper"
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Deel ontwerp</span>
+              <span className="sm:hidden">Deel</span>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setResetConfirmOpen(true)}
+              className="h-9 px-3 gap-1.5 text-[10px] tracking-[0.2em] uppercase font-medium rounded-sm border-border hover:border-copper hover:text-copper"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset
+            </Button>
+          </div>
         </header>
 
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
