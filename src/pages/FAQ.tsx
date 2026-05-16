@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import SiteFooter from "@/components/SiteFooter";
 import {
   Accordion,
   AccordionContent,
@@ -64,8 +65,8 @@ const FAQ_ITEMS = [
 
 export default function FAQ() {
   return (
-    <div className="min-h-screen bg-background py-16 px-4">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="max-w-3xl mx-auto w-full px-4 py-16 flex-1">
         <div className="mb-10">
           <Link
             to="/"
@@ -109,6 +110,7 @@ export default function FAQ() {
           </Link>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }
