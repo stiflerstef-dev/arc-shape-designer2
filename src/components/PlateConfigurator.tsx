@@ -1681,25 +1681,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="rounded-sm border border-border bg-secondary/30 p-3 text-[11px] text-foreground/80 space-y-1 leading-relaxed">
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground">Plaatsing</span>
-                  <span className="text-right">
-                    {visibleSides === 0
-                      ? "Geen zijkant afgewerkt"
-                      : visibleSides === 2
-                        ? "Beide zijkanten afgewerkt"
-                        : `${finishLeft ? "Linker" : "Rechter"}zijkant afgewerkt`}
-                  </span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground">Achterwand</span>
-                  <span className="text-right">
-                    {hasBack ? "Toegevoegd" : "Geen"}
-                  </span>
-                </div>
-              </div>
-
               <form onSubmit={handleReserveSubmit} className="space-y-5 pt-2">
                 <div className="space-y-2">
                   <Label htmlFor="resName" className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">
