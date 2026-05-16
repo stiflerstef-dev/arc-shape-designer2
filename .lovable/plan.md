@@ -1,47 +1,70 @@
-## Doel
+# Tekening (DXF) per mail bij elke bestelling
 
-Het rechterpaneel van de configurator toont nu zes losse blokken onder elkaar (Kast, Boog, Kleur, Plaatsing, Achterwand, Opties). Dat oogt druk. We groeperen ze in uitvouwbare velden (accordion) zodat de gebruiker per categorie inklapt en focus krijgt op wat hij configureert.
+Bij elke reservering ontvang jij op **info@rondefronten.nl** een mail met een DXF-tekening van het ontwerp, plus een volledige samenvatting van de configuratie. De DXF opent direct in SketchUp Free — daar kun je de boog gemakkelijk extruderen naar 3D.
 
-## Voorgestelde indeling
+## Wat de klant en jij krijgen
 
-Twee altijd-zichtbare basisblokken bovenaan (geen accordion — dit zijn de kernkeuzes), daaronder drie inklapbare secties:
+- **Klant**: bestaande bevestigingsmail (ongewijzigd qua look).
+- **Jij**: aparte mail naar `info@rondefronten.nl` met:
+  - Klantgegevens (naam, mail, telefoon, adres)
+  - Volledige configuratie (afmetingen kast + boog, boogvorm, legplanken, achterwand, roede, verlichting, plaatsing)
+  - Prijs
+  - **Downloadlink naar het DXF-bestand** (let op: link, geen bijlage — Lovable's mailsysteem ondersteunt geen attachments)
 
+De DXF bevat het vooraanzicht: kastomtrek, boog (halfrond / gotisch / schouder), legplanken, alle maten in mm op aparte annotatie-laag.
+
+## Aanpak
+
+```text
+Klant submit reservering
+        │
+        ▼
+1. Genereer DXF in de browser (client-side)
+        │
+        ▼
+2. Upload DXF naar Cloud Storage (bucket: "design-exports")
+        │
+        ▼
+3. Sla reservering op in 'reserveringen'-tabel
+        │
+        ▼
+4. Trigger edge function 'send-reservation-emails'
+        │       ├─ mail naar klant (bevestiging — zoals nu)
+        │       └─ mail naar info@rondefronten.nl met downloadlink + samenvatting
 ```
-┌─ AFMETINGEN (altijd open, niet inklapbaar)
-│   ├─ Kast Afmetingen
-│   └─ Boog Afmetingen + boogvorm
-│
-├─ ▸ Plaatsing in de ruimte         (collapsed by default)
-├─ ▾ Interieur kleur                 (collapsed by default)
-├─ ▾ Extra opties                    (open by default)
-│   ├─ Legplanken
-│   ├─ Achterwand (matwit MDF)
-│   ├─ Roede (ovaal)
-│   └─ Verlichting
-```
-
-### Waarom deze indeling
-
-- **Afmetingen** zijn de eerste keuze die elke klant maakt — die moeten meteen zichtbaar zijn, geen extra klik.
-- **Plaatsing** wordt vaak één keer ingesteld en dan vergeten — prima om in te klappen.
-- **Interieur kleur** is "pure inspiratie" (disclaimer-feature). Hoort bij de beleving, mag dichtgeklapt starten zodat het de focus niet steelt.
-- **Extra opties** worden samengevoegd: legplanken + achterwand + roede + verlichting horen logisch bij elkaar als "wat zit er in de kast". Open by default omdat dit de upsell-zone is en de prijs zichtbaar laat bewegen.
-
-## Gedrag
-
-- Eén sectie per keer open mag, of meerdere tegelijk — voorstel: **meerdere tegelijk** (`type="multiple"`), zodat een gebruiker bv. plaatsing en kleur tegelijk kan zien.
-- Header toont sectienaam + chevron; klik op de hele balk vouwt uit.
-- Smooth open/close animatie (zit al in de shadcn Accordion).
-- Styling matched bestaande artisan look: Playfair Display headers, dunne border, copper hover.
 
 ## Technische details
 
-- Bestand: `src/components/PlateConfigurator.tsx` (rond regels 1140–1620)
-- Vervang de zes losse `<section>`/`<Card>` blokken door een `<Accordion type="multiple" defaultValue={["opties"]}>` met `AccordionItem` per sectie.
-- Component `accordion.tsx` is al aanwezig — geen nieuwe dependency.
-- "Achterwand" als losse sectie verdwijnt en wordt een rij binnen "Extra opties" (zelfde switch + thumbnail).
-- Geen prijsberekening of validatielogica raken — puur layout.
+**Email infrastructuur** (eenmalig opzetten)
+- Lovable Cloud is al actief. Email-domein moet eerst geconfigureerd worden (1-klik dialoog).
+- Daarna wordt automatisch de transactional-email pijplijn opgezet (queue, suppression, retry).
 
-## Open vraag
+**DXF generatie**
+- Library: `dxf-writer` (npm, werkt in browser/Deno, ~10kB).
+- Vooraanzicht in mm, schaal 1:1. Layers: `KAST`, `BOOG`, `LEGPLANKEN`, `MATEN`.
+- Halfrond → 1 boog. Gotisch → 2 bogen. Schouder → lijnen + 2 hoek-arcs.
+- Bestandsnaam: `ronde-fronten-{datum}-{kort-id}.dxf`.
 
-Vóór ik begin: wil je deze indeling, of liever een andere groepering (bijv. ook Boog inklapbaar, of Plaatsing samen met Achterwand)?
+**Cloud Storage**
+- Nieuwe bucket `design-exports` (privé).
+- Signed URL met 30 dagen geldigheid in de mail (genoeg voor je workflow).
+
+**Database**
+- Nieuwe tabel `reserveringen` met klantgegevens, volledige configuratie (jsonb), prijs, dxf-pad. Geen login nodig — anonieme inserts via RLS-policy.
+
+**Edge function `send-reservation-emails`**
+- Triggert 2 templates: `reservation-confirmation` (klant) en `reservation-internal` (jij).
+- Internal template bevat de signed DXF download URL + alle config in nette tabel.
+
+## Wat er niet verandert
+
+- Bestaande reserveringsmodal en validatie blijven exact zoals nu.
+- Geen wijzigingen aan de configurator preview of prijslogica.
+- Het matwit MDF-disclaimer en algemene voorwaarden blijven ongewijzigd.
+
+## Wat je vooraf nog moet leveren
+
+Als ik dit ga bouwen heb ik nodig:
+1. **Domeinnaam** voor de afzender van de mails (bv. `notify.rondefronten.nl`). Ik laat een 1-klik setup-dialoog zien om dit te configureren.
+2. Bevestiging dat `info@rondefronten.nl` het juiste ontvangstadres is (al opgegeven, dubbelchecken).
+
