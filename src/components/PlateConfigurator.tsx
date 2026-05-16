@@ -1142,122 +1142,118 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
 
             <Accordion type="multiple" defaultValue={[]} className="space-y-0">
 
-              {/* Afmetingen */}
-              <AccordionItem value="afmetingen" className="border-b border-border">
+              {/* Kast Afmetingen */}
+              <AccordionItem value="kast-afmetingen" className="border-b border-border">
                 <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
-                  Afmetingen
+                  Kast Afmetingen
                 </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-6 space-y-8">
-                  {/* Kast Afmetingen */}
-                  <div>
-                    <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border gap-4">
-                      <h3 className="font-serif-display text-lg text-foreground">Kast Afmetingen</h3>
-                      <div className="flex items-center gap-4">
-                        <Button variant="ghost" onClick={handleReset} className="h-auto p-0 gap-1.5 text-copper hover:text-copper-dark hover:bg-transparent text-[10px] tracking-[0.25em] uppercase font-medium">
-                          <RotateCcw className="w-3 h-3" /> Reset
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <NumberInput id="cabW" label="Breedte" value={cabinet.width} onChange={(v) => updateCabinet("width", v)} min={50} max={400} />
-                      <NumberInput id="cabH" label="Hoogte" value={cabinet.height} onChange={(v) => updateCabinet("height", v)} min={50} max={500} />
-                      <NumberInput id="cabD" label="Diepte" value={cabinet.depth} onChange={(v) => updateCabinet("depth", v)} min={10} max={100} />
-                    </div>
+                <AccordionContent className="pt-2 pb-6">
+                  <div className="flex items-baseline justify-end mb-4">
+                    <Button variant="ghost" onClick={handleReset} className="h-auto p-0 gap-1.5 text-copper hover:text-copper-dark hover:bg-transparent text-[10px] tracking-[0.25em] uppercase font-medium">
+                      <RotateCcw className="w-3 h-3" /> Reset
+                    </Button>
                   </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <NumberInput id="cabW" label="Breedte" value={cabinet.width} onChange={(v) => updateCabinet("width", v)} min={50} max={400} />
+                    <NumberInput id="cabH" label="Hoogte" value={cabinet.height} onChange={(v) => updateCabinet("height", v)} min={50} max={500} />
+                    <NumberInput id="cabD" label="Diepte" value={cabinet.depth} onChange={(v) => updateCabinet("depth", v)} min={10} max={100} />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
 
-                  {/* Boog Afmetingen */}
-                  <div>
-                    <div className="flex items-baseline justify-between mb-5 pb-3 border-b border-border">
-                      <h3 className="font-serif-display text-lg text-foreground">Boog Afmetingen</h3>
+              {/* Boog Afmetingen */}
+              <AccordionItem value="boog-afmetingen" className="border-b border-border">
+                <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
+                  Boog Afmetingen
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-6">
+                  <div className="space-y-5">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Boogvorm</Label>
+                      <Select value={archType} onValueChange={(v) => setArchType(v as ArchType)}>
+                        <SelectTrigger className="input-artisan h-10 text-sm font-light text-foreground">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="classic">Halfrond</SelectItem>
+                          <SelectItem value="gothic">Gotisch</SelectItem>
+                          <SelectItem value="shoulder">Schouder</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="space-y-5">
-                      <div className="space-y-2">
-                        <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Boogvorm</Label>
-                        <Select value={archType} onValueChange={(v) => setArchType(v as ArchType)}>
-                          <SelectTrigger className="input-artisan h-10 text-sm font-light text-foreground">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="classic">Halfrond</SelectItem>
-                            <SelectItem value="gothic">Gotisch</SelectItem>
-                            <SelectItem value="shoulder">Schouder</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
 
-                      {archType === "gothic" && (
-                        <p className="text-[10px] text-muted-foreground italic leading-relaxed">
-                          Spitsboog ratio is vast: {Math.round(gothicCapH * 10)} mm puntkapje · 37,5% van de breedte (klassieke ogief).
-                        </p>
-                      )}
-                      {archType === "shoulder" && (
-                        <NumberInput
-                          id="shoulderR"
-                          label="Hoek Radius"
-                          value={shoulderRadiusValue}
-                          onChange={(v) => setShoulderRadiusValue(v)}
-                          min={5}
-                          max={Math.floor(arch.width / 2)}
-                        />
-                      )}
-                      <div className="grid grid-cols-2 gap-4">
-                        <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 10)} />
-                        <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 5)} />
-                      </div>
-                      <div className="grid grid-cols-[1fr_auto_1fr] gap-3 py-2 items-end">
-                        <NumberInput
-                          id="archX"
-                          label="A — links"
-                          value={arch.position.x}
-                          onChange={(v) => {
-                            if (centerArch) {
-                              const newW = Math.max(10, cabinet.width - 2 * v);
-                              setArch((prev) => clampArch({ ...prev, width: newW, position: { ...prev.position, x: v } }));
-                            } else {
-                              updateArchPos("x", v);
-                            }
-                          }}
-                          min={5}
-                          max={Math.max(5, cabinet.width - arch.width - 5)}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setCenterArch((s) => !s)}
-                          aria-pressed={centerArch}
-                          aria-label="Boog horizontaal centreren (A en B spiegelen)"
-                          title="Spiegel A en B (centreer)"
-                          className={`h-10 w-10 rounded-md border flex items-center justify-center transition-colors mb-0 ${
-                            centerArch
-                              ? "bg-copper/15 border-copper text-copper"
-                              : "bg-card border-border text-muted-foreground hover:border-copper hover:text-copper"
-                          }`}
-                        >
-                          <ArrowLeftRight className="h-4 w-4" />
-                        </button>
-                        <NumberInput
-                          id="archXR"
-                          label="B — rechts"
-                          value={Math.max(0, cabinet.width - arch.width - arch.position.x)}
-                          onChange={(v) => {
-                            if (centerArch) {
-                              const newW = Math.max(10, cabinet.width - 2 * v);
-                              setArch((prev) => clampArch({ ...prev, width: newW, position: { ...prev.position, x: v } }));
-                            } else {
-                              updateArchPos("x", cabinet.width - arch.width - v);
-                            }
-                          }}
-                          min={5}
-                          max={Math.max(5, cabinet.width - arch.width - 5)}
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 py-2">
-                        <NumberInput id="archY" label="C — boven" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={5} max={Math.max(5, cabinet.height - arch.height)} />
-                        <NumberInput id="archYB" label="D — onder" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height - 5)} />
-                      </div>
-                      <div className="border-t border-border pt-4 flex items-center gap-2">
-                        <Checkbox id="showDims" checked={showDimensions} onCheckedChange={(checked) => setShowDimensions(checked === true)} />
-                        <Label htmlFor="showDims" className="text-[11px] font-light cursor-pointer text-muted-foreground tracking-wide">Toon afmetingen in preview</Label>
-                      </div>
+                    {archType === "gothic" && (
+                      <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                        Spitsboog ratio is vast: {Math.round(gothicCapH * 10)} mm puntkapje · 37,5% van de breedte (klassieke ogief).
+                      </p>
+                    )}
+                    {archType === "shoulder" && (
+                      <NumberInput
+                        id="shoulderR"
+                        label="Hoek Radius"
+                        value={shoulderRadiusValue}
+                        onChange={(v) => setShoulderRadiusValue(v)}
+                        min={5}
+                        max={Math.floor(arch.width / 2)}
+                      />
+                    )}
+                    <div className="grid grid-cols-2 gap-4">
+                      <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 10)} />
+                      <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 5)} />
+                    </div>
+                    <div className="grid grid-cols-[1fr_auto_1fr] gap-3 py-2 items-end">
+                      <NumberInput
+                        id="archX"
+                        label="A — links"
+                        value={arch.position.x}
+                        onChange={(v) => {
+                          if (centerArch) {
+                            const newW = Math.max(10, cabinet.width - 2 * v);
+                            setArch((prev) => clampArch({ ...prev, width: newW, position: { ...prev.position, x: v } }));
+                          } else {
+                            updateArchPos("x", v);
+                          }
+                        }}
+                        min={5}
+                        max={Math.max(5, cabinet.width - arch.width - 5)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setCenterArch((s) => !s)}
+                        aria-pressed={centerArch}
+                        aria-label="Boog horizontaal centreren (A en B spiegelen)"
+                        title="Spiegel A en B (centreer)"
+                        className={`h-10 w-10 rounded-md border flex items-center justify-center transition-colors mb-0 ${
+                          centerArch
+                            ? "bg-copper/15 border-copper text-copper"
+                            : "bg-card border-border text-muted-foreground hover:border-copper hover:text-copper"
+                        }`}
+                      >
+                        <ArrowLeftRight className="h-4 w-4" />
+                      </button>
+                      <NumberInput
+                        id="archXR"
+                        label="B — rechts"
+                        value={Math.max(0, cabinet.width - arch.width - arch.position.x)}
+                        onChange={(v) => {
+                          if (centerArch) {
+                            const newW = Math.max(10, cabinet.width - 2 * v);
+                            setArch((prev) => clampArch({ ...prev, width: newW, position: { ...prev.position, x: v } }));
+                          } else {
+                            updateArchPos("x", cabinet.width - arch.width - v);
+                          }
+                        }}
+                        min={5}
+                        max={Math.max(5, cabinet.width - arch.width - 5)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 py-2">
+                      <NumberInput id="archY" label="C — boven" value={arch.position.y} onChange={(v) => updateArchPos("y", v)} min={5} max={Math.max(5, cabinet.height - arch.height)} />
+                      <NumberInput id="archYB" label="D — onder" value={Math.max(0, cabinet.height - arch.height - arch.position.y)} onChange={(v) => updateArchPos("y", cabinet.height - arch.height - v)} min={0} max={Math.max(0, cabinet.height - arch.height - 5)} />
+                    </div>
+                    <div className="border-t border-border pt-4 flex items-center gap-2">
+                      <Checkbox id="showDims" checked={showDimensions} onCheckedChange={(checked) => setShowDimensions(checked === true)} />
+                      <Label htmlFor="showDims" className="text-[11px] font-light cursor-pointer text-muted-foreground tracking-wide">Toon afmetingen in preview</Label>
                     </div>
                   </div>
                 </AccordionContent>
