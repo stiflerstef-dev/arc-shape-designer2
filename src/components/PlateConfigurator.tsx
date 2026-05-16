@@ -1629,7 +1629,6 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                 {[
                   "Geproduceerd in matwit MDF",
                   "Geleverd als bouwpakket — eenvoudig zelf te monteren",
-                  "Binnen 1 werkdag ontvang je een bevestiging en betaallink",
                   "Gratis verzending binnen Nederland*",
                 ].map((line) => (
                   <li key={line} className="flex items-start gap-2 text-[12px] leading-snug text-foreground/75">
