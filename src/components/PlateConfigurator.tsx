@@ -1626,6 +1626,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
             <section className="bg-secondary/40 border border-border rounded-sm p-6 space-y-4">
               <ul className="space-y-1.5 border-t border-border pt-4">
                 {[
+                  "Binnen 1 werkdag ontvang je een akkoord en betaallink",
                   "Geproduceerd in matwit MDF",
                   "Geleverd als bouwpakket — eenvoudig zelf te monteren",
                   "Gratis verzending binnen Nederland*",
@@ -1847,7 +1848,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   Bedankt!
                 </DialogTitle>
                 <DialogDescription className="text-[12px] text-muted-foreground tracking-wide leading-relaxed text-center px-2">
-                  Binnen 1 werkdag ontvang je een akkoord en betaallink. Pas na betaling wordt je kast in productie genomen.
+                  We controleren jouw maatopgave en nemen binnen 1 werkdag contact op ter bevestiging. Pas daarna wordt de kast in productie genomen.
                 </DialogDescription>
               </DialogHeader>
               <Button
