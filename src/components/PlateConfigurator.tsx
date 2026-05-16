@@ -713,6 +713,35 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
     setFinishLeft(false); setFinishRight(false); setHasBack(false);
   };
 
+  const handleShare = async () => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams();
+    sp.set("w", String(cabinet.width));
+    sp.set("h", String(cabinet.height));
+    sp.set("d", String(cabinet.depth));
+    sp.set("aw", String(arch.width));
+    sp.set("ah", String(arch.height));
+    sp.set("ax", String(arch.position.x));
+    sp.set("ay", String(arch.position.y));
+    sp.set("at", archType);
+    sp.set("sc", String(shelfCount));
+    if (hasRod) sp.set("rod", "1");
+    sp.set("rf", rodFinish);
+    if (hasLight) sp.set("li", "1");
+    if (nicheColorIdx !== null) sp.set("nc", String(nicheColorIdx));
+    if (finishLeft) sp.set("fl", "1");
+    if (finishRight) sp.set("fr", "1");
+    if (hasBack) sp.set("bk", "1");
+    sp.set("sr", String(shoulderRadiusValue));
+    const url = `${window.location.origin}${window.location.pathname}?${sp.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link gekopieerd. Bewaar of deel hem.");
+    } catch {
+      toast.error("Kopiëren mislukt — probeer het opnieuw.");
+    }
+  };
+
   const updateCabinet = (key: keyof Dims, v: number) => {
     setCabinet((prev) => {
       const nextCab = { ...prev, [key]: v };
