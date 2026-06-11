@@ -654,6 +654,44 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
     });
   }, [clampArch, centerArch, cabinet.width, arch.width]);
 
+  /* ─── Halmeubel sync: boogkast breedte volgt onderkastje breedte ─── */
+  useEffect(() => {
+    if (!isHalmeubel) return;
+    setCabinet((prev) => {
+      if (prev.width === lowerCab.width) return prev;
+      // marge L/R behouden naar rato — eenvoudig: hercentreren via clampArch effect
+      return { ...prev, width: lowerCab.width };
+    });
+  }, [isHalmeubel, lowerCab.width]);
+
+  /* ─── Halmeubel sync: onderkastje diepte ≥ boog diepte ─── */
+  useEffect(() => {
+    if (!isHalmeubel) return;
+    if (lowerCab.depth < cabinet.depth) {
+      setLowerCab((p) => ({ ...p, depth: cabinet.depth }));
+    }
+  }, [isHalmeubel, cabinet.depth, lowerCab.depth]);
+
+  /* ─── Halmeubel sync: aantal kastjes ↔ shelf-array ─── */
+  useEffect(() => {
+    if (!isHalmeubel) return;
+    const c = computeCompartments(doors).length;
+    setCompartmentShelves((prev) => {
+      if (prev.length === c) return prev;
+      const next = prev.slice(0, c);
+      while (next.length < c) next.push(0);
+      return next;
+    });
+  }, [isHalmeubel, doors]);
+
+  /* ─── Halmeubel sync: deurenarray lengte volgt huidige max ─── */
+  useEffect(() => {
+    if (!isHalmeubel) return;
+    const max = maxDoorCount(lowerCab.width);
+    if (doors.length > max) setDoors(defaultDoors(max));
+    if (doors.length === 0) setDoors(defaultDoors(1));
+  }, [isHalmeubel, lowerCab.width, doors.length]);
+
   /* ─── Drag (pointer events for mouse + touch) ─── */
   const clientToCab = (clientX: number, clientY: number) => {
     const svg = svgRef.current;
