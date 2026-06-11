@@ -1416,14 +1416,26 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
               {/* Kast Afmetingen */}
               <AccordionItem value="kast-afmetingen" className="border-b border-border">
                 <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
-                  Kast Afmetingen
+                  {isHalmeubel ? "Boog Afmetingen (omtrek)" : "Kast Afmetingen"}
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-6">
                   <div className="grid grid-cols-3 gap-4">
-                    <NumberInput id="cabW" label="Breedte" value={cabinet.width} onChange={(v) => updateCabinet("width", v)} min={50} max={400} />
+                    <NumberInput id="cabW" label="Breedte" value={cabinet.width} onChange={(v) => updateCabinet("width", v)} min={50} max={400} disabled={isHalmeubel} />
                     <NumberInput id="cabH" label="Hoogte" value={cabinet.height} onChange={(v) => updateCabinet("height", v)} min={50} max={500} />
-                    <NumberInput id="cabD" label="Diepte" value={cabinet.depth} onChange={(v) => updateCabinet("depth", v)} min={10} max={100} />
+                    <NumberInput
+                      id="cabD"
+                      label="Diepte"
+                      value={cabinet.depth}
+                      onChange={(v) => updateCabinet("depth", isHalmeubel ? Math.min(v, lowerCab.depth) : v)}
+                      min={10}
+                      max={isHalmeubel ? Math.min(100, lowerCab.depth) : 100}
+                    />
                   </div>
+                  {isHalmeubel && (
+                    <p className="mt-3 text-[10px] text-muted-foreground italic leading-relaxed">
+                      Breedte wordt bepaald door het onderkastje. Diepte mag niet groter zijn dan de diepte van het onderkastje.
+                    </p>
+                  )}
                 </AccordionContent>
               </AccordionItem>
 
