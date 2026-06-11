@@ -1344,13 +1344,17 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                       {Math.round(cabinet.width * 10)} mm
                     </text>
 
-                    <line x1={padding + ax * scale} y1={padding + dyS + cabinet.height * scale + 12}
-                      x2={padding + (ax + aw) * scale} y2={padding + dyS + cabinet.height * scale + 12}
-                      stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
-                    <text x={padding + (ax + aw / 2) * scale} y={padding + dyS + cabinet.height * scale + 27}
-                      fill={COL.dim} textAnchor="middle" fontSize={11} fontWeight={900}>
-                      {Math.round(aw * 10)} mm
-                    </text>
+                    {!isHalmeubel && (
+                      <>
+                        <line x1={padding + ax * scale} y1={padding + dyS + cabinet.height * scale + 12}
+                          x2={padding + (ax + aw) * scale} y2={padding + dyS + cabinet.height * scale + 12}
+                          stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
+                        <text x={padding + (ax + aw / 2) * scale} y={padding + dyS + cabinet.height * scale + 27}
+                          fill={COL.dim} textAnchor="middle" fontSize={11} fontWeight={900}>
+                          {Math.round(aw * 10)} mm
+                        </text>
+                      </>
+                    )}
 
                     <line x1={padding + cabinet.width * scale} y1={padding + dyS}
                       x2={padding + cabinet.width * scale + dxS} y2={padding}
