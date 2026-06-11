@@ -39,6 +39,58 @@ const LIGHT_DIAMETER = 4.2;
 /* Prijs per m² voor afgewerkte matwit MDF panelen, incl. afwerking */
 const MDF_PRICE_PER_M2 = 65;
 
+/* ─── Halmeubel onderkastje constants ─── */
+const PLINTH_HEIGHT = 10;          // cm — vast, 100 mm
+const PLINTH_SETBACK = 5;          // cm — 50 mm teruggezet
+const DIVIDER_THICKNESS = 1.8;     // cm — 18 mm tussendelers
+const MIN_DOOR_WIDTH = 25;         // cm — 250 mm
+const MAX_DOOR_WIDTH = 71;         // cm — 710 mm
+
+type DoorDir = "L" | "R";
+
+function defaultDoors(n: number): DoorDir[] {
+  const out: DoorDir[] = [];
+  let i = 0;
+  while (i < n) {
+    if (i + 1 < n) { out.push("L", "R"); i += 2; }
+    else { out.push("R"); i += 1; }
+  }
+  return out;
+}
+
+function computeCompartments(doors: DoorDir[]): number[][] {
+  const comps: number[][] = [];
+  let i = 0;
+  while (i < doors.length) {
+    if (i + 1 < doors.length && doors[i] === "L" && doors[i + 1] === "R") {
+      comps.push([i, i + 1]);
+      i += 2;
+    } else {
+      comps.push([i]);
+      i += 1;
+    }
+  }
+  return comps;
+}
+
+function maxDoorCount(widthCm: number): number {
+  return Math.max(1, Math.floor((widthCm * 10) / 250));
+}
+
+function lowerCabinetPrice(cab: Dims, dividerCount: number, totalShelves: number, doorCount: number): number {
+  // Alle panelen — sides, top, bottom, back, dividers, plint, deuren, legplanken — tegen MDF prijs per m².
+  const sides = 2 * cab.height * cab.depth;
+  const topBottom = 2 * cab.width * cab.depth;
+  const back = cab.width * cab.height;
+  const dividers = dividerCount * cab.height * cab.depth;
+  const doors = doorCount * (cab.width / Math.max(1, doorCount)) * cab.height; // = cab.width * cab.height
+  const shelfWidth = (cab.width - dividerCount * DIVIDER_THICKNESS) / Math.max(1, dividerCount + 1);
+  const shelves = totalShelves * Math.max(0, shelfWidth) * cab.depth;
+  const plinth = cab.width * PLINTH_HEIGHT;
+  const areaCm2 = sides + topBottom + back + dividers + doors + shelves + plinth;
+  return (areaCm2 / 10000) * MDF_PRICE_PER_M2;
+}
+
 type Placement = "between" | "oneWall" | "standalone";
 function placementFromSides(left: boolean, right: boolean): Placement {
   if (left && right) return "standalone";
