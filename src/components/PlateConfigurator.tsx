@@ -1311,43 +1311,46 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                           <rect key={`div-${di}`} x={x} y={yTop} width={Math.max(0.6, w)} height={lowerCab.height * scale} fill={shade(COL.front, -20)} stroke={COL.frontStroke} strokeWidth={0.5} />
                         );
                       })}
-                      {/* Plint — teruggezet 50mm op alle zijden (links, rechts én diepte) — als verzonken sokkel weergegeven */}
+                      {/* Plint — 50mm teruggezet op alle 4 zijden (front, links, rechts, achter). Zelfde kleur als kast, verzonken weergave. */}
                       {(() => {
                         const psx = PLINTH_SETBACK * scale;
-                        const pdx = dxS * 0.7; // gereduceerde diepte-perspectief voor verzonken sokkel
-                        const pdy = dyS * 0.7;
-                        const xPL = xL + psx;
-                        const xPR = xR - psx;
-                        const yPT = yBot;
-                        const yPB = yBot + PLINTH_HEIGHT * scale;
-                        const plinthFill = shade(COL.front, -35);
-                        const plinthSideFill = shade(COL.front, -50);
-                        const plinthTopFill = shade(COL.front, -25);
+                        // Front van de plint is teruggezet in de diepte → schuift over perspectief-as
+                        const depthRatio = PLINTH_SETBACK / Math.max(1, lowerCab.depth);
+                        const fOffX = dxS * depthRatio;
+                        const fOffY = dyS * depthRatio;
+                        // Resterende diepte-perspectief van de plint (depth - 2*setback)
+                        const plinthDepthRatio = Math.max(0, (lowerCab.depth - 2 * PLINTH_SETBACK)) / Math.max(1, lowerCab.depth);
+                        const pdx = dxS * plinthDepthRatio;
+                        const pdy = dyS * plinthDepthRatio;
+                        const xPL = xL + psx + fOffX;
+                        const xPR = xR - psx + fOffX;
+                        const yPT = yBot - fOffY;
+                        const yPB = yPT + PLINTH_HEIGHT * scale;
                         return (
                           <g>
-                            {/* Schaduw onder kastbodem (suggereert verzonken sokkel) */}
-                            <rect x={xL} y={yBot - 2} width={W} height={3} fill="#000" opacity={0.35} />
-                            {/* Top van plint (perspectief — toont dat plint smaller is in diepte) */}
+                            {/* Subtiele schaduwlijn onder kastbodem (suggereert dat kast over plint hangt) */}
+                            <rect x={xL} y={yBot - 1.5} width={W} height={2} fill="#000" opacity={0.28} />
+                            {/* Top van plint (zichtbaar door teruggezette front) */}
                             <polygon
                               points={`${xPL},${yPT} ${xPL + pdx},${yPT - pdy} ${xPR + pdx},${yPT - pdy} ${xPR},${yPT}`}
-                              fill={plinthTopFill}
+                              fill={COL.top}
                               stroke={COL.frontStroke}
                               strokeWidth={1}
                             />
-                            {/* Zijkant van plint (perspectief rechts) */}
+                            {/* Rechter zijvlak van plint */}
                             <polygon
                               points={`${xPR},${yPT} ${xPR + pdx},${yPT - pdy} ${xPR + pdx},${yPB - pdy} ${xPR},${yPB}`}
-                              fill={plinthSideFill}
+                              fill={COL.side}
                               stroke={COL.frontStroke}
                               strokeWidth={1}
                             />
-                            {/* Voorvlak van plint */}
+                            {/* Voorvlak van plint (zelfde kleur als kast) */}
                             <rect
                               x={xPL}
                               y={yPT}
                               width={Math.max(0, xPR - xPL)}
                               height={PLINTH_HEIGHT * scale}
-                              fill={plinthFill}
+                              fill={COL.front}
                               stroke={COL.frontStroke}
                               strokeWidth={1.2}
                             />
