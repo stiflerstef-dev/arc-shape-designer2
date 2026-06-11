@@ -445,9 +445,11 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
 type PlateConfiguratorProps = {
   initialCabinet?: Dims;
   initialArch?: ArchShape;
+  mode?: "boogkast" | "halmeubel";
   onBack?: () => void;
 };
-const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfiguratorProps = {}) => {
+const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onBack }: PlateConfiguratorProps = {}) => {
+  const isHalmeubel = mode === "halmeubel";
   const startCabinet = initialCabinet ?? DEFAULT_CABINET;
   const startArch: ArchShape = initialArch ?? (() => {
     const defaultW = 60;   // cm
