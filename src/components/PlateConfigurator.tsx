@@ -1550,6 +1550,249 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                 </AccordionContent>
               </AccordionItem>
 
+              {/* Onderkastje (alleen halmeubel) */}
+              {isHalmeubel && (
+                <AccordionItem value="onderkastje" className="border-b border-border">
+                  <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
+                    Onderkastje
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6 space-y-6">
+                    {/* Afmetingen */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <NumberInput
+                        id="lowerW"
+                        label="Breedte"
+                        value={lowerCab.width}
+                        onChange={(v) => setLowerCab((p) => ({ ...p, width: v }))}
+                        min={50}
+                        max={300}
+                      />
+                      <NumberInput
+                        id="lowerH"
+                        label="Hoogte"
+                        value={lowerCab.height}
+                        onChange={(v) => setLowerCab((p) => ({ ...p, height: v }))}
+                        min={30}
+                        max={150}
+                      />
+                      <NumberInput
+                        id="lowerD"
+                        label="Diepte"
+                        value={lowerCab.depth}
+                        onChange={(v) => setLowerCab((p) => ({ ...p, depth: Math.max(cabinet.depth, v) }))}
+                        min={Math.max(20, cabinet.depth)}
+                        max={100}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                      Plint is altijd 100 mm hoog en 50 mm teruggezet — niet aanpasbaar.
+                    </p>
+
+                    {/* Aantal deuren */}
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Aantal deuren</Label>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors"
+                          onClick={() => setDoors((d) => defaultDoors(Math.max(1, d.length - 1)))}
+                          disabled={doors.length <= 1}
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </Button>
+                        <span className="text-sm font-light w-24 text-center text-foreground tabular-nums">
+                          {doors.length} {doors.length === 1 ? "deur" : "deuren"}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors"
+                          onClick={() => setDoors((d) => defaultDoors(Math.min(maxDoorCount(lowerCab.width), d.length + 1)))}
+                          disabled={doors.length >= maxDoorCount(lowerCab.width)}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                      {(() => {
+                        const usable = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
+                        const dw = (usable / doors.length) * 10;
+                        const tooWide = dw > MAX_DOOR_WIDTH * 10;
+                        return (
+                          <p className={`text-[10px] leading-relaxed ${tooWide ? "text-destructive" : "text-muted-foreground"}`}>
+                            Deurbreedte: {Math.round(dw)} mm · max {MAX_DOOR_WIDTH * 10} mm per deur.
+                          </p>
+                        );
+                      })()}
+                      <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                        Deuren worden altijd in matwit MDF geleverd — je schildert ze zelf in de gewenste kleur.
+                      </p>
+                    </div>
+
+                    {/* Bovenaanzicht */}
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Bovenaanzicht — klik op een deur om de draairichting te wisselen</Label>
+                      {(() => {
+                        const padX = 6;
+                        const padY = 6;
+                        const innerW = 360;
+                        const innerH = 100;
+                        const totalCm = lowerCab.width;
+                        const px = (cm: number) => padX + (cm / totalCm) * innerW;
+                        const usableWidthCm = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
+                        const doorWcm = usableWidthCm / doors.length;
+                        const arcR = Math.min(innerH - 16, (innerW / totalCm) * doorWcm);
+                        let cursorCm = 0;
+                        type Seg = { kind: "door"; xCm: number; wCm: number; dir: DoorDir; idx: number } | { kind: "div"; xCm: number };
+                        const segs: Seg[] = [];
+                        compartments.forEach((comp, ci) => {
+                          comp.forEach((di) => {
+                            segs.push({ kind: "door", xCm: cursorCm, wCm: doorWcm, dir: doors[di], idx: di });
+                            cursorCm += doorWcm;
+                          });
+                          if (ci < compartments.length - 1) {
+                            segs.push({ kind: "div", xCm: cursorCm });
+                            cursorCm += DIVIDER_THICKNESS;
+                          }
+                        });
+                        const yFront = padY + 14;
+                        return (
+                          <svg viewBox={`0 0 ${innerW + padX * 2} ${innerH + padY * 2}`} className="w-full h-auto border border-border bg-secondary/30 rounded-sm">
+                            {/* Cabinet rechthoek (top view) */}
+                            <rect
+                              x={padX}
+                              y={yFront}
+                              width={innerW}
+                              height={Math.min(28, innerH * 0.3)}
+                              fill="hsl(var(--card))"
+                              stroke="hsl(var(--foreground))"
+                              strokeWidth={1}
+                            />
+                            {/* Dividers + deuren */}
+                            {segs.map((s, i) => {
+                              if (s.kind === "div") {
+                                return (
+                                  <rect
+                                    key={`tv-div-${i}`}
+                                    x={px(s.xCm)}
+                                    y={yFront}
+                                    width={Math.max(1.5, (DIVIDER_THICKNESS / totalCm) * innerW)}
+                                    height={Math.min(28, innerH * 0.3)}
+                                    fill="hsl(var(--foreground))"
+                                    opacity={0.85}
+                                  />
+                                );
+                              }
+                              const x1 = px(s.xCm);
+                              const x2 = px(s.xCm + s.wCm);
+                              const w = x2 - x1;
+                              const yLine = yFront + Math.min(28, innerH * 0.3);
+                              const arcEndY = yLine + w;
+                              // Hinge L: hinge at x1, swing arc to (x1, yLine+w). Sweep flag 1 to bulge right.
+                              const arcPath =
+                                s.dir === "L"
+                                  ? `M ${x2} ${yLine} A ${w} ${w} 0 0 1 ${x1} ${arcEndY}`
+                                  : `M ${x1} ${yLine} A ${w} ${w} 0 0 0 ${x2} ${arcEndY}`;
+                              return (
+                                <g
+                                  key={`tv-door-${i}`}
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    setDoors((arr) => {
+                                      const next = arr.slice();
+                                      next[s.idx] = next[s.idx] === "L" ? "R" : "L";
+                                      return next;
+                                    })
+                                  }
+                                >
+                                  {/* Front face van de deur */}
+                                  <line x1={x1} y1={yLine} x2={x2} y2={yLine} stroke="hsl(var(--foreground))" strokeWidth={2.5} />
+                                  {/* Hinge dot */}
+                                  <circle cx={s.dir === "L" ? x1 : x2} cy={yLine} r={2.5} fill="hsl(var(--copper))" />
+                                  {/* Swing arc */}
+                                  <path d={arcPath} fill="none" stroke="hsl(var(--copper))" strokeWidth={1.2} strokeDasharray="3 2" opacity={0.7} />
+                                  {/* Click target */}
+                                  <rect x={x1} y={yLine - 6} width={Math.max(8, w)} height={Math.max(20, w + 6)} fill="transparent" />
+                                </g>
+                              );
+                            })}
+                          </svg>
+                        );
+                      })()}
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Stippellijn = openingsrichting · Koperen stip = scharnierzijde. Twee deuren naar elkaar toe vormen één kastje; twee deuren dezelfde kant op = twee kastjes met tussendeler.
+                      </p>
+                    </div>
+
+                    {/* Per-kastje legplanken */}
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Indeling per kastje</Label>
+                      <div className="space-y-2">
+                        {compartments.map((_, ci) => (
+                          <div key={ci} className="flex items-center justify-between gap-3 py-1.5 border-b border-border/50 last:border-b-0">
+                            <span className="text-[12px] font-light text-foreground tracking-wide">Kastje {ci + 1}</span>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors"
+                                onClick={() =>
+                                  setCompartmentShelves((arr) => arr.map((v, i) => (i === ci ? Math.max(0, v - 1) : v)))
+                                }
+                                disabled={(compartmentShelves[ci] ?? 0) <= 0}
+                              >
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              <span className="text-[12px] font-light w-20 text-center text-foreground tabular-nums">
+                                {(compartmentShelves[ci] ?? 0) === 0 ? "Geen" : `${compartmentShelves[ci]} plank${compartmentShelves[ci] > 1 ? "en" : ""}`}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors"
+                                onClick={() =>
+                                  setCompartmentShelves((arr) => arr.map((v, i) => (i === ci ? v + 1 : v)))
+                                }
+                              >
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Interieur kleur onderkastje */}
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Binnenkleur onderkastje</Label>
+                      <div className="flex items-center gap-2">
+                        {[
+                          { id: 0, name: "Wit", hex: "#F5F2EE", border: "#C9C3B6" },
+                          { id: 1, name: "Zwart", hex: "#1C1C1A", border: "#000000" },
+                        ].map((c) => {
+                          const active = lowerInteriorIdx === c.id;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() => setLowerInteriorIdx(c.id)}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-sm border transition-colors text-[11px] font-light tracking-wide ${active ? "border-copper text-copper bg-secondary" : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"}`}
+                            >
+                              <span className="w-3.5 h-3.5 rounded-full" style={{ background: c.hex, border: `0.5px solid ${c.border}` }} />
+                              {c.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                        Het onderkastje wordt altijd in matwit MDF geleverd. De binnenkant schilder je zelf.
+                      </p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
               {/* Plaatsing */}
               <AccordionItem value="plaatsing" className="border-b border-border">
                 <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
