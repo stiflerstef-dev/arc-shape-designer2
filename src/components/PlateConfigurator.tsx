@@ -1333,7 +1333,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                               y={yPT}
                               width={Math.max(0, xPR - xPL)}
                               height={plinthH}
-                              fill={COL.front}
+                              fill={cabFrontCol}
                               stroke={COL.frontStroke}
                               strokeWidth={1.2}
                             />
