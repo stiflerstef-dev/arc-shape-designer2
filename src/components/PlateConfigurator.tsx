@@ -1220,7 +1220,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                   </g>
                 </g>
 
-                {/* === Pseudo-3D: Side panel (strekt door over onderkastje in halmeubel mode) === */}
+                {/* === Pseudo-3D: Side panel (strekt door over onderkastje in halmeubel mode, stopt boven plint) === */}
                 {(() => {
                   const sideBottomCm = isHalmeubel ? cabinet.height + lowerCab.height : cabinet.height;
                   const pts = `${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + sideBottomCm * scale} ${padding + cabinet.width * scale},${padding + sideBottomCm * scale + dyS}`;
@@ -1311,49 +1311,40 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                           <rect key={`div-${di}`} x={x} y={yTop} width={Math.max(0.6, w)} height={lowerCab.height * scale} fill={shade(COL.front, -20)} stroke={COL.frontStroke} strokeWidth={0.5} />
                         );
                       })}
-                      {/* Plint — 50mm teruggezet op alle 4 zijden (front, links, rechts, achter). Zelfde kleur als kast, verzonken weergave. */}
+                      {/* Plint — 50mm teruggezet aan voorkant en beide zijkanten, 100mm hoog, zelfde matwit MDF. */}
                       {(() => {
                         const psx = PLINTH_SETBACK * scale;
-                        // Front van de plint is teruggezet in de diepte → schuift over perspectief-as
-                        const depthRatio = PLINTH_SETBACK / Math.max(1, lowerCab.depth);
-                        const fOffX = dxS * depthRatio;
-                        const fOffY = dyS * depthRatio;
-                        // Resterende diepte-perspectief van de plint (depth - 2*setback)
-                        const plinthDepthRatio = Math.max(0, (lowerCab.depth - 2 * PLINTH_SETBACK)) / Math.max(1, lowerCab.depth);
-                        const pdx = dxS * plinthDepthRatio;
-                        const pdy = dyS * plinthDepthRatio;
-                        const xPL = xL + psx + fOffX;
-                        const xPR = xR - psx + fOffX;
-                        const yPT = yBot - fOffY;
-                        const yPB = yPT + PLINTH_HEIGHT * scale;
+                        const xPL = xL + psx;
+                        const xPR = xR - psx;
+                        const yPT = yBot;
+                        const plinthH = PLINTH_HEIGHT * scale;
                         return (
                           <g>
-                            {/* Subtiele schaduwlijn onder kastbodem (suggereert dat kast over plint hangt) */}
-                            <rect x={xL} y={yBot - 1.5} width={W} height={2} fill="#000" opacity={0.28} />
-                            {/* Top van plint (zichtbaar door teruggezette front) */}
-                            <polygon
-                              points={`${xPL},${yPT} ${xPL + pdx},${yPT - pdy} ${xPR + pdx},${yPT - pdy} ${xPR},${yPT}`}
-                              fill={COL.top}
-                              stroke={COL.frontStroke}
-                              strokeWidth={1}
-                            />
-                            {/* Rechter zijvlak van plint */}
-                            <polygon
-                              points={`${xPR},${yPT} ${xPR + pdx},${yPT - pdy} ${xPR + pdx},${yPB - pdy} ${xPR},${yPB}`}
-                              fill={COL.side}
-                              stroke={COL.frontStroke}
-                              strokeWidth={1}
-                            />
-                            {/* Voorvlak van plint (zelfde kleur als kast) */}
+                            {/* Donker schaduwvlak over de volledige plintzone (suggereert terugliggende holte) */}
+                            <rect x={xL} y={yPT} width={W} height={plinthH} fill="#000" opacity={0.32} />
+                            {/* Smal terugliggend "vloer"-stukje direct onder de kastbodem (zichtbaar omdat plint 50mm naar achter staat) */}
+                            <rect x={xL} y={yPT} width={W} height={Math.min(3, plinthH * 0.18)} fill="#000" opacity={0.45} />
+                            {/* Plint zelf — gecentreerd, smaller dan de kast aan beide zijden */}
                             <rect
                               x={xPL}
                               y={yPT}
                               width={Math.max(0, xPR - xPL)}
-                              height={PLINTH_HEIGHT * scale}
+                              height={plinthH}
                               fill={COL.front}
                               stroke={COL.frontStroke}
                               strokeWidth={1.2}
                             />
+                            <rect
+                              x={xPL}
+                              y={yPT}
+                              width={Math.max(0, xPR - xPL)}
+                              height={plinthH}
+                              fill="url(#paintStipple)"
+                              opacity={0.35}
+                              stroke="none"
+                            />
+                            {/* Subtiele schaduw aan de bovenkant van de plint (kast hangt eroverheen) */}
+                            <rect x={xPL} y={yPT} width={Math.max(0, xPR - xPL)} height={2} fill="#000" opacity={0.35} />
                           </g>
                         );
                       })()}
