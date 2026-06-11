@@ -1666,10 +1666,10 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                     <div className="space-y-2">
                       <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Bovenaanzicht — klik op een deur om de draairichting te wisselen</Label>
                       {(() => {
-                        const padX = 6;
-                        const padY = 6;
-                        const innerW = 360;
-                        const innerH = 100;
+                        const padX = 32;
+                        const padY = 22;
+                        const innerW = 300;
+                        const innerH = 110;
                         const totalCm = lowerCab.width;
                         const px = (cm: number) => padX + (cm / totalCm) * innerW;
                         const usableWidthCm = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
