@@ -1328,18 +1328,18 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                 {/* === Dimension lines === */}
                 {showDimensions && (
                   <>
-                    <line x1={padding - 25} y1={padding + dyS} x2={padding - 25} y2={padding + dyS + cabinet.height * scale}
+                    <line x1={padding - 25} y1={padding + dyS} x2={padding - 25} y2={padding + dyS + totalCabH * scale}
                       stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowUpFixed)" markerEnd="url(#arrowDownFixed)" />
-                    <text x={padding - 40} y={padding + dyS + (cabinet.height * scale) / 2}
+                    <text x={padding - 40} y={padding + dyS + (totalCabH * scale) / 2}
                       fill={COL.dim} textAnchor="middle" fontSize={13} fontWeight={900}
-                      transform={`rotate(-90, ${padding - 40}, ${padding + dyS + (cabinet.height * scale) / 2})`}>
-                      {Math.round(cabinet.height * 10)} mm
+                      transform={`rotate(-90, ${padding - 40}, ${padding + dyS + (totalCabH * scale) / 2})`}>
+                      {Math.round(totalCabH * 10)} mm
                     </text>
 
-                    <line x1={padding} y1={padding + dyS + cabinet.height * scale + 35}
-                      x2={padding + cabinet.width * scale} y2={padding + dyS + cabinet.height * scale + 35}
+                    <line x1={padding} y1={padding + dyS + totalCabH * scale + 35}
+                      x2={padding + cabinet.width * scale} y2={padding + dyS + totalCabH * scale + 35}
                       stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
-                    <text x={padding + (cabinet.width * scale) / 2} y={padding + dyS + cabinet.height * scale + 52}
+                    <text x={padding + (cabinet.width * scale) / 2} y={padding + dyS + totalCabH * scale + 52}
                       fill={COL.dim} textAnchor="middle" fontSize={13} fontWeight={900}>
                       {Math.round(cabinet.width * 10)} mm
                     </text>
