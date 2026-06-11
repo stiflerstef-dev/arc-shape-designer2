@@ -1430,7 +1430,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
               {/* Boog Afmetingen */}
               <AccordionItem value="boog-afmetingen" className="border-b border-border">
                 <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
-                  Boog Afmetingen
+                  {isHalmeubel ? "Boog (bovenkast)" : "Boog Afmetingen"}
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-6">
                   <div className="space-y-5">
@@ -1464,9 +1464,22 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                       />
                     )}
                     <div className="grid grid-cols-2 gap-4">
-                      <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 10)} />
+                      <NumberInput
+                        id="archW"
+                        label="Breedte"
+                        value={arch.width}
+                        onChange={(v) => updateArchDim("width", v)}
+                        min={10}
+                        max={Math.max(10, cabinet.width - 10)}
+                        disabled={isHalmeubel}
+                      />
                       <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 5)} />
                     </div>
+                    {isHalmeubel && (
+                      <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                        De boogkast neemt automatisch de breedte van het onderkastje over.
+                      </p>
+                    )}
                     <div className="grid grid-cols-[1fr_auto_1fr] gap-3 py-2 items-end">
                       <NumberInput
                         id="archX"
