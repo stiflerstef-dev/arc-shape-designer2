@@ -14,9 +14,9 @@ const PRESETS = {
     arch: { width: 80, height: 200, position: { x: 20, y: 50 } },
   },
   halmeubel: {
-    // Boogkast bovenop onderkastje. Boog = 120 × 150 × 40, onderkast = 120 × 80 × 50, plint = 10.
+    // Boogkast bovenop onderkastje. Boognis = 90 × 130 (A=15, B=15, C=20, D=0), onderkast = 120 × 80 × 50, plint = 10.
     cabinet: { width: 120, height: 150, depth: 40 },
-    arch: { width: 80, height: 110, position: { x: 20, y: 20 } },
+    arch: { width: 90, height: 130, position: { x: 15, y: 20 } },
   },
 } as const;
 
