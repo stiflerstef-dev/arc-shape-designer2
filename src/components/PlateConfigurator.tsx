@@ -610,7 +610,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
   const depthOffset = Math.min(cabinet.depth * 0.6, 40);
   const maxPreviewW = 600;
   const maxPreviewH = 700;
-  const scale = Math.min(maxPreviewW / (cabinet.width + depthOffset), maxPreviewH / (cabinet.height + depthOffset), 3);
+  const halmeubelExtraH = isHalmeubel ? (lowerCab.height + PLINTH_HEIGHT) : 0;
+  const totalCabH = cabinet.height + halmeubelExtraH;
+  const scale = Math.min(maxPreviewW / (cabinet.width + depthOffset), maxPreviewH / (totalCabH + depthOffset), 3);
   const isPriceOnRequest = cabinet.height > 350 || cabinet.width > 300;
 
   const dx = depthOffset;
@@ -618,7 +620,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
   const dxS = dx * scale;
   const dyS = Math.abs(dy) * scale;
   const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
-  const svgHeight = (cabinet.height + depthOffset) * scale + padding * 2;
+  const svgHeight = (totalCabH + depthOffset) * scale + padding * 2;
 
   /* ─── Clamping ─── */
   const roundToMm = (v: number) => parseFloat((Math.round(v * 10) / 10).toFixed(1));
@@ -848,7 +850,15 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
   const shelves = shelfPositions(shelfCount, ah, aw, archType, gothicCapH, clampedShoulderR);
   const visibleSides = (finishLeft ? 1 : 0) + (finishRight ? 1 : 0);
   const placement: Placement = placementFromSides(finishLeft, finishRight);
-  const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
+  const archTotalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
+
+  /* ─── Halmeubel afgeleiden ─── */
+  const compartments = useMemo(() => computeCompartments(doors), [doors]);
+  const dividerCount = Math.max(0, compartments.length - 1);
+  const totalShelvesLower = compartmentShelves.reduce((a, b) => a + b, 0);
+  const lowerPrice = isHalmeubel ? lowerCabinetPrice(lowerCab, dividerCount, totalShelvesLower, doors.length) : 0;
+  const hingeSurcharge = isHalmeubel ? lowerCab.width : 0; // €1 per cm breedte — verborgen
+  const totalPrice = Math.round(archTotalPrice + lowerPrice + hingeSurcharge);
   const displayPrice = useAnimatedPrice(totalPrice);
 
   // Niche interior color — zonder achterwand kijk je dwars door de kast (canvaskleur),
