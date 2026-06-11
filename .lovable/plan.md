@@ -1,15 +1,12 @@
-Twee artefacten te fixen in de halmeubel 3D-preview (`PlateConfigurator.tsx`, plintblok):
+Twee dingen tegelijk fixen:
 
-1. Zwarte randen aan de zijkant: komt door het volledig-breed donkere "schaduw"-rechthoek (xL→xR) dat ik over de hele plintzone leg. Aan de linkerkant is daar geen kast vóór, dus je ziet pure zwarte strookjes.
-2. Plint loopt niet door aan de rechterkant: het 3D-zijpaneel van de kast stopt op `yBot`, en de plint heeft zelf geen perspectief-zijvlak. Daardoor lijkt de plint abrupt op te houden ipv subtiel door te lopen in de diepte.
+1. **Plint door kast heen**: de perspectief-bovenvlak en perspectief-rechterzijvlak van de plint steken boven `yBot` uit en overlappen daardoor het kastdeel en het 3D-zijpaneel.
+2. **Kleurmatch**: deuren en plint moeten exact dezelfde kleur als de boogkast krijgen (`cabFrontCol`, dat ook door het kastfront en zij/top wordt gebruikt) ipv hardgecodeerde `COL.front`.
 
-Aanpak:
-- Vervang het volle-breedte zwart vlak door alleen donkere strookjes in de recessed zones:
-  - links: `xL` → `xPL`, hoogte `plinthH`, donker maar warm (`shade(COL.side, -40)`)
-  - rechts: `xPR` → `xR`, idem
-  - top onder kastbodem: alleen over plintbreedte (`xPL` → `xPR`), dun strookje
-- Voeg een perspectief-rechterzijvlak van de plint toe, ingezet vanaf `xR - psx` met diepte `(lowerCab.depth - 2*PLINTH_SETBACK)/lowerCab.depth * dxS`, kleur `shade(COL.side, -15)`. Daardoor zie je de plint subtiel in de diepte doorlopen, set back vanaf de kastzijde.
-- Voeg ook een klein perspectief-bovenvlak van de plint toe (smal trapezium), kleur `COL.top`, zodat de bovenrand van de plint achter de kastbodem doorloopt en niet plat oogt.
-- Behoud de gecentreerde matwit front-rechthoek en de subtiele topschaduw onder de kast.
+Aanpak in `PlateConfigurator.tsx`, halmeubel-blok (rond regels 1253–1362):
+
+- Verwijder de perspectief-bovenvlak polygon van de plint (die ligt volledig boven `yBot` en is in werkelijkheid afgedekt door de overhangende kastbodem).
+- Vervang het perspectief-rechterzijvlak door een trapezium met een **vlakke bovenrand op `yBot`** ipv slanting omhoog naar `yBot - pdy`. Zo blijft alles op of onder de kastbodem en steekt niets meer door de kast.
+- Zet `lowerFrontCol = cabFrontCol`, `doorCol = cabFrontCol`, en de plint-front `fill = cabFrontCol`. Doorstroke en stroke blijven `COL.frontStroke`.
 
 Geen andere code raken.
