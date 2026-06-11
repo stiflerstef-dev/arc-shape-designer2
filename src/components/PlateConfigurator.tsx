@@ -1682,7 +1682,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                         const px = (cm: number) => padX + (cm / totalCm) * innerW;
                         const usableWidthCm = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
                         const doorWcm = usableWidthCm / doors.length;
-                        const arcR = Math.min(innerH - 16, (innerW / totalCm) * doorWcm);
+                         // arcR not used for clamping anymore — innerH guarantees room
                         let cursorCm = 0;
                         type Seg = { kind: "door"; xCm: number; wCm: number; dir: DoorDir; idx: number } | { kind: "div"; xCm: number };
                         const segs: Seg[] = [];
