@@ -1257,7 +1257,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                   const xL = padding;
                   const xR = padding + cabinet.width * scale;
                   const W = cabinet.width * scale;
-                  const lowerFrontCol = lowerInteriorIdx !== null ? NICHE_COLORS[lowerInteriorIdx].hex : COL.front;
+                  // Onderkast body = matwit MDF (interieurkleur zit achter de deuren, niet zichtbaar in vooraanzicht)
+                  const lowerFrontCol = COL.front;
+                  void lowerInteriorIdx;
                   // Deuren altijd matwit MDF
                   const doorCol = COL.front;
                   const doorStroke = COL.frontStroke;
