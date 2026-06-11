@@ -1258,10 +1258,10 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                   const xR = padding + cabinet.width * scale;
                   const W = cabinet.width * scale;
                   // Onderkast body = matwit MDF (interieurkleur zit achter de deuren, niet zichtbaar in vooraanzicht)
-                  const lowerFrontCol = COL.front;
+                  const lowerFrontCol = cabFrontCol;
                   void lowerInteriorIdx;
-                  // Deuren altijd matwit MDF
-                  const doorCol = COL.front;
+                  // Deuren krijgen exact dezelfde kleur als de boogkast
+                  const doorCol = cabFrontCol;
                   const doorStroke = COL.frontStroke;
                   // Bepaal door layout in cm met dividers
                   const dividers: number[] = []; // cm-posities (links-kant van divider)
@@ -1333,7 +1333,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                               y={yPT}
                               width={Math.max(0, xPR - xPL)}
                               height={plinthH}
-                              fill={COL.front}
+                              fill={cabFrontCol}
                               stroke={COL.frontStroke}
                               strokeWidth={1.2}
                             />
@@ -1347,16 +1347,10 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                               stroke="none"
                             />
                             {/* Perspectief-bovenvlak: smal trapezium dat de bovenrand van de plint in de diepte trekt */}
+                            {/* Perspectief-rechterzijvlak: vlakke bovenrand op yBot zodat niets door de kast steekt */}
                             <polygon
-                              points={`${xPL},${yPT} ${xPL + pdx},${yPT - pdy} ${xPR + pdx},${yPT - pdy} ${xPR},${yPT}`}
-                              fill={COL.top}
-                              stroke={COL.frontStroke}
-                              strokeWidth={0.8}
-                            />
-                            {/* Perspectief-rechterzijvlak: laat plint subtiel doorlopen in de diepte */}
-                            <polygon
-                              points={`${xPR},${yPT} ${xPR + pdx},${yPT - pdy} ${xPR + pdx},${yPT + plinthH - pdy} ${xPR},${yPT + plinthH}`}
-                              fill={shade(COL.side, -15)}
+                              points={`${xPR},${yPT} ${xPR + pdx},${yPT} ${xPR + pdx},${yPT + plinthH - pdy} ${xPR},${yPT + plinthH}`}
+                              fill={shade(cabFrontCol, -20)}
                               stroke={COL.frontStroke}
                               strokeWidth={0.8}
                             />
