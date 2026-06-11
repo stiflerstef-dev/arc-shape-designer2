@@ -39,6 +39,58 @@ const LIGHT_DIAMETER = 4.2;
 /* Prijs per m² voor afgewerkte matwit MDF panelen, incl. afwerking */
 const MDF_PRICE_PER_M2 = 65;
 
+/* ─── Halmeubel onderkastje constants ─── */
+const PLINTH_HEIGHT = 10;          // cm — vast, 100 mm
+const PLINTH_SETBACK = 5;          // cm — 50 mm teruggezet
+const DIVIDER_THICKNESS = 1.8;     // cm — 18 mm tussendelers
+const MIN_DOOR_WIDTH = 25;         // cm — 250 mm
+const MAX_DOOR_WIDTH = 71;         // cm — 710 mm
+
+type DoorDir = "L" | "R";
+
+function defaultDoors(n: number): DoorDir[] {
+  const out: DoorDir[] = [];
+  let i = 0;
+  while (i < n) {
+    if (i + 1 < n) { out.push("L", "R"); i += 2; }
+    else { out.push("R"); i += 1; }
+  }
+  return out;
+}
+
+function computeCompartments(doors: DoorDir[]): number[][] {
+  const comps: number[][] = [];
+  let i = 0;
+  while (i < doors.length) {
+    if (i + 1 < doors.length && doors[i] === "L" && doors[i + 1] === "R") {
+      comps.push([i, i + 1]);
+      i += 2;
+    } else {
+      comps.push([i]);
+      i += 1;
+    }
+  }
+  return comps;
+}
+
+function maxDoorCount(widthCm: number): number {
+  return Math.max(1, Math.floor((widthCm * 10) / 250));
+}
+
+function lowerCabinetPrice(cab: Dims, dividerCount: number, totalShelves: number, doorCount: number): number {
+  // Alle panelen — sides, top, bottom, back, dividers, plint, deuren, legplanken — tegen MDF prijs per m².
+  const sides = 2 * cab.height * cab.depth;
+  const topBottom = 2 * cab.width * cab.depth;
+  const back = cab.width * cab.height;
+  const dividers = dividerCount * cab.height * cab.depth;
+  const doors = doorCount * (cab.width / Math.max(1, doorCount)) * cab.height; // = cab.width * cab.height
+  const shelfWidth = (cab.width - dividerCount * DIVIDER_THICKNESS) / Math.max(1, dividerCount + 1);
+  const shelves = totalShelves * Math.max(0, shelfWidth) * cab.depth;
+  const plinth = cab.width * PLINTH_HEIGHT;
+  const areaCm2 = sides + topBottom + back + dividers + doors + shelves + plinth;
+  return (areaCm2 / 10000) * MDF_PRICE_PER_M2;
+}
+
 type Placement = "between" | "oneWall" | "standalone";
 function placementFromSides(left: boolean, right: boolean): Placement {
   if (left && right) return "standalone";
@@ -393,9 +445,11 @@ function NumberInput({ value, onChange, min, max, label, id, unit = "mm", disabl
 type PlateConfiguratorProps = {
   initialCabinet?: Dims;
   initialArch?: ArchShape;
+  mode?: "boogkast" | "halmeubel";
   onBack?: () => void;
 };
-const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfiguratorProps = {}) => {
+const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onBack }: PlateConfiguratorProps = {}) => {
+  const isHalmeubel = mode === "halmeubel";
   const startCabinet = initialCabinet ?? DEFAULT_CABINET;
   const startArch: ArchShape = initialArch ?? (() => {
     const defaultW = 60;   // cm
@@ -429,6 +483,13 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const [finishRight, setFinishRight] = useState(false);
   const [hasBack, setHasBack] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+
+  /* ─── Halmeubel onderkastje state ─── */
+  const [lowerCab, setLowerCab] = useState<Dims>({ width: 120, height: 80, depth: 50 });
+  const [doors, setDoors] = useState<DoorDir[]>(() => defaultDoors(2));
+  const [compartmentShelves, setCompartmentShelves] = useState<number[]>([0]);
+  const [lowerInteriorIdx, setLowerInteriorIdx] = useState<number>(0);
+
   const svgRef = useRef<SVGSVGElement>(null);
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
   const dragFrameRef = useRef<number | null>(null);
@@ -549,7 +610,9 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const depthOffset = Math.min(cabinet.depth * 0.6, 40);
   const maxPreviewW = 600;
   const maxPreviewH = 700;
-  const scale = Math.min(maxPreviewW / (cabinet.width + depthOffset), maxPreviewH / (cabinet.height + depthOffset), 3);
+  const halmeubelExtraH = isHalmeubel ? (lowerCab.height + PLINTH_HEIGHT) : 0;
+  const totalCabH = cabinet.height + halmeubelExtraH;
+  const scale = Math.min(maxPreviewW / (cabinet.width + depthOffset), maxPreviewH / (totalCabH + depthOffset), 3);
   const isPriceOnRequest = cabinet.height > 350 || cabinet.width > 300;
 
   const dx = depthOffset;
@@ -557,7 +620,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const dxS = dx * scale;
   const dyS = Math.abs(dy) * scale;
   const svgWidth = (cabinet.width + depthOffset) * scale + padding * 2;
-  const svgHeight = (cabinet.height + depthOffset) * scale + padding * 2;
+  const svgHeight = (totalCabH + depthOffset) * scale + padding * 2;
 
   /* ─── Clamping ─── */
   const roundToMm = (v: number) => parseFloat((Math.round(v * 10) / 10).toFixed(1));
@@ -590,6 +653,44 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
       return prev;
     });
   }, [clampArch, centerArch, cabinet.width, arch.width]);
+
+  /* ─── Halmeubel sync: boogkast breedte volgt onderkastje breedte ─── */
+  useEffect(() => {
+    if (!isHalmeubel) return;
+    setCabinet((prev) => {
+      if (prev.width === lowerCab.width) return prev;
+      // marge L/R behouden naar rato — eenvoudig: hercentreren via clampArch effect
+      return { ...prev, width: lowerCab.width };
+    });
+  }, [isHalmeubel, lowerCab.width]);
+
+  /* ─── Halmeubel sync: onderkastje diepte ≥ boog diepte ─── */
+  useEffect(() => {
+    if (!isHalmeubel) return;
+    if (lowerCab.depth < cabinet.depth) {
+      setLowerCab((p) => ({ ...p, depth: cabinet.depth }));
+    }
+  }, [isHalmeubel, cabinet.depth, lowerCab.depth]);
+
+  /* ─── Halmeubel sync: aantal kastjes ↔ shelf-array ─── */
+  useEffect(() => {
+    if (!isHalmeubel) return;
+    const c = computeCompartments(doors).length;
+    setCompartmentShelves((prev) => {
+      if (prev.length === c) return prev;
+      const next = prev.slice(0, c);
+      while (next.length < c) next.push(0);
+      return next;
+    });
+  }, [isHalmeubel, doors]);
+
+  /* ─── Halmeubel sync: deurenarray lengte volgt huidige max ─── */
+  useEffect(() => {
+    if (!isHalmeubel) return;
+    const max = maxDoorCount(lowerCab.width);
+    if (doors.length > max) setDoors(defaultDoors(max));
+    if (doors.length === 0) setDoors(defaultDoors(1));
+  }, [isHalmeubel, lowerCab.width, doors.length]);
 
   /* ─── Drag (pointer events for mouse + touch) ─── */
   const clientToCab = (clientX: number, clientY: number) => {
@@ -787,7 +888,15 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
   const shelves = shelfPositions(shelfCount, ah, aw, archType, gothicCapH, clampedShoulderR);
   const visibleSides = (finishLeft ? 1 : 0) + (finishRight ? 1 : 0);
   const placement: Placement = placementFromSides(finishLeft, finishRight);
-  const totalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
+  const archTotalPrice = calcPrice(cabinet, arch, shelfCount, hasRod, hasLight, visibleSides, hasBack);
+
+  /* ─── Halmeubel afgeleiden ─── */
+  const compartments = useMemo(() => computeCompartments(doors), [doors]);
+  const dividerCount = Math.max(0, compartments.length - 1);
+  const totalShelvesLower = compartmentShelves.reduce((a, b) => a + b, 0);
+  const lowerPrice = isHalmeubel ? lowerCabinetPrice(lowerCab, dividerCount, totalShelvesLower, doors.length) : 0;
+  const hingeSurcharge = isHalmeubel ? lowerCab.width : 0; // €1 per cm breedte — verborgen
+  const totalPrice = Math.round(archTotalPrice + lowerPrice + hingeSurcharge);
   const displayPrice = useAnimatedPrice(totalPrice);
 
   // Niche interior color — zonder achterwand kijk je dwars door de kast (canvaskleur),
@@ -1111,21 +1220,18 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   </g>
                 </g>
 
-                {/* === Pseudo-3D: Side panel === */}
-                <polygon
-                  points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5}
-                />
-                {/* Painted texture on side panel */}
-                <polygon
-                  points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill="url(#paintStipple)" opacity={0.4} stroke="none"
-                />
-                {/* Right side darker (away from light source) */}
-                <polygon
-                  points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill="#000000" opacity={0.12} stroke="none"
-                />
+                {/* === Pseudo-3D: Side panel (strekt door over onderkastje in halmeubel mode) === */}
+                {(() => {
+                  const sideBottomCm = isHalmeubel ? cabinet.height + lowerCab.height : cabinet.height;
+                  const pts = `${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + sideBottomCm * scale} ${padding + cabinet.width * scale},${padding + sideBottomCm * scale + dyS}`;
+                  return (
+                    <>
+                      <polygon points={pts} fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      <polygon points={pts} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                      <polygon points={pts} fill="#000000" opacity={0.12} stroke="none" />
+                    </>
+                  );
+                })()}
 
                 {/* === Pseudo-3D: Top panel === */}
                 <polygon
@@ -1143,32 +1249,114 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   fill="#FFFFFF" opacity={0.18} stroke="none"
                 />
 
+                {/* === Halmeubel: onderkastje, deuren, tussendelers en plint === */}
+                {isHalmeubel && (() => {
+                  const yTop = padding + dyS + cabinet.height * scale;   // bovenkant onderkast = onderkant boog
+                  const yBot = yTop + lowerCab.height * scale;            // onderkant kastdeel (boven plint)
+                  const yPlinth = yBot + PLINTH_HEIGHT * scale;
+                  const xL = padding;
+                  const xR = padding + cabinet.width * scale;
+                  const W = cabinet.width * scale;
+                  // Onderkast body = matwit MDF (interieurkleur zit achter de deuren, niet zichtbaar in vooraanzicht)
+                  const lowerFrontCol = COL.front;
+                  void lowerInteriorIdx;
+                  // Deuren altijd matwit MDF
+                  const doorCol = COL.front;
+                  const doorStroke = COL.frontStroke;
+                  // Bepaal door layout in cm met dividers
+                  const dividers: number[] = []; // cm-posities (links-kant van divider)
+                  // Bouw door & divider rechthoeken: positie in cm vanaf links
+                  let cursorCm = 0;
+                  const doorRects: { x: number; w: number; dir: DoorDir; idx: number }[] = [];
+                  const usableWidthCm = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
+                  const doorWcm = Math.max(0.1, usableWidthCm / Math.max(1, doors.length));
+                  compartments.forEach((comp, ci) => {
+                    comp.forEach((doorIdx) => {
+                      doorRects.push({ x: cursorCm, w: doorWcm, dir: doors[doorIdx], idx: doorIdx });
+                      cursorCm += doorWcm;
+                    });
+                    if (ci < compartments.length - 1) {
+                      dividers.push(cursorCm);
+                      cursorCm += DIVIDER_THICKNESS;
+                    }
+                  });
+                  return (
+                    <g>
+                      {/* Body achtergrond (zij/top via bestaande panels, hier alleen front) */}
+                      <rect x={xL} y={yTop} width={W} height={lowerCab.height * scale} fill={lowerFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      {/* Bovenkant horizontale lijn (scheiding boog ↔ onderkast) */}
+                      <line x1={xL} y1={yTop} x2={xR} y2={yTop} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      {/* Deuren */}
+                      {doorRects.map((d) => {
+                        const x = xL + d.x * scale;
+                        const w = d.w * scale;
+                        return (
+                          <g key={`door-${d.idx}`}>
+                            <rect x={x + 1} y={yTop + 1} width={Math.max(0, w - 2)} height={Math.max(0, lowerCab.height * scale - 2)} fill={doorCol} stroke={doorStroke} strokeWidth={1.2} />
+                            <rect x={x + 1} y={yTop + 1} width={Math.max(0, w - 2)} height={Math.max(0, lowerCab.height * scale - 2)} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                            {/* Greepje (klein streepje aan scharnierkant — tegenovergesteld aan draairichting) */}
+                            {(() => {
+                              const handleY = yTop + lowerCab.height * scale * 0.5;
+                              const handleX = d.dir === "L" ? x + w - 6 : x + 6;
+                              return <circle cx={handleX} cy={handleY} r={1.6} fill={COL.frontStroke} />;
+                            })()}
+                          </g>
+                        );
+                      })}
+                      {/* Tussendelers */}
+                      {dividers.map((dxCm, di) => {
+                        const x = xL + dxCm * scale;
+                        const w = DIVIDER_THICKNESS * scale;
+                        return (
+                          <rect key={`div-${di}`} x={x} y={yTop} width={Math.max(0.6, w)} height={lowerCab.height * scale} fill={shade(COL.front, -20)} stroke={COL.frontStroke} strokeWidth={0.5} />
+                        );
+                      })}
+                      {/* Plint — teruggezet 50mm, hoogte 100mm */}
+                      <rect
+                        x={xL + PLINTH_SETBACK * scale}
+                        y={yBot}
+                        width={Math.max(0, W - 2 * PLINTH_SETBACK * scale)}
+                        height={PLINTH_HEIGHT * scale}
+                        fill={shade(COL.front, -35)}
+                        stroke={COL.frontStroke}
+                        strokeWidth={1.2}
+                      />
+                      {/* Schaduw onder onderkast op plint */}
+                      <rect x={xL + PLINTH_SETBACK * scale} y={yBot} width={Math.max(0, W - 2 * PLINTH_SETBACK * scale)} height={3} fill="#000" opacity={0.25} />
+                    </g>
+                  );
+                })()}
+
                 {/* === Dimension lines === */}
                 {showDimensions && (
                   <>
-                    <line x1={padding - 25} y1={padding + dyS} x2={padding - 25} y2={padding + dyS + cabinet.height * scale}
+                    <line x1={padding - 25} y1={padding + dyS} x2={padding - 25} y2={padding + dyS + totalCabH * scale}
                       stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowUpFixed)" markerEnd="url(#arrowDownFixed)" />
-                    <text x={padding - 40} y={padding + dyS + (cabinet.height * scale) / 2}
+                    <text x={padding - 40} y={padding + dyS + (totalCabH * scale) / 2}
                       fill={COL.dim} textAnchor="middle" fontSize={13} fontWeight={900}
-                      transform={`rotate(-90, ${padding - 40}, ${padding + dyS + (cabinet.height * scale) / 2})`}>
-                      {Math.round(cabinet.height * 10)} mm
+                      transform={`rotate(-90, ${padding - 40}, ${padding + dyS + (totalCabH * scale) / 2})`}>
+                      {Math.round(totalCabH * 10)} mm
                     </text>
 
-                    <line x1={padding} y1={padding + dyS + cabinet.height * scale + 35}
-                      x2={padding + cabinet.width * scale} y2={padding + dyS + cabinet.height * scale + 35}
+                    <line x1={padding} y1={padding + dyS + totalCabH * scale + 35}
+                      x2={padding + cabinet.width * scale} y2={padding + dyS + totalCabH * scale + 35}
                       stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
-                    <text x={padding + (cabinet.width * scale) / 2} y={padding + dyS + cabinet.height * scale + 52}
+                    <text x={padding + (cabinet.width * scale) / 2} y={padding + dyS + totalCabH * scale + 52}
                       fill={COL.dim} textAnchor="middle" fontSize={13} fontWeight={900}>
                       {Math.round(cabinet.width * 10)} mm
                     </text>
 
-                    <line x1={padding + ax * scale} y1={padding + dyS + cabinet.height * scale + 12}
-                      x2={padding + (ax + aw) * scale} y2={padding + dyS + cabinet.height * scale + 12}
-                      stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
-                    <text x={padding + (ax + aw / 2) * scale} y={padding + dyS + cabinet.height * scale + 27}
-                      fill={COL.dim} textAnchor="middle" fontSize={11} fontWeight={900}>
-                      {Math.round(aw * 10)} mm
-                    </text>
+                    {!isHalmeubel && (
+                      <>
+                        <line x1={padding + ax * scale} y1={padding + dyS + cabinet.height * scale + 12}
+                          x2={padding + (ax + aw) * scale} y2={padding + dyS + cabinet.height * scale + 12}
+                          stroke={COL.dim} strokeWidth={1.5} markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
+                        <text x={padding + (ax + aw / 2) * scale} y={padding + dyS + cabinet.height * scale + 27}
+                          fill={COL.dim} textAnchor="middle" fontSize={11} fontWeight={900}>
+                          {Math.round(aw * 10)} mm
+                        </text>
+                      </>
+                    )}
 
                     <line x1={padding + cabinet.width * scale} y1={padding + dyS}
                       x2={padding + cabinet.width * scale + dxS} y2={padding}
@@ -1230,21 +1418,33 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
               {/* Kast Afmetingen */}
               <AccordionItem value="kast-afmetingen" className="border-b border-border">
                 <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
-                  Kast Afmetingen
+                  {isHalmeubel ? "Boog Afmetingen (omtrek)" : "Kast Afmetingen"}
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-6">
                   <div className="grid grid-cols-3 gap-4">
-                    <NumberInput id="cabW" label="Breedte" value={cabinet.width} onChange={(v) => updateCabinet("width", v)} min={50} max={400} />
+                    <NumberInput id="cabW" label="Breedte" value={cabinet.width} onChange={(v) => updateCabinet("width", v)} min={50} max={400} disabled={isHalmeubel} />
                     <NumberInput id="cabH" label="Hoogte" value={cabinet.height} onChange={(v) => updateCabinet("height", v)} min={50} max={500} />
-                    <NumberInput id="cabD" label="Diepte" value={cabinet.depth} onChange={(v) => updateCabinet("depth", v)} min={10} max={100} />
+                    <NumberInput
+                      id="cabD"
+                      label="Diepte"
+                      value={cabinet.depth}
+                      onChange={(v) => updateCabinet("depth", isHalmeubel ? Math.min(v, lowerCab.depth) : v)}
+                      min={10}
+                      max={isHalmeubel ? Math.min(100, lowerCab.depth) : 100}
+                    />
                   </div>
+                  {isHalmeubel && (
+                    <p className="mt-3 text-[10px] text-muted-foreground italic leading-relaxed">
+                      Breedte wordt bepaald door het onderkastje. Diepte mag niet groter zijn dan de diepte van het onderkastje.
+                    </p>
+                  )}
                 </AccordionContent>
               </AccordionItem>
 
               {/* Boog Afmetingen */}
               <AccordionItem value="boog-afmetingen" className="border-b border-border">
                 <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
-                  Boog Afmetingen
+                  {isHalmeubel ? "Boog (bovenkast)" : "Boog Afmetingen"}
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-6">
                   <div className="space-y-5">
@@ -1278,9 +1478,22 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                       />
                     )}
                     <div className="grid grid-cols-2 gap-4">
-                      <NumberInput id="archW" label="Breedte" value={arch.width} onChange={(v) => updateArchDim("width", v)} min={10} max={Math.max(10, cabinet.width - 10)} />
+                      <NumberInput
+                        id="archW"
+                        label="Breedte"
+                        value={arch.width}
+                        onChange={(v) => updateArchDim("width", v)}
+                        min={10}
+                        max={Math.max(10, cabinet.width - 10)}
+                        disabled={isHalmeubel}
+                      />
                       <NumberInput id="archH" label="Hoogte" value={arch.height} onChange={(v) => updateArchDim("height", v)} min={10} max={Math.max(10, cabinet.height - 5)} />
                     </div>
+                    {isHalmeubel && (
+                      <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                        De boogkast neemt automatisch de breedte van het onderkastje over.
+                      </p>
+                    )}
                     <div className="grid grid-cols-[1fr_auto_1fr] gap-3 py-2 items-end">
                       <NumberInput
                         id="archX"
@@ -1338,6 +1551,249 @@ const PlateConfigurator = ({ initialCabinet, initialArch, onBack }: PlateConfigu
                   </div>
                 </AccordionContent>
               </AccordionItem>
+
+              {/* Onderkastje (alleen halmeubel) */}
+              {isHalmeubel && (
+                <AccordionItem value="onderkastje" className="border-b border-border">
+                  <AccordionTrigger className="font-serif-display text-xl text-foreground hover:no-underline py-5">
+                    Onderkastje
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6 space-y-6">
+                    {/* Afmetingen */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <NumberInput
+                        id="lowerW"
+                        label="Breedte"
+                        value={lowerCab.width}
+                        onChange={(v) => setLowerCab((p) => ({ ...p, width: v }))}
+                        min={50}
+                        max={300}
+                      />
+                      <NumberInput
+                        id="lowerH"
+                        label="Hoogte"
+                        value={lowerCab.height}
+                        onChange={(v) => setLowerCab((p) => ({ ...p, height: v }))}
+                        min={30}
+                        max={150}
+                      />
+                      <NumberInput
+                        id="lowerD"
+                        label="Diepte"
+                        value={lowerCab.depth}
+                        onChange={(v) => setLowerCab((p) => ({ ...p, depth: Math.max(cabinet.depth, v) }))}
+                        min={Math.max(20, cabinet.depth)}
+                        max={100}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                      Plint is altijd 100 mm hoog en 50 mm teruggezet — niet aanpasbaar.
+                    </p>
+
+                    {/* Aantal deuren */}
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Aantal deuren</Label>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors"
+                          onClick={() => setDoors((d) => defaultDoors(Math.max(1, d.length - 1)))}
+                          disabled={doors.length <= 1}
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </Button>
+                        <span className="text-sm font-light w-24 text-center text-foreground tabular-nums">
+                          {doors.length} {doors.length === 1 ? "deur" : "deuren"}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-9 w-9 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors"
+                          onClick={() => setDoors((d) => defaultDoors(Math.min(maxDoorCount(lowerCab.width), d.length + 1)))}
+                          disabled={doors.length >= maxDoorCount(lowerCab.width)}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                      {(() => {
+                        const usable = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
+                        const dw = (usable / doors.length) * 10;
+                        const tooWide = dw > MAX_DOOR_WIDTH * 10;
+                        return (
+                          <p className={`text-[10px] leading-relaxed ${tooWide ? "text-destructive" : "text-muted-foreground"}`}>
+                            Deurbreedte: {Math.round(dw)} mm · max {MAX_DOOR_WIDTH * 10} mm per deur.
+                          </p>
+                        );
+                      })()}
+                      <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                        Deuren worden altijd in matwit MDF geleverd — je schildert ze zelf in de gewenste kleur.
+                      </p>
+                    </div>
+
+                    {/* Bovenaanzicht */}
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Bovenaanzicht — klik op een deur om de draairichting te wisselen</Label>
+                      {(() => {
+                        const padX = 6;
+                        const padY = 6;
+                        const innerW = 360;
+                        const innerH = 100;
+                        const totalCm = lowerCab.width;
+                        const px = (cm: number) => padX + (cm / totalCm) * innerW;
+                        const usableWidthCm = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
+                        const doorWcm = usableWidthCm / doors.length;
+                        const arcR = Math.min(innerH - 16, (innerW / totalCm) * doorWcm);
+                        let cursorCm = 0;
+                        type Seg = { kind: "door"; xCm: number; wCm: number; dir: DoorDir; idx: number } | { kind: "div"; xCm: number };
+                        const segs: Seg[] = [];
+                        compartments.forEach((comp, ci) => {
+                          comp.forEach((di) => {
+                            segs.push({ kind: "door", xCm: cursorCm, wCm: doorWcm, dir: doors[di], idx: di });
+                            cursorCm += doorWcm;
+                          });
+                          if (ci < compartments.length - 1) {
+                            segs.push({ kind: "div", xCm: cursorCm });
+                            cursorCm += DIVIDER_THICKNESS;
+                          }
+                        });
+                        const yFront = padY + 14;
+                        return (
+                          <svg viewBox={`0 0 ${innerW + padX * 2} ${innerH + padY * 2}`} className="w-full h-auto border border-border bg-secondary/30 rounded-sm">
+                            {/* Cabinet rechthoek (top view) */}
+                            <rect
+                              x={padX}
+                              y={yFront}
+                              width={innerW}
+                              height={Math.min(28, innerH * 0.3)}
+                              fill="hsl(var(--card))"
+                              stroke="hsl(var(--foreground))"
+                              strokeWidth={1}
+                            />
+                            {/* Dividers + deuren */}
+                            {segs.map((s, i) => {
+                              if (s.kind === "div") {
+                                return (
+                                  <rect
+                                    key={`tv-div-${i}`}
+                                    x={px(s.xCm)}
+                                    y={yFront}
+                                    width={Math.max(1.5, (DIVIDER_THICKNESS / totalCm) * innerW)}
+                                    height={Math.min(28, innerH * 0.3)}
+                                    fill="hsl(var(--foreground))"
+                                    opacity={0.85}
+                                  />
+                                );
+                              }
+                              const x1 = px(s.xCm);
+                              const x2 = px(s.xCm + s.wCm);
+                              const w = x2 - x1;
+                              const yLine = yFront + Math.min(28, innerH * 0.3);
+                              const arcEndY = yLine + w;
+                              // Hinge L: hinge at x1, swing arc to (x1, yLine+w). Sweep flag 1 to bulge right.
+                              const arcPath =
+                                s.dir === "L"
+                                  ? `M ${x2} ${yLine} A ${w} ${w} 0 0 1 ${x1} ${arcEndY}`
+                                  : `M ${x1} ${yLine} A ${w} ${w} 0 0 0 ${x2} ${arcEndY}`;
+                              return (
+                                <g
+                                  key={`tv-door-${i}`}
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    setDoors((arr) => {
+                                      const next = arr.slice();
+                                      next[s.idx] = next[s.idx] === "L" ? "R" : "L";
+                                      return next;
+                                    })
+                                  }
+                                >
+                                  {/* Front face van de deur */}
+                                  <line x1={x1} y1={yLine} x2={x2} y2={yLine} stroke="hsl(var(--foreground))" strokeWidth={2.5} />
+                                  {/* Hinge dot */}
+                                  <circle cx={s.dir === "L" ? x1 : x2} cy={yLine} r={2.5} fill="hsl(var(--copper))" />
+                                  {/* Swing arc */}
+                                  <path d={arcPath} fill="none" stroke="hsl(var(--copper))" strokeWidth={1.2} strokeDasharray="3 2" opacity={0.7} />
+                                  {/* Click target */}
+                                  <rect x={x1} y={yLine - 6} width={Math.max(8, w)} height={Math.max(20, w + 6)} fill="transparent" />
+                                </g>
+                              );
+                            })}
+                          </svg>
+                        );
+                      })()}
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Stippellijn = openingsrichting · Koperen stip = scharnierzijde. Twee deuren naar elkaar toe vormen één kastje; twee deuren dezelfde kant op = twee kastjes met tussendeler.
+                      </p>
+                    </div>
+
+                    {/* Per-kastje legplanken */}
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Indeling per kastje</Label>
+                      <div className="space-y-2">
+                        {compartments.map((_, ci) => (
+                          <div key={ci} className="flex items-center justify-between gap-3 py-1.5 border-b border-border/50 last:border-b-0">
+                            <span className="text-[12px] font-light text-foreground tracking-wide">Kastje {ci + 1}</span>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors"
+                                onClick={() =>
+                                  setCompartmentShelves((arr) => arr.map((v, i) => (i === ci ? Math.max(0, v - 1) : v)))
+                                }
+                                disabled={(compartmentShelves[ci] ?? 0) <= 0}
+                              >
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              <span className="text-[12px] font-light w-20 text-center text-foreground tabular-nums">
+                                {(compartmentShelves[ci] ?? 0) === 0 ? "Geen" : `${compartmentShelves[ci]} plank${compartmentShelves[ci] > 1 ? "en" : ""}`}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-border bg-transparent text-foreground hover:bg-secondary hover:text-copper hover:border-copper transition-colors"
+                                onClick={() =>
+                                  setCompartmentShelves((arr) => arr.map((v, i) => (i === ci ? v + 1 : v)))
+                                }
+                              >
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Interieur kleur onderkastje */}
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Binnenkleur onderkastje</Label>
+                      <div className="flex items-center gap-2">
+                        {[
+                          { id: 0, name: "Wit", hex: "#F5F2EE", border: "#C9C3B6" },
+                          { id: 1, name: "Zwart", hex: "#1C1C1A", border: "#000000" },
+                        ].map((c) => {
+                          const active = lowerInteriorIdx === c.id;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() => setLowerInteriorIdx(c.id)}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-sm border transition-colors text-[11px] font-light tracking-wide ${active ? "border-copper text-copper bg-secondary" : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"}`}
+                            >
+                              <span className="w-3.5 h-3.5 rounded-full" style={{ background: c.hex, border: `0.5px solid ${c.border}` }} />
+                              {c.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                        Het onderkastje wordt altijd in matwit MDF geleverd. De binnenkant schilder je zelf.
+                      </p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
               {/* Plaatsing */}
               <AccordionItem value="plaatsing" className="border-b border-border">

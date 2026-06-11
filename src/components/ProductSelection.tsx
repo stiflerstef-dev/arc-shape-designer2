@@ -85,7 +85,7 @@ const ProductSelection = ({ onSelect }: Props) => {
   const [comingSoon, setComingSoon] = useState<ProductId | null>(null);
 
   const handle = (id: ProductId) => {
-    if (id === "halmeubel" || id === "combi") {
+    if (id === "combi") {
       setComingSoon(id);
     } else {
       onSelect(id);

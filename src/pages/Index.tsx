@@ -13,10 +13,15 @@ const PRESETS = {
     // A = 20 cm, B = 20 cm, C = 50 cm, D = 0 cm (boog 80×200)
     arch: { width: 80, height: 200, position: { x: 20, y: 50 } },
   },
+  halmeubel: {
+    // Boogkast bovenop onderkastje. Boog = 120 × 150 × 40, onderkast = 120 × 80 × 50, plint = 10.
+    cabinet: { width: 120, height: 150, depth: 40 },
+    arch: { width: 80, height: 110, position: { x: 20, y: 20 } },
+  },
 } as const;
 
 const Index = () => {
-  const [selected, setSelected] = useState<"small" | "large" | null>(null);
+  const [selected, setSelected] = useState<"small" | "large" | "halmeubel" | null>(null);
 
   if (selected) {
     const preset = PRESETS[selected];
@@ -24,6 +29,7 @@ const Index = () => {
       <PlateConfigurator
         initialCabinet={preset.cabinet}
         initialArch={preset.arch ? { ...preset.arch, position: { ...preset.arch.position } } : undefined}
+        mode={selected === "halmeubel" ? "halmeubel" : "boogkast"}
         onBack={() => setSelected(null)}
       />
     );
@@ -32,7 +38,7 @@ const Index = () => {
   return (
     <ProductSelection
       onSelect={(id: ProductId) => {
-        if (id === "small" || id === "large") setSelected(id);
+        if (id === "small" || id === "large" || id === "halmeubel") setSelected(id);
       }}
     />
   );
