@@ -1286,14 +1286,14 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                       <rect x={xL} y={yTop} width={W} height={lowerCab.height * scale} fill={lowerFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
                       {/* Bovenkant horizontale lijn (scheiding boog ↔ onderkast) */}
                       <line x1={xL} y1={yTop} x2={xR} y2={yTop} stroke={COL.frontStroke} strokeWidth={1.5} />
-                      {/* Deuren */}
+                      {/* Deuren — flush, geen tussenruimte (alleen dividers tussen compartimenten) */}
                       {doorRects.map((d) => {
                         const x = xL + d.x * scale;
                         const w = d.w * scale;
                         return (
                           <g key={`door-${d.idx}`}>
-                            <rect x={x + 1} y={yTop + 1} width={Math.max(0, w - 2)} height={Math.max(0, lowerCab.height * scale - 2)} fill={doorCol} stroke={doorStroke} strokeWidth={1.2} />
-                            <rect x={x + 1} y={yTop + 1} width={Math.max(0, w - 2)} height={Math.max(0, lowerCab.height * scale - 2)} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                            <rect x={x} y={yTop} width={Math.max(0, w)} height={Math.max(0, lowerCab.height * scale)} fill={doorCol} stroke={doorStroke} strokeWidth={1.2} />
+                            <rect x={x} y={yTop} width={Math.max(0, w)} height={Math.max(0, lowerCab.height * scale)} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
                             {/* Greepje (klein streepje aan scharnierkant — tegenovergesteld aan draairichting) */}
                             {(() => {
                               const handleY = yTop + lowerCab.height * scale * 0.5;
@@ -1311,18 +1311,49 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                           <rect key={`div-${di}`} x={x} y={yTop} width={Math.max(0.6, w)} height={lowerCab.height * scale} fill={shade(COL.front, -20)} stroke={COL.frontStroke} strokeWidth={0.5} />
                         );
                       })}
-                      {/* Plint — teruggezet 50mm, hoogte 100mm */}
-                      <rect
-                        x={xL + PLINTH_SETBACK * scale}
-                        y={yBot}
-                        width={Math.max(0, W - 2 * PLINTH_SETBACK * scale)}
-                        height={PLINTH_HEIGHT * scale}
-                        fill={shade(COL.front, -35)}
-                        stroke={COL.frontStroke}
-                        strokeWidth={1.2}
-                      />
-                      {/* Schaduw onder onderkast op plint */}
-                      <rect x={xL + PLINTH_SETBACK * scale} y={yBot} width={Math.max(0, W - 2 * PLINTH_SETBACK * scale)} height={3} fill="#000" opacity={0.25} />
+                      {/* Plint — teruggezet 50mm op alle zijden (links, rechts én diepte) — als verzonken sokkel weergegeven */}
+                      {(() => {
+                        const psx = PLINTH_SETBACK * scale;
+                        const pdx = dxS * 0.7; // gereduceerde diepte-perspectief voor verzonken sokkel
+                        const pdy = dyS * 0.7;
+                        const xPL = xL + psx;
+                        const xPR = xR - psx;
+                        const yPT = yBot;
+                        const yPB = yBot + PLINTH_HEIGHT * scale;
+                        const plinthFill = shade(COL.front, -35);
+                        const plinthSideFill = shade(COL.front, -50);
+                        const plinthTopFill = shade(COL.front, -25);
+                        return (
+                          <g>
+                            {/* Schaduw onder kastbodem (suggereert verzonken sokkel) */}
+                            <rect x={xL} y={yBot - 2} width={W} height={3} fill="#000" opacity={0.35} />
+                            {/* Top van plint (perspectief — toont dat plint smaller is in diepte) */}
+                            <polygon
+                              points={`${xPL},${yPT} ${xPL + pdx},${yPT - pdy} ${xPR + pdx},${yPT - pdy} ${xPR},${yPT}`}
+                              fill={plinthTopFill}
+                              stroke={COL.frontStroke}
+                              strokeWidth={1}
+                            />
+                            {/* Zijkant van plint (perspectief rechts) */}
+                            <polygon
+                              points={`${xPR},${yPT} ${xPR + pdx},${yPT - pdy} ${xPR + pdx},${yPB - pdy} ${xPR},${yPB}`}
+                              fill={plinthSideFill}
+                              stroke={COL.frontStroke}
+                              strokeWidth={1}
+                            />
+                            {/* Voorvlak van plint */}
+                            <rect
+                              x={xPL}
+                              y={yPT}
+                              width={Math.max(0, xPR - xPL)}
+                              height={PLINTH_HEIGHT * scale}
+                              fill={plinthFill}
+                              stroke={COL.frontStroke}
+                              strokeWidth={1.2}
+                            />
+                          </g>
+                        );
+                      })()}
                     </g>
                   );
                 })()}
@@ -1635,10 +1666,10 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                     <div className="space-y-2">
                       <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Bovenaanzicht — klik op een deur om de draairichting te wisselen</Label>
                       {(() => {
-                        const padX = 6;
-                        const padY = 6;
-                        const innerW = 360;
-                        const innerH = 100;
+                        const padX = 32;
+                        const padY = 22;
+                        const innerW = 300;
+                        const innerH = 110;
                         const totalCm = lowerCab.width;
                         const px = (cm: number) => padX + (cm / totalCm) * innerW;
                         const usableWidthCm = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
