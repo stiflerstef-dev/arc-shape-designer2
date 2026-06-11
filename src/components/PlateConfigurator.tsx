@@ -1220,21 +1220,18 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                   </g>
                 </g>
 
-                {/* === Pseudo-3D: Side panel === */}
-                <polygon
-                  points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5}
-                />
-                {/* Painted texture on side panel */}
-                <polygon
-                  points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill="url(#paintStipple)" opacity={0.4} stroke="none"
-                />
-                {/* Right side darker (away from light source) */}
-                <polygon
-                  points={`${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + cabinet.height * scale} ${padding + cabinet.width * scale},${padding + cabinet.height * scale + dyS}`}
-                  fill="#000000" opacity={0.12} stroke="none"
-                />
+                {/* === Pseudo-3D: Side panel (strekt door over onderkastje in halmeubel mode) === */}
+                {(() => {
+                  const sideBottomCm = isHalmeubel ? cabinet.height + lowerCab.height : cabinet.height;
+                  const pts = `${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + sideBottomCm * scale} ${padding + cabinet.width * scale},${padding + sideBottomCm * scale + dyS}`;
+                  return (
+                    <>
+                      <polygon points={pts} fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      <polygon points={pts} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                      <polygon points={pts} fill="#000000" opacity={0.12} stroke="none" />
+                    </>
+                  );
+                })()}
 
                 {/* === Pseudo-3D: Top panel === */}
                 <polygon
@@ -1251,6 +1248,82 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                   points={`${padding},${padding + dyS} ${padding + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale},${padding + dyS}`}
                   fill="#FFFFFF" opacity={0.18} stroke="none"
                 />
+
+                {/* === Halmeubel: onderkastje, deuren, tussendelers en plint === */}
+                {isHalmeubel && (() => {
+                  const yTop = padding + dyS + cabinet.height * scale;   // bovenkant onderkast = onderkant boog
+                  const yBot = yTop + lowerCab.height * scale;            // onderkant kastdeel (boven plint)
+                  const yPlinth = yBot + PLINTH_HEIGHT * scale;
+                  const xL = padding;
+                  const xR = padding + cabinet.width * scale;
+                  const W = cabinet.width * scale;
+                  const lowerFrontCol = lowerInteriorIdx !== null ? NICHE_COLORS[lowerInteriorIdx].hex : COL.front;
+                  // Deuren altijd matwit MDF
+                  const doorCol = COL.front;
+                  const doorStroke = COL.frontStroke;
+                  // Bepaal door layout in cm met dividers
+                  const dividers: number[] = []; // cm-posities (links-kant van divider)
+                  // Bouw door & divider rechthoeken: positie in cm vanaf links
+                  let cursorCm = 0;
+                  const doorRects: { x: number; w: number; dir: DoorDir; idx: number }[] = [];
+                  const usableWidthCm = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
+                  const doorWcm = Math.max(0.1, usableWidthCm / Math.max(1, doors.length));
+                  compartments.forEach((comp, ci) => {
+                    comp.forEach((doorIdx) => {
+                      doorRects.push({ x: cursorCm, w: doorWcm, dir: doors[doorIdx], idx: doorIdx });
+                      cursorCm += doorWcm;
+                    });
+                    if (ci < compartments.length - 1) {
+                      dividers.push(cursorCm);
+                      cursorCm += DIVIDER_THICKNESS;
+                    }
+                  });
+                  return (
+                    <g>
+                      {/* Body achtergrond (zij/top via bestaande panels, hier alleen front) */}
+                      <rect x={xL} y={yTop} width={W} height={lowerCab.height * scale} fill={lowerFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      {/* Bovenkant horizontale lijn (scheiding boog ↔ onderkast) */}
+                      <line x1={xL} y1={yTop} x2={xR} y2={yTop} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      {/* Deuren */}
+                      {doorRects.map((d) => {
+                        const x = xL + d.x * scale;
+                        const w = d.w * scale;
+                        return (
+                          <g key={`door-${d.idx}`}>
+                            <rect x={x + 1} y={yTop + 1} width={Math.max(0, w - 2)} height={Math.max(0, lowerCab.height * scale - 2)} fill={doorCol} stroke={doorStroke} strokeWidth={1.2} />
+                            <rect x={x + 1} y={yTop + 1} width={Math.max(0, w - 2)} height={Math.max(0, lowerCab.height * scale - 2)} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                            {/* Greepje (klein streepje aan scharnierkant — tegenovergesteld aan draairichting) */}
+                            {(() => {
+                              const handleY = yTop + lowerCab.height * scale * 0.5;
+                              const handleX = d.dir === "L" ? x + w - 6 : x + 6;
+                              return <circle cx={handleX} cy={handleY} r={1.6} fill={COL.frontStroke} />;
+                            })()}
+                          </g>
+                        );
+                      })}
+                      {/* Tussendelers */}
+                      {dividers.map((dxCm, di) => {
+                        const x = xL + dxCm * scale;
+                        const w = DIVIDER_THICKNESS * scale;
+                        return (
+                          <rect key={`div-${di}`} x={x} y={yTop} width={Math.max(0.6, w)} height={lowerCab.height * scale} fill={shade(COL.front, -20)} stroke={COL.frontStroke} strokeWidth={0.5} />
+                        );
+                      })}
+                      {/* Plint — teruggezet 50mm, hoogte 100mm */}
+                      <rect
+                        x={xL + PLINTH_SETBACK * scale}
+                        y={yBot}
+                        width={Math.max(0, W - 2 * PLINTH_SETBACK * scale)}
+                        height={PLINTH_HEIGHT * scale}
+                        fill={shade(COL.front, -35)}
+                        stroke={COL.frontStroke}
+                        strokeWidth={1.2}
+                      />
+                      {/* Schaduw onder onderkast op plint */}
+                      <rect x={xL + PLINTH_SETBACK * scale} y={yBot} width={Math.max(0, W - 2 * PLINTH_SETBACK * scale)} height={3} fill="#000" opacity={0.25} />
+                    </g>
+                  );
+                })()}
 
                 {/* === Dimension lines === */}
                 {showDimensions && (
