@@ -1318,12 +1318,15 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                         const xPR = xR - psx;
                         const yPT = yBot;
                         const plinthH = PLINTH_HEIGHT * scale;
+                        const plinthDepthRatio = Math.max(0, (lowerCab.depth - 2 * PLINTH_SETBACK)) / Math.max(1, lowerCab.depth);
+                        const pdx = dxS * plinthDepthRatio;
+                        const pdy = dyS * plinthDepthRatio;
+                        const sideShadow = shade(COL.side, -45);
                         return (
                           <g>
-                            {/* Donker schaduwvlak over de volledige plintzone (suggereert terugliggende holte) */}
-                            <rect x={xL} y={yPT} width={W} height={plinthH} fill="#000" opacity={0.32} />
-                            {/* Smal terugliggend "vloer"-stukje direct onder de kastbodem (zichtbaar omdat plint 50mm naar achter staat) */}
-                            <rect x={xL} y={yPT} width={W} height={Math.min(3, plinthH * 0.18)} fill="#000" opacity={0.45} />
+                            {/* Recessed strookjes links/rechts van plint (donker, warm — suggereert teruggezette zijkant) */}
+                            <rect x={xL} y={yPT} width={Math.max(0, psx)} height={plinthH} fill={sideShadow} />
+                            <rect x={xPR} y={yPT} width={Math.max(0, psx)} height={plinthH} fill={sideShadow} />
                             {/* Plint zelf — gecentreerd, smaller dan de kast aan beide zijden */}
                             <rect
                               x={xPL}
@@ -1343,8 +1346,22 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                               opacity={0.35}
                               stroke="none"
                             />
-                            {/* Subtiele schaduw aan de bovenkant van de plint (kast hangt eroverheen) */}
-                            <rect x={xPL} y={yPT} width={Math.max(0, xPR - xPL)} height={2} fill="#000" opacity={0.35} />
+                            {/* Perspectief-bovenvlak: smal trapezium dat de bovenrand van de plint in de diepte trekt */}
+                            <polygon
+                              points={`${xPL},${yPT} ${xPL + pdx},${yPT - pdy} ${xPR + pdx},${yPT - pdy} ${xPR},${yPT}`}
+                              fill={COL.top}
+                              stroke={COL.frontStroke}
+                              strokeWidth={0.8}
+                            />
+                            {/* Perspectief-rechterzijvlak: laat plint subtiel doorlopen in de diepte */}
+                            <polygon
+                              points={`${xPR},${yPT} ${xPR + pdx},${yPT - pdy} ${xPR + pdx},${yPT + plinthH - pdy} ${xPR},${yPT + plinthH}`}
+                              fill={shade(COL.side, -15)}
+                              stroke={COL.frontStroke}
+                              strokeWidth={0.8}
+                            />
+                            {/* Subtiele schaduw aan de bovenkant van de plint-front (kast hangt eroverheen) */}
+                            <rect x={xPL} y={yPT} width={Math.max(0, xPR - xPL)} height={1.5} fill="#000" opacity={0.3} />
                           </g>
                         );
                       })()}
