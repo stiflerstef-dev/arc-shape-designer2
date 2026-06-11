@@ -483,6 +483,13 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
   const [finishRight, setFinishRight] = useState(false);
   const [hasBack, setHasBack] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+
+  /* ─── Halmeubel onderkastje state ─── */
+  const [lowerCab, setLowerCab] = useState<Dims>({ width: 120, height: 80, depth: 50 });
+  const [doors, setDoors] = useState<DoorDir[]>(() => defaultDoors(2));
+  const [compartmentShelves, setCompartmentShelves] = useState<number[]>([0]);
+  const [lowerInteriorIdx, setLowerInteriorIdx] = useState<number>(0);
+
   const svgRef = useRef<SVGSVGElement>(null);
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
   const dragFrameRef = useRef<number | null>(null);
