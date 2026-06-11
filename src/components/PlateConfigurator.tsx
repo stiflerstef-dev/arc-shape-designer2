@@ -1669,10 +1669,15 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                     <div className="space-y-2">
                       <Label className="text-[10px] font-medium tracking-[0.18em] uppercase text-muted-foreground">Bovenaanzicht — klik op een deur om de draairichting te wisselen</Label>
                       {(() => {
-                        const padX = 32;
-                        const padY = 22;
-                        const innerW = 300;
-                        const innerH = 110;
+                         const padX = 56;
+                         const padY = 40;
+                         const innerW = 260;
+                         // Inner-height moet groot genoeg zijn voor de swing-arc (= deurbreedte op schaal).
+                         const totalCmGuess = lowerCab.width;
+                         const usableGuess = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
+                         const doorWGuess = usableGuess / Math.max(1, doors.length);
+                         const arcRGuess = (innerW / totalCmGuess) * doorWGuess;
+                         const innerH = Math.max(150, arcRGuess + 56);
                         const totalCm = lowerCab.width;
                         const px = (cm: number) => padX + (cm / totalCm) * innerW;
                         const usableWidthCm = lowerCab.width - dividerCount * DIVIDER_THICKNESS;
