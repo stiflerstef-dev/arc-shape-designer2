@@ -1290,15 +1290,35 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                       {doorRects.map((d) => {
                         const x = xL + d.x * scale;
                         const w = d.w * scale;
+                        // Opdek deuren: 18mm dik, liggen vóór de kast/boog. Overlay top zodat ze
+                        // visueel iets over de onderrand van de boog vallen, en met een fijne
+                        // schaduw + lichtrand om de 18mm dikte te suggereren.
+                        const OVERLAY_MM = 18; // 1.8cm overlay bovenlangs
+                        const THICK_MM = 18;   // 1.8cm dikte (zichtbaar als schaduwlip)
+                        const ovl = (OVERLAY_MM / 10) * scale;
+                        const thk = (THICK_MM / 10) * scale;
+                        const GAP_MM = 3; // smalle schaduwspleet tussen deuren
+                        const gap = (GAP_MM / 10) * scale;
+                        const dyTop = yTop - ovl;
+                        const dh = lowerCab.height * scale + ovl;
+                        const dx0 = x + gap / 2;
+                        const dw = Math.max(0, w - gap);
                         return (
                           <g key={`door-${d.idx}`}>
-                            <rect x={x} y={yTop} width={Math.max(0, w)} height={Math.max(0, lowerCab.height * scale)} fill={doorCol} stroke={doorStroke} strokeWidth={1.2} />
-                            <rect x={x} y={yTop} width={Math.max(0, w)} height={Math.max(0, lowerCab.height * scale)} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                            {/* Slagschaduw onder de opdek deur (komt 18mm voor de kast) */}
+                            <rect x={dx0 + 1.5} y={dyTop + 1.5} width={dw} height={dh} fill="#000" opacity={0.18} />
+                            {/* Deurpaneel */}
+                            <rect x={dx0} y={dyTop} width={dw} height={dh} fill={doorCol} stroke={doorStroke} strokeWidth={1.4} />
+                            <rect x={dx0} y={dyTop} width={dw} height={dh} fill="url(#paintStipple)" opacity={0.45} stroke="none" />
+                            {/* Onderkant lip — toont 18mm dikte van het opdek deurtje */}
+                            <rect x={dx0} y={dyTop + dh - thk * 0.35} width={dw} height={Math.max(0.6, thk * 0.35)} fill={shade(doorCol, -10)} opacity={0.55} stroke="none" />
+                            {/* Subtiele lichtval bovenrand (kanthoogteglooi) */}
+                            <rect x={dx0} y={dyTop} width={dw} height={Math.max(0.6, thk * 0.2)} fill="#FFFFFF" opacity={0.22} stroke="none" />
                             {/* Greepje (klein streepje aan scharnierkant — tegenovergesteld aan draairichting) */}
                             {(() => {
-                              const handleY = yTop + lowerCab.height * scale * 0.5;
-                              const handleX = d.dir === "L" ? x + w - 6 : x + 6;
-                              return <circle cx={handleX} cy={handleY} r={1.6} fill={COL.frontStroke} />;
+                              const handleY = dyTop + dh * 0.5;
+                              const handleX = d.dir === "L" ? dx0 + dw - 7 : dx0 + 7;
+                              return <circle cx={handleX} cy={handleY} r={2} fill={COL.frontStroke} />;
                             })()}
                           </g>
                         );
