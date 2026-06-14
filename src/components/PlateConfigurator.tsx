@@ -1220,15 +1220,44 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                   </g>
                 </g>
 
-                {/* === Pseudo-3D: Side panel (strekt door over onderkastje in halmeubel mode, stopt boven plint) === */}
+                {/* === Pseudo-3D: Side panel (split bij verschil in diepte tussen boog en onderkast) === */}
                 {(() => {
-                  const sideBottomCm = isHalmeubel ? cabinet.height + lowerCab.height : cabinet.height;
-                  const pts = `${padding + cabinet.width * scale},${padding + dyS} ${padding + cabinet.width * scale + dxS},${padding} ${padding + cabinet.width * scale + dxS},${padding + sideBottomCm * scale} ${padding + cabinet.width * scale},${padding + sideBottomCm * scale + dyS}`;
+                  const archBottomY = padding + dyS + cabinet.height * scale;
+                  const xRf = padding + cabinet.width * scale;
+                  // Arch right-side parallelogram (front-aligned, depth = cabinet.depth)
+                  const archPts = `${xRf},${padding + dyS} ${xRf + dxS},${padding} ${xRf + dxS},${archBottomY - dyS} ${xRf},${archBottomY}`;
+                  if (!isHalmeubel) {
+                    return (
+                      <>
+                        <polygon points={archPts} fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
+                        <polygon points={archPts} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                        <polygon points={archPts} fill="#000000" opacity={0.12} stroke="none" />
+                      </>
+                    );
+                  }
+                  // Halmeubel: lower may be deeper. Back is shared at z=cabinet.depth, front of lower
+                  // protrudes forward by Δd. Project that protrusion via the per-cm depth rate.
+                  const dDelta = Math.max(0, lowerCab.depth - cabinet.depth);
+                  const perCmX = cabinet.depth > 0 ? dxS / cabinet.depth : 0;
+                  const perCmY = cabinet.depth > 0 ? dyS / cabinet.depth : 0;
+                  const exDx = dDelta * perCmX;
+                  const exDy = dDelta * perCmY;
+                  const yBotF = archBottomY + lowerCab.height * scale; // lower front-bottom y (geen extraDy hier; toegevoegd onder)
+                  // Lower right-side parallelogram: back-aligned met arch, front protrudes naar voren (down-left)
+                  const lowerPts = [
+                    `${xRf - exDx},${archBottomY + exDy}`,
+                    `${xRf + dxS},${archBottomY - dyS}`,
+                    `${xRf + dxS},${archBottomY - dyS + lowerCab.height * scale}`,
+                    `${xRf - exDx},${archBottomY + exDy + lowerCab.height * scale}`,
+                  ].join(" ");
                   return (
                     <>
-                      <polygon points={pts} fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
-                      <polygon points={pts} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
-                      <polygon points={pts} fill="#000000" opacity={0.12} stroke="none" />
+                      <polygon points={archPts} fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      <polygon points={archPts} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                      <polygon points={archPts} fill="#000000" opacity={0.12} stroke="none" />
+                      <polygon points={lowerPts} fill={cabFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      <polygon points={lowerPts} fill="url(#paintStipple)" opacity={0.4} stroke="none" />
+                      <polygon points={lowerPts} fill="#000000" opacity={0.12} stroke="none" />
                     </>
                   );
                 })()}
