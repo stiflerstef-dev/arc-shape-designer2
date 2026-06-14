@@ -1281,10 +1281,19 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                 {/* === Halmeubel: onderkastje, deuren, tussendelers en plint === */}
                 {isHalmeubel && (() => {
                   const yTop = padding + dyS + cabinet.height * scale;   // bovenkant onderkast = onderkant boog
-                  const yBot = yTop + lowerCab.height * scale;            // onderkant kastdeel (boven plint)
+                  // Onderkast mag dieper zijn dan de boog. Achterkant blijft uitgelijnd met de boog,
+                  // het onderkastje steekt aan de voorkant naar voren. In 2D verschuift de onderkast-front
+                  // down-left met (exDx, exDy) per Δd cm.
+                  const dDelta = Math.max(0, lowerCab.depth - cabinet.depth);
+                  const perCmX = cabinet.depth > 0 ? dxS / cabinet.depth : 0;
+                  const perCmY = cabinet.depth > 0 ? dyS / cabinet.depth : 0;
+                  const exDx = dDelta * perCmX;
+                  const exDy = dDelta * perCmY;
+                  const yTopL = yTop + exDy;                              // onderkast front-top y
+                  const yBot = yTopL + lowerCab.height * scale;           // onderkast front-bottom y (boven plint)
                   const yPlinth = yBot + PLINTH_HEIGHT * scale;
-                  const xL = padding;
-                  const xR = padding + cabinet.width * scale;
+                  const xL = padding - exDx;
+                  const xR = padding + cabinet.width * scale - exDx;
                   const W = cabinet.width * scale;
                   // Onderkast body = matwit MDF (interieurkleur zit achter de deuren, niet zichtbaar in vooraanzicht)
                   const lowerFrontCol = cabFrontCol;
@@ -1311,10 +1320,23 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                   });
                   return (
                     <g>
+                      {/* Top-richel: zichtbare bovenkant van het onderkastje dat verder naar voren steekt dan de boog */}
+                      {dDelta > 0 && (() => {
+                        const archFL = padding;                              // arch front-bottom-left
+                        const archFR = padding + cabinet.width * scale;      // arch front-bottom-right
+                        const ledgePts = `${xL},${yTopL} ${xR},${yTopL} ${archFR},${yTop} ${archFL},${yTop}`;
+                        return (
+                          <>
+                            <polygon points={ledgePts} fill={shade(cabFrontCol, -10)} stroke={COL.frontStroke} strokeWidth={1.2} />
+                            <polygon points={ledgePts} fill="url(#paintStipple)" opacity={0.35} stroke="none" />
+                            <polygon points={ledgePts} fill="#000000" opacity={0.1} stroke="none" />
+                          </>
+                        );
+                      })()}
                       {/* Body achtergrond (zij/top via bestaande panels, hier alleen front) */}
-                      <rect x={xL} y={yTop} width={W} height={lowerCab.height * scale} fill={lowerFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
-                      {/* Bovenkant horizontale lijn (scheiding boog ↔ onderkast) */}
-                      <line x1={xL} y1={yTop} x2={xR} y2={yTop} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      <rect x={xL} y={yTopL} width={W} height={lowerCab.height * scale} fill={lowerFrontCol} stroke={COL.frontStroke} strokeWidth={1.5} />
+                      {/* Bovenkant horizontale lijn (voorkant onderkast) */}
+                      <line x1={xL} y1={yTopL} x2={xR} y2={yTopL} stroke={COL.frontStroke} strokeWidth={1.5} />
                       {/* Deuren — flush, geen tussenruimte (alleen dividers tussen compartimenten) */}
                       {doorRects.map((d) => {
                         const x = xL + d.x * scale;
@@ -1328,7 +1350,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                         const thk = (THICK_MM / 10) * scale;
                         const GAP_MM = 3; // smalle schaduwspleet tussen deuren
                         const gap = (GAP_MM / 10) * scale;
-                        const dyTop = yTop - ovl;
+                        const dyTop = yTopL - ovl;
                         const dh = lowerCab.height * scale + ovl;
                         const dx0 = x + gap / 2;
                         const dw = Math.max(0, w - gap);
@@ -1357,7 +1379,7 @@ const PlateConfigurator = ({ initialCabinet, initialArch, mode = "boogkast", onB
                         const x = xL + dxCm * scale;
                         const w = DIVIDER_THICKNESS * scale;
                         return (
-                          <rect key={`div-${di}`} x={x} y={yTop} width={Math.max(0.6, w)} height={lowerCab.height * scale} fill={shade(COL.front, -20)} stroke={COL.frontStroke} strokeWidth={0.5} />
+                          <rect key={`div-${di}`} x={x} y={yTopL} width={Math.max(0.6, w)} height={lowerCab.height * scale} fill={shade(COL.front, -20)} stroke={COL.frontStroke} strokeWidth={0.5} />
                         );
                       })}
                       {/* Plint — 50mm teruggezet aan voorkant en beide zijkanten, 100mm hoog, zelfde matwit MDF. */}
